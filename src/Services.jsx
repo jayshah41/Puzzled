@@ -1,5 +1,6 @@
 import React from 'react'
 import { FaDollarSign, FaChartLine, FaDatabase, FaFacebook, FaLinkedin, FaTwitter, FaPodcast } from "react-icons/fa";
+import Card from './Card';
 
 const Services = () => {
   return (
@@ -16,12 +17,9 @@ const Services = () => {
       </p>
 
       <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3 max-w-5xl mx-auto">
-        <h3>Commodity Pricing</h3>
-        <p>See the prices for each commodity on a daily basis including potential value of JORCS.</p>
-        <h3>Stock Performance</h3>
-        <p>See the performances on stocks by any period since 2018 including daily, weekly, monthly, and yearly.</p>
-        <h3>Data Services</h3>
-        <p>Contact us for other data services including project research and director research.</p>
+        <Card icon={FaDollarSign} title="Commodity Pricing" content="See the prices for each commodity on a daily basis including potential value of JORCS."/>
+        <Card icon={FaChartLine} title="Stock Performance" content="See the performances on stocks by any period since 2018 including daily, weekly, monthly, and yearly." />
+        <Card icon={FaDatabase} title="Data Services" content="Contact us for other data services including project research and director research." />
       </div>
 
       <div className="mt-12 flex justify-center space-x-6 text-2xl text-blue-600">
