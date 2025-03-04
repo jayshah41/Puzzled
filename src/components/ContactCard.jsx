@@ -4,7 +4,7 @@ import { FaFacebook, FaLinkedin, FaTwitter } from "react-icons/fa";
 
 const ContactCard = ({ image, name, role, phone, email, facebook, linkedin, twitter }) => {
   return (
-    <div className='two-card-container'>
+    <div style={{ width: '15vw', display:'flex', flexDirection: 'column' }}>
         <img src={image}></img>
         <h3>{name}</h3>
         <h3 style={{color: 'grey'}}>{role}</h3>
