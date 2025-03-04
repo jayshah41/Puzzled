@@ -1,5 +1,6 @@
 import React from 'react'
-import { FaFacebook, FaLinkedin, FaTwitter, FaPodcast } from "react-icons/fa";
+import { FaFacebook, FaLinkedin, FaTwitter } from "react-icons/fa";
+import './GeneralStyles.css';
 import ServicesCardContainer from './ServicesCardContainer';
 
 const Services = () => {
@@ -18,11 +19,10 @@ const Services = () => {
 
       <ServicesCardContainer />
 
-      <div className="mt-12 flex justify-center space-x-6 text-2xl text-blue-600">
+      <div className="three-card-container">
         <FaFacebook className="cursor-pointer hover:text-blue-800" />
         <FaLinkedin className="cursor-pointer hover:text-blue-800" />
         <FaTwitter className="cursor-pointer hover:text-blue-800" />
-        <FaPodcast className="cursor-pointer hover:text-blue-800" />
       </div>
     </div>
   );
