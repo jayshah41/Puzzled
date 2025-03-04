@@ -9,7 +9,7 @@ const ContactCard = ({ image, name, role, phone, email, facebook, linkedin, twit
         <h3>{name}</h3>
         <h3 style={{color: 'grey'}}>{role}</h3>
         {phone ? <h4>tel: {phone}</h4> : <></>}
-        <h4>email: {email}</h4>
+        {email ? <h4>email: {email}</h4> : <></>}
         <div className="three-card-container">
             <FaFacebook className="cursor-pointer hover:text-blue-800" />
             <FaLinkedin className="cursor-pointer hover:text-blue-800" />
