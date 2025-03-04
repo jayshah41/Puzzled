@@ -1,0 +1,54 @@
+<div class="flex w-full mt-20 ml-4">
+  &nbsp;
+</div>
+
+<div class="fixed top-0 shadow-b-sm w-full z-30 bg-gray-50 h-28">
+  <h1 class="text-black-3 font-semibold text-5xl ml-4 mt-8">Payments</h1>
+</div>
+
+<div [hidden]="!globalState.getStripeLoading()" class="pt-20">
+  Loading...
+</div>
+
+<div [hidden]="globalState.getStripeLoading()" class="pt-20 mx-auto max-w-xl">
+
+  <div [hidden]="globalState.getTier() === ''">
+    You have an active account!
+    <p>Tier: {{globalState.getInfo().tier}}</p>
+    <p>Paid Date: {{globalState.getInfo().paid_date}}</p>
+    <p>Active Until: {{globalState.getInfo().paid_until}}</p>
+    <p>Paid Amount: ${{globalState.getInfo().paid_amount}} AUD</p>
+  </div>
+
+  <div [hidden]="globalState.getTier() !== ''">
+    <!-- <button class="w-48 mt-8" (click)="globalState.createPaymentIntent()">HERE</button> -->
+    Packages
+    
+    <button *ngFor="let package of globalState.getPackages()" class="my-2 button"
+      (click)="globalState.createPaymentIntent(package._id, package.amount)" [ngStyle]="{'background-color': globalState.selectedPlan == package._id ? 'red' : ''}">{{package.name}}</button>
+
+    <form id="form payment-form" [hidden]="!globalState.getShowPaymentComponent()"
+      (submit)="globalState.stripeFormSubmitted($event)">
+      <div class="text-lg font-bold mb-4 mt-8">
+        ${{globalState.getPackageAmount()}} AUD
+      </div>
+      <div id="card-element">
+        <!--Stripe.js injects the Card Element-->
+      </div>
+      <button id="submit" class="button">
+        <div class="spinner hidden" id="spinner"></div>
+        <span id="button-text">Pay now</span>
+      </button>
+      <p id="card-error" style="color:red;" role="alert"></p>
+      <p class="result-message hidden">
+        Payment succeeded
+      </p>
+    </form>
+
+  </div>
+
+  <div [hidden]="globalState.getShowPaymentComponent()">
+
+  </div>
+
+</div>

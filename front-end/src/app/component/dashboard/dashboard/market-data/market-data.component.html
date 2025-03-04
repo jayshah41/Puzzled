@@ -1,0 +1,30 @@
+<div class="max-h-screen">
+
+    <div class="flex w-full mt-20 ml-4">
+        &nbsp;
+    </div>
+
+    <div class="fixed top-0 shadow-b-sm w-full z-30 bg-gray-50 h-28">
+        <h1 class="text-black-3 font-semibold text-5xl ml-4 mt-8">Market Data</h1>
+    </div>
+
+    <div *ngIf="globalState.getTier() !== ''">
+        <div class="flex w-full h-1400px mt-10 px-4 overflow-y-auto"
+            *ngFor="let iframeURL of globalState.getIFrameURL('MarketData'); index as i">
+            <iframe class="w-full h-full" [src]="iframeURL" frameborder="0"></iframe>
+        </div>
+    </div>
+
+    <div class="absolute top-64 left-0 right-0 w-full"
+        *ngIf="globalState.getTier() === '' && !globalState.getWaitingForAPIFlag()">
+        <h1 class="text-black-3 font-semibold text-5xl text-center leading-normal">
+            You currently do not have an active subscription.
+            <br>
+            Please
+            go to <a class="text-blue-7 font-black hover:underline" [routerLink]="['/home/payments']">Payments</a> to
+            purchase
+            a subscription.
+        </h1>
+    </div>
+
+</div>
