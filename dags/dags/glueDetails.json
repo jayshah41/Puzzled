@@ -1,9 +1,0 @@
-{
-    "job_name": "spark_test_one",
-    "script_location": "s3://aws-glue-assets-050107530013-us-east-1/scripts/spark_test_one.py",
-    "s3_bucket": "aws-glue-assets-050107530013-us-east-1",
-    "iam_role_name": "GlueRole",
-    "region_name": "us-east-1",
-    "source_path": "s3://airflowtestsamir/source/salaryDataset.parquet",
-    "sink_path": "s3://airflowtestsamir/sink/salaryDataset"
-}
