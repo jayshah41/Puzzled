@@ -1,0 +1,1 @@
+docker build -t makcorp/live -f Dockerfile .

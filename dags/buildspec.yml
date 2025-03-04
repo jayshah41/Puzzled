@@ -1,0 +1,23 @@
+version: 0.2
+
+phases:
+  pre_build:
+    commands:
+      - echo "Fetching latest DAGs on EC2 instance..."
+      - aws ssm send-command --document-name "AWS-RunShellScript" \
+          --targets '[{"Key":"instanceIds","Values":["i-0fa5e2518b9f0d6f4"]}]' \
+          --parameters '{"commands":["cd /home/ec2-user/bigdata_stack/ && git pull origin main"]}' \
+          --region ap-southeast-2
+
+  build:
+    commands:
+      - echo "Rebuilding Docker Compose with latest DAGs on EC2 instance..."
+      - aws ssm send-command --document-name "AWS-RunShellScript" \
+          --targets '[{"Key":"instanceIds","Values":["i-0fa5e2518b9f0d6f4"]}]' \
+          --parameters '{"commands":["cd /home/ec2-user/bigdata_stack/ && docker-compose down && docker-compose build && docker-compose up -d"]}' \
+          --region ap-southeast-2
+
+  post_build:
+    commands:
+      - echo "Deployment completed successfully on EC2 instance."
+

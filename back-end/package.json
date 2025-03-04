@@ -1,0 +1,41 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "NODE_ENV=development nodemon node index.js",
+    "test": "NODE_ENV=test nodemon node index.js",
+    "utest": "NODE_ENV=test jasmine --config=spec/support/jasmine-unit.json  --stop-on-failure=true",
+    "itest": "NODE_ENV=test jasmine --config=spec/support/jasmine-integration.json  --stop-on-failure=true"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@elastic/elasticsearch": "^7.12.0",
+    "@google-cloud/functions-framework": "^1.7.1",
+    "axios": "^0.21.1",
+    "base-64": "^1.0.0",
+    "basic-ftp": "^4.6.6",
+    "bcryptjs": "^2.4.3",
+    "client-sessions": "^0.8.0",
+    "cookie-parser": "^1.4.5",
+    "cookie-session": "^1.4.0",
+    "cors": "^2.8.5",
+    "csvtojson": "^2.0.10",
+    "express": "^4.17.1",
+    "express-http-proxy": "^1.6.2",
+    "express-session": "^1.17.1",
+    "jsonwebtoken": "^8.5.1",
+    "luxon": "^1.26.0",
+    "mongodb": "^3.6.6",
+    "nanoid": "^3.1.22",
+    "postmark": "^2.7.4",
+    "stripe": "^8.148.0"
+  },
+  "devDependencies": {
+    "jasmine": "^3.7.0"
+  }
+}
