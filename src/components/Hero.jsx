@@ -6,8 +6,6 @@ const Hero = () => {
   return (
     <section>
       <div>
-        <h1>MakCorp has modernised how our clients invest in Mining, Oil & Gas.</h1>
-        <p>Compare & analyse ASX resource companies, including</p>
         <HeroContainer />
         <button>Start now</button>
       </div>
