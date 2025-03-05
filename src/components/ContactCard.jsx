@@ -11,9 +11,7 @@ const ContactCard = ({ image, name, role, phone, email, facebook, linkedin, twit
         <h3 style={{color: 'grey'}}>{role}</h3>
         {phone ? <h4>tel: {phone}</h4> : <></>}
         {email ? <h4>email: {email}</h4> : <></>}
-        <div className="three-card-container">
-            <Socials />
-        </div>
+        <Socials />
 
     </div>
   )
