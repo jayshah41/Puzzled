@@ -1,11 +1,11 @@
-import React from 'react'
-import './ServicesCard.css'
+import React from 'react';
+import './ServicesCard.css';
 
-const ServicesCard = ({ icon: Icon, title, content }) => {
+const ServicesCard = ({ image, title, content }) => {
 
 return (
-    <div className="card">
-        <Icon className="text-4xl text-blue-600" />
+    <div className="card" style={{ height: '275px' }}>
+        <img src={image} style={{ width: '50px' }}></img>
         <h3 className="card-header">{title}</h3>
         <p className="card-content">{content}</p>
     </div>
