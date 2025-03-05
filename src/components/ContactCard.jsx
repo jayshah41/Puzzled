@@ -11,9 +11,7 @@ const ContactCard = ({ image, name, role, phone, email, facebook, linkedin, twit
         {phone ? <h4>tel: {phone}</h4> : <></>}
         {email ? <h4>email: {email}</h4> : <></>}
         <div className="three-card-container">
-            <FaFacebook className="cursor-pointer hover:text-blue-800" />
-            <FaLinkedin className="cursor-pointer hover:text-blue-800" />
-            <FaTwitter className="cursor-pointer hover:text-blue-800" />
+            <Socials />
         </div>
 
     </div>

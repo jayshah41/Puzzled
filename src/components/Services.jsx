@@ -2,6 +2,7 @@ import React from 'react'
 import { FaFacebook, FaLinkedin, FaTwitter } from "react-icons/fa";
 import './GeneralStyles.css';
 import ServicesCardContainer from './ServicesCardContainer';
+import Socials from './Socials';
 
 const Services = () => {
   return (
@@ -19,12 +20,9 @@ const Services = () => {
 
       <ServicesCardContainer />
 
-      <div className="three-card-container">
-        <FaFacebook className="cursor-pointer hover:text-blue-800" />
-        <FaLinkedin className="cursor-pointer hover:text-blue-800" />
-        <FaTwitter className="cursor-pointer hover:text-blue-800" />
-      </div>
+      <Socials />
     </div>
+
   );
 };
 
