@@ -1,6 +1,7 @@
 import React from 'react';
 import './GeneralStyles.css';
 import { FaFacebook, FaLinkedin, FaTwitter } from "react-icons/fa";
+import Socials from './Socials';
 
 const ContactCard = ({ image, name, role, phone, email, facebook, linkedin, twitter }) => {
   return (
