@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import makcorpLogoWithText from '../assets/makcorpLogoWithText.png';
-import './Navbar.css';
+import '../styles/Navbar.css';
 
 const Navbar = () => {
   return (

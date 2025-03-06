@@ -1,5 +1,5 @@
 import React from 'react';
-import './GeneralStyles.css';
+import '../styles/GeneralStyles.css';
 import Socials from './Socials';
 
 const ContactCard = ({ image, name, role, phone, email, facebook, linkedin, twitter }) => {

@@ -1,5 +1,5 @@
 import React from 'react';
-import './GeneralStyles.css';
+import '../styles/GeneralStyles.css';
 import ServicesCardContainer from './ServicesCardContainer';
 import Socials from './Socials';
 

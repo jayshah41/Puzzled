@@ -1,6 +1,6 @@
 import React from 'react';
 import ContactCard from './ContactCard';
-import './GeneralStyles.css';
+import '../styles/GeneralStyles.css';
 import steveRosewell from '../assets/MeetTheTeam/steve-rosewell.png';
 import emmanuelHeyndrickx from '../assets/MeetTheTeam/emmanuel-heyndrickx.png';
 import scottYull from '../assets/MeetTheTeam/scott-yull.png';

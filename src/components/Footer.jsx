@@ -2,7 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { FaFacebook, FaLinkedin, FaTwitter } from "react-icons/fa";
 import makcorpLogo from "../assets/makcorpLogo.png";
-import "./Footer.css";
+import "../styles/Footer.css";
 import Socials from "./Socials";
 
 const Footer = () => {
