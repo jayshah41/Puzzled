@@ -8,7 +8,7 @@ const Navbar = () => {
     <nav className="navbar sticky">
       <div className="navbar-container">
       <div className="flex items-center">
-        <img src={makcorpLogoWithText} alt="MakCorp Logo" height="80px" style={{ padding: '10px' }} />
+        <Link to="/"><img src={makcorpLogoWithText} alt="MakCorp Logo" height="80px" style={{ padding: '10px' }} /></Link>
       </div>
 
         <Link to="/">Home</Link>
