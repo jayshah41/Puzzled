@@ -7,7 +7,7 @@ const Navbar = () => {
     <nav className="navbar sticky">
       <div className="navbar-container">
       <div className="flex items-center">
-        <img src={makcorpLogoWithText} alt="MakCorp Logo" className="h-10" />
+        <img src={makcorpLogoWithText} alt="MakCorp Logo" height="80px" style={{ padding: '10px' }} />
       </div>
 
         <a href="#" className="hover:text-gray-900">Home</a>
@@ -16,7 +16,7 @@ const Navbar = () => {
         <a href="#" className="hover:text-gray-900">Contact us</a>
 
 
-      <div className="flex items-center space-x-4">
+      <div>
         <button>LOG IN</button>
         <a href="#" className="text-gray-700 hover:text-gray-900">Sign Up</a>
       </div>
