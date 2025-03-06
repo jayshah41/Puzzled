@@ -3,8 +3,9 @@
 }
 
 .navbar-container {
-    display: grid;
-    grid-template-columns: repeat(6, 1fr);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
 .sticky {
