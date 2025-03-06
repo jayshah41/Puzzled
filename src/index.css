@@ -3,6 +3,9 @@
   line-height: 1.5;
   font-weight: 400;
   padding: 20px;
+  background-color: white !important;
+  color: black !important;
+
 
   color-scheme: light dark;
   color: rgba(255, 255, 255, 0.87);
