@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import makcorpLogoWithText from '../assets/makcorpLogoWithText.png';
 import '../styles/Navbar.css';
+import { Link } from 'react-router-dom';
 
 const Navbar = () => {
   return (
@@ -10,10 +11,10 @@ const Navbar = () => {
         <img src={makcorpLogoWithText} alt="MakCorp Logo" height="80px" style={{ padding: '10px' }} />
       </div>
 
-        <a href="/">Home</a>
-        <a href="/pricing">Pricing</a>
-        <a href="/products">Products</a>
-        <a href="/contact-us">Contact us</a>
+        <Link to="/">Home</Link>
+        <Link to="/pricing">Pricing</Link>
+        <Link to="/products">Products</Link>
+        <Link to="/contact-us">Contact us</Link>
 
 
       <div>
