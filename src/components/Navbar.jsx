@@ -10,15 +10,15 @@ const Navbar = () => {
         <img src={makcorpLogoWithText} alt="MakCorp Logo" height="80px" style={{ padding: '10px' }} />
       </div>
 
-        <a href="#" className="hover:text-gray-900">Home</a>
-        <a href="#" className="hover:text-gray-900">Pricing</a>
-        <a href="#" className="hover:text-gray-900">Products</a>
-        <a href="#" className="hover:text-gray-900">Contact us</a>
+        <a href="/">Home</a>
+        <a href="/pricing">Pricing</a>
+        <a href="/products">Products</a>
+        <a href="/contact-us">Contact us</a>
 
 
       <div>
         <button>LOG IN</button>
-        <a href="#" className="text-gray-700 hover:text-gray-900">Sign Up</a>
+        <a href="/">Sign Up</a>
       </div>
 
       </div>
