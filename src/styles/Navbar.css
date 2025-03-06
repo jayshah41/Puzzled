@@ -8,6 +8,10 @@
     align-items: center;
 }
 
+.navbar-container a {
+    color: #2D3748;
+}
+
 .sticky {
     position: fixed;
     top: 0;
