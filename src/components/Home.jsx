@@ -6,7 +6,7 @@ import './GeneralStyles.css';
 
 const Home = () => {
   return (
-    <div className="standard-padding" style={{ paddingTop: '120px' }}>
+    <div className="standard-padding">
         <Hero />
         <Services />
         <Contact />
