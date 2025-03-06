@@ -1,6 +1,8 @@
 import React from 'react'
-import { FaDollarSign, FaChartLine, FaDatabase, FaFacebook, FaLinkedin, FaTwitter, FaPodcast } from "react-icons/fa";
-import Card from './Card';
+import { FaFacebook, FaLinkedin, FaTwitter } from "react-icons/fa";
+import './GeneralStyles.css';
+import ServicesCardContainer from './ServicesCardContainer';
+import Socials from './Socials';
 
 const Services = () => {
   return (
@@ -16,19 +18,11 @@ const Services = () => {
         a corporate investor, or a business owner. Let us help you find your next opportunity for growth.
       </p>
 
-      <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3 max-w-5xl mx-auto">
-        <Card icon={FaDollarSign} title="Commodity Pricing" content="See the prices for each commodity on a daily basis including potential value of JORCS."/>
-        <Card icon={FaChartLine} title="Stock Performance" content="See the performances on stocks by any period since 2018 including daily, weekly, monthly, and yearly." />
-        <Card icon={FaDatabase} title="Data Services" content="Contact us for other data services including project research and director research." />
-      </div>
+      <ServicesCardContainer />
 
-      <div className="mt-12 flex justify-center space-x-6 text-2xl text-blue-600">
-        <FaFacebook className="cursor-pointer hover:text-blue-800" />
-        <FaLinkedin className="cursor-pointer hover:text-blue-800" />
-        <FaTwitter className="cursor-pointer hover:text-blue-800" />
-        <FaPodcast className="cursor-pointer hover:text-blue-800" />
-      </div>
+      <Socials />
     </div>
+
   );
 };
 
