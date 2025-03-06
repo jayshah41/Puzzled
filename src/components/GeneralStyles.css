@@ -3,6 +3,12 @@
     padding-top: 120px;
 }
 
+.centre {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
 .two-card-container {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
@@ -26,4 +32,16 @@
 
 .social a:hover {
     color: #1e40af;
+}
+
+.defulatButton {
+    background-color: #2A4365;
+    color: white;
+    margin-top: 15px;
+    text-align: center;
+    border-radius: 10px;
+}
+
+.defulatButton:hover {
+    background-color: #1E3A8A;
 }
