@@ -12,6 +12,11 @@
     color: #2D3748;
 }
 
+.navbar-container button {
+    color: #2D3748;
+    background-color: #AED3FD;
+}
+
 .sticky {
     position: fixed;
     top: 0;
