@@ -6,7 +6,7 @@ import './GeneralStyles.css';
 
 const Home = () => {
   return (
-    <div className="standard-padding">
+    <div>
         <Hero />
         <Services />
         <Contact />
