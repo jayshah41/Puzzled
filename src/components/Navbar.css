@@ -1,4 +1,14 @@
+.navbar {
+    background-color: #AED3FD;
+}
+
 .navbar-container {
     display: grid;
     grid-template-columns: repeat(6, 1fr);
+}
+
+.sticky {
+    position: fixed;
+    top: 0;
+    width: 100%;
 }

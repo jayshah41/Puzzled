@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import makcorpLogoWithText from '../assets/makcorpLogoWithText.png';
-import './Navbar.css'
+import './Navbar.css';
 
 const Navbar = () => {
   return (
-    <nav>
+    <nav className="navbar sticky">
       <div className="navbar-container">
       <div className="flex items-center">
         <img src={makcorpLogoWithText} alt="MakCorp Logo" className="h-10" />
