@@ -9,7 +9,7 @@ const Login = ({ onClose }) => {
     const [isLogin, setIsLogin] = useState(true);
 
 return (
-    <motion.div 
+    <motion.div
         className="modal"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -21,8 +21,7 @@ return (
             animate={{ scale: 1 }}
             exit={{ scale: 0.8 }}
         >
-            <div className="auth-container">
-                <button className="close-button" onClick={onClose}>&times;</button>
+            <button className="close-button" onClick={onClose}>&times;</button>
             <div className="logo-container">
                 <img src={logo} alt="MakCorp Logo" className="logo" />
             </div>
@@ -66,7 +65,6 @@ return (
                     {isLogin ? "Sign in" : "Sign Up"}
                 </button>
             </form>
-        </div>
         </motion.div>
     </motion.div>
 );
