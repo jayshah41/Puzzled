@@ -4,9 +4,9 @@ import '../styles/Modal.css';
 import logo from '../assets/makcorpLogoWithText.png';
 import { motion } from 'framer-motion';
 
-const Login = ({ onClose }) => {
+const Login = ({ onClose, loginButton }) => {
 
-    const [isLogin, setIsLogin] = useState(true);
+    const [isLogin, setIsLogin] = useState(loginButton);
 
 return (
     <motion.div
@@ -39,19 +39,11 @@ return (
                     Sign Up
                 </button>
             </div>
+            { isLogin ?
             <form className="auth-form">
                 <input 
-                    type="email" 
-                    placeholder="Email address" 
-                    required 
-                    className="auth-input"
-                />
-                <input 
-                    type="password" 
-                    placeholder="Password" 
-                    required 
-                    className="auth-input"
-                />
+                    type="email" placeholder="Email address" className="auth-input" required />
+                <input type="password" placeholder="Password" className="auth-input" required />
                 <div className="options-container">
                     <label className="remember-me">
                         <input type="checkbox" /> Remember me
@@ -65,6 +57,48 @@ return (
                     {isLogin ? "Sign in" : "Sign Up"}
                 </button>
             </form>
+
+            :
+
+            <form className="auth-form">
+                <p>User Information</p>
+                <input type="text" placeholder="First Name" className="auth-input" required />
+                <input type="text" placeholder="Last Name" className="auth-input" required />
+                <input type="email" placeholder="Email address" className="auth-input" required />
+                <input type="text" placeholder="Phone Number" className="auth-input" required />
+                <input type="text" placeholder="Country" className="auth-input" required />
+                <input type="text" placeholder="State" className="auth-input" required />
+                <p>What are your top 3 priority commodities?</p>
+                <select id="commodity1" className="auth-input" required>
+                    <option value="">Select Commodity 1</option>
+                    <option value="gold">Gold</option>
+                    <option value="silver">Silver</option>
+                    <option value="oil">Oil</option>
+                    <option value="wheat">Wheat</option>
+                </select>
+                <select id="commodity1" className="auth-input" required>
+                    <option value="">Select Commodity 2</option>
+                    <option value="gold">Gold</option>
+                    <option value="silver">Silver</option>
+                    <option value="oil">Oil</option>
+                    <option value="wheat">Wheat</option>
+                </select>
+                <select id="commodity1" className="auth-input" required>
+                    <option value="">Select Commodity 3</option>
+                    <option value="gold">Gold</option>
+                    <option value="silver">Silver</option>
+                    <option value="oil">Oil</option>
+                    <option value="wheat">Wheat</option>
+                </select>
+                <p>Password</p>
+                <input type="password" placeholder="Password" className="auth-input" required />
+                <button 
+                    type="submit" 
+                    className="auth-button"
+                >Sign Up
+                </button>
+            </form>
+            }
         </motion.div>
     </motion.div>
 );
