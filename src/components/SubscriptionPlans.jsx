@@ -40,13 +40,14 @@ const SubscriptionPlans = () => {
   const features = info.map(e => <li>{e}</li>);
 
   return (
-    <div className="three-card-container">
+    <div className="two-card-container">
     <div style={{ width: '25vw', backgroundColor: 'white', display:'flex', flexDirection: 'column', boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)', margin: 'auto', marginBottom: '50px', padding: '20px', border: `10px solid ${colourMap[paymentOption]}`, borderRadius: '20px' }}>
       <h3 style={{ margin: 'auto' }}>Tier 2 Pricing {`(${titleCase(numOfUsers)} User${numOfUsers == 'five' ? 's' : ''})`}</h3>
       <ul>
         {features}
       </ul>
     </div>
+    <div>
     <div>
       <h3>Select your payment period</h3>
       <label>
@@ -76,6 +77,7 @@ const SubscriptionPlans = () => {
         <input type="radio" value="five" checked={numOfUsers === "five"} onChange={handleNumOfUsersChange} />
         Five
       </label>
+    </div>
     </div>
     </div>
   )
