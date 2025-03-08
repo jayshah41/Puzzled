@@ -46,7 +46,7 @@ const SubscriptionPlans = () => {
   ));
 
   return (
-    <div className="container">
+    <div className="container standard-padding">
       <div className="pricing-card">
         <div className="pricing-header" style={{ backgroundColor: colourMap[paymentOption] }}>
         <h3 style={{ margin: 'auto' }}>Tier 2 Pricing {`(${titleCase(numOfUsers)} User${numOfUsers == 'five' ? 's' : ''})`}</h3>
