@@ -28,13 +28,21 @@ const SubscriptionPlans = () => {
     setNumOfUsers(event.target.value);
   };
 
+  const titleCase = (s) => {
+    return s.toLowerCase()
+            .split(' ')
+            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+            .join(' ');
+  };
+
+
   const info = [pricingMap[`${paymentOption},${numOfUsers}`], 'Company: All data', 'Market Data: All Data', 'Projects: All Data', 'Shareholders: All Data', 'Directors: All Data', 'Financials: All Data', 'Capital Raises: All Data'];
   const features = info.map(e => <li>{e}</li>);
 
   return (
     <div className="three-card-container">
     <div style={{ width: '25vw', backgroundColor: 'white', display:'flex', flexDirection: 'column', boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)', margin: 'auto', marginBottom: '50px', padding: '20px', border: `10px solid ${colourMap[paymentOption]}`, borderRadius: '20px' }}>
-      <h3 style={{ margin: 'auto' }}>Tier 2 Pricing {`(${numOfUsers} User${numOfUsers == 'five' ? 's' : ''})`}</h3>
+      <h3 style={{ margin: 'auto' }}>Tier 2 Pricing {`(${titleCase(numOfUsers)} User${numOfUsers == 'five' ? 's' : ''})`}</h3>
       <ul>
         {features}
       </ul>
