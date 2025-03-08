@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import '../styles/GeneralStyles.css';
+import '../styles/SubscriptionStyles.css';
 
 const SubscriptionPlans = () => {
-
   const [paymentOption, setPaymentOption] = useState("$3995 Per Annum");
   const [numOfUsers, setNumOfUsers] = useState("one");
+  
   const colourMap = {
     "$895 Per Month": "#cd7f32",
     "$1495 Per Quarter": "#c0c0c0",
@@ -35,52 +36,87 @@ const SubscriptionPlans = () => {
             .join(' ');
   };
 
-
-  const info = [pricingMap[`${paymentOption},${numOfUsers}`], 'Company: All data', 'Market Data: All Data', 'Projects: All Data', 'Shareholders: All Data', 'Directors: All Data', 'Financials: All Data', 'Capital Raises: All Data'];
-  const features = info.map(e => <li>{e}</li>);
+  const currentPrice = pricingMap[`${paymentOption},${numOfUsers}`];
+  const info = [currentPrice, 'Company: All data', 'Market Data: All Data', 'Projects: All Data', 'Shareholders: All Data', 'Directors: All Data', 'Financials: All Data', 'Capital Raises: All Data'];
+  const features = info.map((feature, index) => (
+    <li key={index} className="feature-item">
+      <span className="checkmark">✓</span>
+      {feature}
+    </li>
+  ));
 
   return (
-    <div className="two-card-container">
-    <div style={{ width: '25vw', backgroundColor: 'white', display:'flex', flexDirection: 'column', boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)', margin: 'auto', marginBottom: '50px', padding: '20px', border: `10px solid ${colourMap[paymentOption]}`, borderRadius: '20px' }}>
-      <h3 style={{ margin: 'auto' }}>Tier 2 Pricing {`(${titleCase(numOfUsers)} User${numOfUsers == 'five' ? 's' : ''})`}</h3>
-      <ul>
-        {features}
-      </ul>
-    </div>
-    <div>
-    <div>
-      <h3>Select your payment period</h3>
-      <label>
-        <input type="radio" value="$895 Per Month" checked={paymentOption === "$895 Per Month"} onChange={handlePaymentChange} />
-        Monthly
-      </label>
-      <br />
-      <label>
-        <input type="radio" value="$1495 Per Quarter" checked={paymentOption === "$1495 Per Quarter"} onChange={handlePaymentChange} />
-        Quarterly
-      </label>
-      <br />
-      <label>
-        <input type="radio" value="$3995 Per Annum" checked={paymentOption === "$3995 Per Annum"} onChange={handlePaymentChange} />
-        Annually
-      </label>
-      <br />
-    </div>
-    <div>
-    <h3>Select the number of users</h3>
-      <label>
-        <input type="radio" value="one" checked={numOfUsers === "one"} onChange={handleNumOfUsersChange} />
-        One
-      </label>
-      <br />
-      <label>
-        <input type="radio" value="five" checked={numOfUsers === "five"} onChange={handleNumOfUsersChange} />
-        Five
-      </label>
-    </div>
-    </div>
+    <div className="container">
+      <div className="pricing-card">
+        <div className="pricing-header" style={{ backgroundColor: colourMap[paymentOption] }}>
+        <h3 style={{ margin: 'auto' }}>Tier 2 Pricing {`(${titleCase(numOfUsers)} User${numOfUsers == 'five' ? 's' : ''})`}</h3>
+        </div>
+        <div className="pricing-content">
+          <div className="price">
+            {currentPrice.split(' ')[0]}
+          </div>
+          <ul className="feature-list">
+            {features}
+          </ul>
+        </div>
+      </div>
+      
+      <div className="controls-container">
+        <div className="control-section">
+          <h3>Select your payment period</h3>
+          <label className="radio-option">
+            <input 
+              type="radio" 
+              value="$895 Per Month" 
+              checked={paymentOption === "$895 Per Month"} 
+              onChange={handlePaymentChange} 
+            />
+            Monthly
+          </label>
+          <label className="radio-option">
+            <input 
+              type="radio" 
+              value="$1495 Per Quarter" 
+              checked={paymentOption === "$1495 Per Quarter"} 
+              onChange={handlePaymentChange} 
+            />
+            Quarterly
+          </label>
+          <label className="radio-option">
+            <input 
+              type="radio" 
+              value="$3995 Per Annum" 
+              checked={paymentOption === "$3995 Per Annum"} 
+              onChange={handlePaymentChange} 
+            />
+            Annually
+          </label>
+        </div>
+        
+        <div className="control-section">
+          <h3>Select the number of users</h3>
+          <label className="radio-option">
+            <input 
+              type="radio" 
+              value="one" 
+              checked={numOfUsers === "one"} 
+              onChange={handleNumOfUsersChange} 
+            />
+            One
+          </label>
+          <label className="radio-option">
+            <input 
+              type="radio" 
+              value="five" 
+              checked={numOfUsers === "five"} 
+              onChange={handleNumOfUsersChange} 
+            />
+            Five
+          </label>
+        </div>
+      </div>
     </div>
   )
 }
 
-export default SubscriptionPlans
+export default SubscriptionPlans;
