@@ -19,7 +19,7 @@ const SubscriptionPlans = () => {
 
   return (
     <div className="two-card-container">
-    <div style={{ width: '25vw', backgroundColor: 'white', display:'flex', flexDirection: 'column', boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)', margin: 'auto', marginBottom: '50px', padding: '20px', border: `10px solid ${colourMap[selectedOption]}` }}>
+    <div style={{ width: '25vw', backgroundColor: 'white', display:'flex', flexDirection: 'column', boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)', margin: 'auto', marginBottom: '50px', padding: '20px', border: `10px solid ${colourMap[selectedOption]}`, borderRadius: '20px' }}>
       <h3 style={{ margin: 'auto' }}>Tier 2 Pricing</h3>
       <ul>
         {features}
