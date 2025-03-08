@@ -1,6 +1,6 @@
 import React from 'react';
 import { FaFacebook, FaLinkedin, FaTwitter } from "react-icons/fa";
-import './GeneralStyles.css';
+import '../styles/GeneralStyles.css';
 
 const Socials = ({ facebook="https://facebook.com", linkedin="https://linkedin.com", twitter="https://twitter.com" }) => {
   return (

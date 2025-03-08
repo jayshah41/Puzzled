@@ -1,0 +1,24 @@
+.navbar {
+    background-color: #AED3FD;
+}
+
+.navbar-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.navbar-container a {
+    color: #2D3748;
+}
+
+.navbar-container button {
+    color: #2D3748;
+    background-color: #AED3FD;
+}
+
+.sticky {
+    position: fixed;
+    top: 0;
+    width: 100%;
+}

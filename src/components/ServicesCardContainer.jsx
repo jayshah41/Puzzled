@@ -1,6 +1,6 @@
 import React from 'react';
 import ServicesCard from './ServicesCard';
-import './GeneralStyles.css';
+import '../styles/GeneralStyles.css';
 import moneyBag from '../assets/ServicesCards/money-bag.png';
 import graphUp from '../assets/ServicesCards/graph-up.png';
 import newspaper from '../assets/ServicesCards/newspaper.png';
