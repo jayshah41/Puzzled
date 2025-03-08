@@ -2,7 +2,8 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { FaFacebook, FaLinkedin, FaTwitter } from "react-icons/fa";
 import makcorpLogo from "../assets/makcorpLogo.png";
-import "./Footer.css";
+import "../styles/Footer.css";
+import Socials from "./Socials";
 
 const Footer = () => {
   return (
@@ -42,17 +43,7 @@ const Footer = () => {
           <p className="phone">+61 (4) 0555 1055</p>
 
           
-          <div className="footer-social">
-            <a href="https://facebook.com" target="_blank" rel="noopener noreferrer">
-              <FaFacebook />
-            </a>
-            <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer">
-              <FaLinkedin />
-            </a>
-            <a href="https://twitter.com" target="_blank" rel="noopener noreferrer">
-              <FaTwitter />
-            </a>
-          </div>
+          <Socials />
         </div>
 
       </div>
