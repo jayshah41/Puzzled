@@ -8,6 +8,9 @@ const Login = ({ onClose, loginButton }) => {
 
     const [isLogin, setIsLogin] = useState(loginButton);
 
+    const commodityOptions = ["Aluminum", "Coal", "Cobalt", "Copper", "Gold", "Graphite", "Halloysite", "Iron Ore", "Lithium", "Magnesium", "Manganese", "Mineral Sands", "Molybdenum", "Nickel", "Oil & Gas", "Palladium", "Platinum", "Potash", "Rare Earths", "Scandium", "Tantalum", "Tin", "Titanium", "Tungsten", "Uranium", "Vanadium", "Zinc"]
+    const options = commodityOptions.map(e => <option value={e}>{e}</option>)
+
 return (
     <motion.div
         className="modal"
@@ -71,24 +74,15 @@ return (
                 <p>What are your top 3 priority commodities?</p>
                 <select id="commodity1" className="auth-input" required>
                     <option value="">Select Commodity 1</option>
-                    <option value="gold">Gold</option>
-                    <option value="silver">Silver</option>
-                    <option value="oil">Oil</option>
-                    <option value="wheat">Wheat</option>
+                    {options}
                 </select>
                 <select id="commodity1" className="auth-input" required>
                     <option value="">Select Commodity 2</option>
-                    <option value="gold">Gold</option>
-                    <option value="silver">Silver</option>
-                    <option value="oil">Oil</option>
-                    <option value="wheat">Wheat</option>
+                    {options}
                 </select>
                 <select id="commodity1" className="auth-input" required>
                     <option value="">Select Commodity 3</option>
-                    <option value="gold">Gold</option>
-                    <option value="silver">Silver</option>
-                    <option value="oil">Oil</option>
-                    <option value="wheat">Wheat</option>
+                    {options}
                 </select>
                 <p>Password</p>
                 <input type="password" placeholder="Password" className="auth-input" required />
