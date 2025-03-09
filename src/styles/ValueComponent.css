@@ -43,6 +43,7 @@
 .content-container {
     flex: 0 0 45%;
     padding: 0 2rem;
+    text-align: center;
 }
   
 .step-indicator {
