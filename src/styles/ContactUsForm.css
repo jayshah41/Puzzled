@@ -59,7 +59,7 @@
     height: 42px;
     box-sizing: border-box;
     background-color: #f9f9f9;
-    color: #1e2133;
+    color: #888;
     transition: border-color 0.3s, box-shadow 0.3s;
   }
   
