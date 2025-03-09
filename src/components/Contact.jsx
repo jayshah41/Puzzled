@@ -8,8 +8,8 @@ import robertWilliamson from '../assets/MeetTheTeam/robert-williamson.png';
 
 const Contact = () => {
   return (
-    <div className="standard-padding">
-    <div style={{ textAlign: 'center', marginBottom: '75px' }}>
+    <div className="standard-padding" style={{ textAlign: 'center', marginBottom: '75px' }}>
+    <div style={{ marginBottom: '75px' }}>
       <h1>Meet Our Team</h1>
       <p>Our team has over 50 years combined experience in the resource sector, from working on mine sites to ERP software reviews.</p>
     </div>
