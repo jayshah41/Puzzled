@@ -3,7 +3,7 @@ from faker import Faker
 from datetime import datetime, timedelta
 from django.utils.timezone import make_aware
 from django.core.management.base import BaseCommand
-from app.models import Company, Financial, MarketData
+from api.models import Company, Financial, MarketData
 
 fake = Faker()
 
