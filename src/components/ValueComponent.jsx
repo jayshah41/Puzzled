@@ -7,7 +7,6 @@ import '../styles/GeneralStyles.css';
 import '../styles/ValueComponent.css';
 
 const ValueComponent = ({ index }) => {
-
     const indexedPictures = [saveTime, keyData, criticalInfo, timeSavingAnalytics];
 
     const contentMap = [
@@ -29,17 +28,26 @@ const ValueComponent = ({ index }) => {
         }
     ];
 
-  return (
-    <div className="two-card-container">
-        {index % 2 == 0 ? null : <img src={indexedPictures[index-1]} className="picture"></img>}
-        <div>
-            <h5>Step {index}</h5>
-            <h4>{contentMap[index-1].title}</h4>
-            <p>{contentMap[index-1].content}</p>
+    const Picture = () => (
+        <div className="illustration-container">
+            <img src={indexedPictures[index-1]} className="picture" alt={contentMap[index-1].title} />
         </div>
-        {index % 2 == 0 ? <img src={indexedPictures[index-1]} className="picture"></img> : null}
-    </div>
-  )
+    );
+
+    return (
+        <div className="value-section">
+            {index % 2 !== 0 ? <Picture /> : null}
+            
+            <div className="content-container">
+                <div>Step <span className="step-indicator">{index}</span>
+                </div>
+                <h2>{contentMap[index-1].title}</h2>
+                <p>{contentMap[index-1].content}</p>
+            </div>
+            
+            {index % 2 === 0 ? <Picture /> : null}
+        </div>
+    );
 }
 
-export default ValueComponent
+export default ValueComponent;
