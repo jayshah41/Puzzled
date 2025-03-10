@@ -10,7 +10,7 @@ class Company(models.Model):
     
 # Stores financial data for companies
 class Financial(models.Model):
-    asx_code = models.ForeignKey('Company', on_delete=models.CASCADE)
+    asx_code = models.ForeignKey('Company', on_delete=models.CASCADE, related_name='financials')
     period = models.CharField(max_length=50)
     ann_date = models.DateField(null=True, blank=True)
     net_operating_cash_flow = models.FloatField(null=True, blank=True)
@@ -31,7 +31,7 @@ class Financial(models.Model):
 
 # Represents Market Data
 class MarketData(models.Model):
-    asx_code = models.ForeignKey('Company', on_delete=models.CASCADE)
+    asx_code = models.ForeignKey('Company', on_delete=models.CASCADE, related_name='market_data')
     changed = models.DateTimeField()
     market_cap = models.FloatField(null=True, blank=True)
     debt = models.FloatField(null=True, blank=True)
@@ -44,7 +44,7 @@ class MarketData(models.Model):
 
 # Represents trends in market data over time 
 class MarketTrends(models.Model):
-    asx_code = models.ForeignKey('Company', on_delete=models.CASCADE)
+    asx_code = models.ForeignKey('Company', on_delete=models.CASCADE, related_name='market_trend')
     market_cap = models.FloatField(null=True, blank=True)
     trade_value = models.FloatField(null=True, blank=True)
     total_shares = models.FloatField(null=True, blank=True)
@@ -55,25 +55,25 @@ class MarketTrends(models.Model):
     year_price_change = models.FloatField(null=True, blank=True)
 
     def __str__(self):
-        return f"{self.asx_code.asx_code} - {self.maket_cap}"
+        return f"{self.asx_code.asx_code} - {self.market_cap}"
 
 # Stores details about company directors and their compensation
 class Directors(models.Model):
-    asx_code = models.ForeignKey('Company', on_delete=models.CASCADE)
+    asx_code = models.ForeignKey('Company', on_delete=models.CASCADE, related_name='directors')
     contact = models.CharField(max_length=255)
     priority_commodities = models.JSONField(null = True, blank = True)
-    base_renumeration = models.FloatField(null=True, blank=True)
-    total_renumeration = models.FloatField(null=True, blank=True)
+    base_remuneration = models.FloatField(null=True, blank=True)
+    total_remuneration = models.FloatField(null=True, blank=True)
 
     def __str__(self):
         return self.contact
 
 # Represents major shareholders and their holdings 
 class Shareholders(models.Model):
-    asx_code = models.ForeignKey('Company', on_delete=models.CASCADE)
+    asx_code = models.ForeignKey('Company', on_delete=models.CASCADE, related_name='shareholders')
     entity = models.CharField(max_length=255)
     value = models.FloatField(null=True, blank=True)
-    project_commdodities = models.CharField(max_length=255)
+    project_commodities = models.CharField(max_length=255)
     project_area = models.CharField(max_length=255)
     transaction_type = models.CharField(max_length=255)
     ann_date = models.DateField(null=True, blank=True)
@@ -83,12 +83,12 @@ class Shareholders(models.Model):
     
 # Stores data about capital raises
 class CapitalRaises(models.Model):
-    asx_code = models.ForeignKey('Company', on_delete=models.CASCADE)
+    asx_code = models.ForeignKey('Company', on_delete=models.CASCADE, related_name='capital_raises')
     bank_balance = models.FloatField(null=True, blank=True)
     date = models.DateField(null=True, blank=True)
     amount = models.FloatField(null=True, blank=True)
     price = models.FloatField(null=True, blank=True)
-    type =  models.CharField(max_length=50)
+    raise_type =  models.CharField(max_length=50)
     priority_commodities = models.JSONField(null = True, blank = True)
     
     def __str__(self):
@@ -96,7 +96,7 @@ class CapitalRaises(models.Model):
 
 # Stores details about mining/exploration projects
 class Projects(models.Model):
-    asx_code = models.ForeignKey('Company', on_delete=models.CASCADE)
+    asx_code = models.ForeignKey('Company', on_delete=models.CASCADE, related_name='projects') 
     commodity = models.CharField(max_length=255)
     activity_date_per_day = models.DateField(null=True, blank=True)
     activity = models.CharField(max_length=255)

@@ -1,5 +1,6 @@
 from django.core.management.base import BaseCommand
-from api.models import Company
+from django.db import connection
+from api.models import Company, Financial, MarketData, MarketTrends, Directors, Shareholders, CapitalRaises, Projects
 
 class Command(BaseCommand):
     """Automation command to unseed the database."""
@@ -7,10 +8,22 @@ class Command(BaseCommand):
     help = "Removes all seeded data from the database"
 
     def handle(self, *args, **options):
-        """Unseed the database."""
+        """Unseed the database and reset indices."""
         print("Unseeding database...")
 
-        Company.objects.all().delete()
+        models = [Company, Financial, MarketData, MarketTrends, 
+                  Directors, Shareholders, CapitalRaises, Projects]
         
+        for model in models:
+            model.objects.all().delete()
 
-        print("Unseeding completed!")
+        self.reset_id(models)
+
+        print("Unseeding and index reset completed!")
+
+    def reset_id(self, models):
+        """Reset primary key for models."""
+        with connection.cursor() as cursor:
+            for model in models:
+                table_name = model._meta.db_table
+                cursor.execute(f"DELETE FROM sqlite_sequence WHERE name='{table_name}';")
