@@ -1,0 +1,8 @@
+Django>=5.1
+djangorestframework
+pandas
+pyyaml
+requests
+whitenoise  # For serving static files
+django-cors-headers  # If React needs CORS
+django-environ  # For managing environment variables
