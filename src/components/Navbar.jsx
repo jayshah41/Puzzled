@@ -1,24 +1,33 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import makcorpLogoWithText from '../assets/makcorpLogoWithText.png';
+import '../styles/Navbar.css';
+import { Link } from 'react-router-dom';
+import Login from './Login';
 
 const Navbar = () => {
+  
+  const [showingLogin, setShowingLogin] = useState(false);
+  const [showingSignup, setShowingSignup] = useState(false);
+
   return (
-    <nav>
-      <div className="flex items-center">
-        <img src={makcorpLogoWithText} alt="MakCorp Logo" className="h-10" />
+    <nav className="navbar sticky">
+      <div className="navbar-container">
+        <div className="flex items-center">
+          <Link to="/"><img src={makcorpLogoWithText} alt="MakCorp Logo" height="80px" style={{ padding: '10px' }} /></Link>
+        </div>
+
+        <Link to="/">Home</Link>
+        <Link to="/pricing">Pricing</Link>
+        <Link to="/products">Products</Link>
+        <Link to="/contact-us">Contact us</Link>
+
+        <div>
+          <button onClick={() => {setShowingLogin(true); setShowingSignup(false);}}>Log In</button>
+          <button onClick={() => {setShowingSignup(true); setShowingLogin(true);}}>Sign Up</button>
+        </div>
       </div>
 
-      <div className="flex space-x-6 text-gray-700">
-        <a href="#" className="hover:text-gray-900">Home</a>
-        <a href="#" className="hover:text-gray-900">Pricing</a>
-        <a href="#" className="hover:text-gray-900">Products</a>
-        <a href="#" className="hover:text-gray-900">Contact us</a>
-      </div>
-
-      <div className="flex items-center space-x-4">
-        <button>LOG IN</button>
-        <a href="#" className="text-gray-700 hover:text-gray-900">Sign Up</a>
-      </div>
+      {showingLogin && <Login onClose={() => setShowingLogin(false)} loginButton={!showingSignup}/>}
     </nav>
   );
 };
