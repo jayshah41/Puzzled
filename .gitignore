@@ -1,5 +1,5 @@
 # Logs
-logs
+logs/
 *.log
 npm-debug.log*
 yarn-debug.log*
@@ -11,6 +11,8 @@ lerna-debug.log*
 node_modules/
 dist/
 dist-ssr/
+
+# Local system files
 *.local
 .vscode/
 !.vscode/extensions.json
@@ -30,10 +32,16 @@ Pipfile
 Pipfile.lock
 
 # Django/Migrations
-**/__pycache__/
-**/*.pyc
-**/*.pyo
-**/*.pyd
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Ignore Django migrations (except __init__.py)
+*/migrations/*.py
+!*/migrations/__init__.py
+
+# Django database and media/static files
 db.sqlite3
 instance/
 media/
