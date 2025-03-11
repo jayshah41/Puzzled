@@ -91,14 +91,14 @@ class DirectorsModelTest(TestCase):
         self.director = Directors.objects.create(
             asx_code=self.company,
             contact="John Doe",
-            base_renumeration=100000.00,
-            total_renumeration=120000.00
+            base_remuneration=100000.00,
+            total_remuneration=120000.00
         )
 
     def test_director_creation(self):
         """Test if director data is stored correctly"""
         self.assertEqual(self.director.contact, "John Doe")
-        self.assertEqual(self.director.base_renumeration, 100000.00)
+        self.assertEqual(self.director.base_remuneration, 100000.00)
 
 
 class ShareholdersModelTest(TestCase):
@@ -128,14 +128,14 @@ class CapitalRaisesModelTest(TestCase):
             asx_code=self.company,
             bank_balance=500000.00,
             amount=200000.00,
-            type="Equity",
+            raise_type="Equity",
             date=date.today()
         )
 
     def test_capital_raises_creation(self):
         """Test if capital raises data is stored correctly"""
         self.assertEqual(self.capital_raise.amount, 200000.00)
-        self.assertEqual(self.capital_raise.type, "Equity")
+        self.assertEqual(self.capital_raise.raise_type, "Equity")
 
 
 class ProjectsModelTest(TestCase):
