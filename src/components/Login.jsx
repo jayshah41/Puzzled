@@ -13,9 +13,8 @@ const Login = ({ onClose, loginButton }) => {
     const [phoneNumber, setPhoneNumber] = useState("");
     const [country, setCountry] = useState("");
     const [state, setState] = useState("");
-    const [commodity1, setCommodity1] = useState("");
-    const [commodity2, setCommodity2] = useState("");
-    const [commodity3, setCommodity3] = useState("");
+    const [commodities, setCommodities] = useState(["", "", ""]);
+
 
     const commodityOptions = [
         "Aluminum", "Coal", "Cobalt", "Copper", "Gold", "Graphite",
@@ -24,14 +23,14 @@ const Login = ({ onClose, loginButton }) => {
         "Platinum", "Potash", "Rare Earths", "Scandium", "Tantalum", "Tin",
         "Titanium", "Tungsten", "Uranium", "Vanadium", "Zinc"
     ];
-    
+
     const options = commodityOptions.map(e => <option key={e} value={e}>{e}</option>);
 
     // 🔹 Handle Login Submission
     const handleLogin = async (e) => {
         e.preventDefault();
         setError("");
-    
+
         try {
             console.log("Attempting to log in..."); // Log start of login attempt
             const response = await fetch("/api/token/", {
@@ -39,41 +38,41 @@ const Login = ({ onClose, loginButton }) => {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ email, password }),
             });
-    
+
             console.log("Login response status:", response.status); // Log response status
-    
+
             if (!response.ok) throw new Error("Invalid credentials");
-    
+
             const data = await response.json();
             console.log("Login successful, access token received:", data.access); // Log access token
-    
+
             localStorage.setItem("accessToken", data.access);
-    
+
             // Fetch user details after login
             const userResponse = await fetch("/api/current-user/", {
                 method: "GET",
-                headers: { 
+                headers: {
                     "Content-Type": "application/json",
                     Authorization: `Bearer ${data.access}`
                 },
             });
-    
+
             console.log("User details response status:", userResponse.status); // Log user details response status
-    
+
             if (!userResponse.ok) throw new Error("Failed to fetch user data");
-    
+
             const userData = await userResponse.json();
             console.log("User details fetched:", userData); // Log user details
-    
+
             alert(`Welcome ${userData.email}! Your access level: ${userData.tier_level}`);
-    
+
             // Redirect user based on role
             if (userData.is_admin) {
                 window.location.href = "/admin-dashboard";
             } else {
                 window.location.href = "/user-dashboard";
             }
-    
+
         } catch (error) {
             console.error("Login error:", error); // Log any errors
             setError(error.message);
@@ -96,7 +95,7 @@ const Login = ({ onClose, loginButton }) => {
                     phone_number: phoneNumber,
                     country,
                     state,
-                    commodities: [commodity1, commodity2, commodity3],  // Combine the commodities into a list
+                    commodities: commodities,  // Combine the commodities into a list
                     password,
                     tier_level: 1,  // Default tier level for new users
                     user_type: "client"
@@ -120,7 +119,7 @@ const Login = ({ onClose, loginButton }) => {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
         >
-            <motion.div 
+            <motion.div
                 className="modal-content"
                 initial={{ scale: 0.8 }}
                 animate={{ scale: 1 }}
@@ -131,14 +130,14 @@ const Login = ({ onClose, loginButton }) => {
                     <img src={logo} alt="MakCorp Logo" className="logo" />
                 </div>
                 <div className="toggle-container">
-                    <button 
-                        className={`toggle-button ${isLogin ? 'active' : ''}`} 
+                    <button
+                        className={`toggle-button ${isLogin ? 'active' : ''}`}
                         onClick={() => setIsLogin(true)}
                     >
                         Login
                     </button>
-                    <button 
-                        className={`toggle-button ${!isLogin ? 'active' : ''}`} 
+                    <button
+                        className={`toggle-button ${!isLogin ? 'active' : ''}`}
                         onClick={() => setIsLogin(false)}
                     >
                         Sign Up
@@ -147,14 +146,14 @@ const Login = ({ onClose, loginButton }) => {
 
                 {error && <p className="error-message">{error}</p>}
 
-                { isLogin ? (
+                {isLogin ? (
                     <form className="auth-form" onSubmit={handleLogin}>
-                        <input 
-                            type="email" placeholder="Email address" className="auth-input" 
+                        <input
+                            type="email" placeholder="Email address" className="auth-input"
                             value={email} onChange={(e) => setEmail(e.target.value)} required
                         />
-                        <input 
-                            type="password" placeholder="Password" className="auth-input" 
+                        <input
+                            type="password" placeholder="Password" className="auth-input"
                             value={password} onChange={(e) => setPassword(e.target.value)} required
                         />
                         <div className="options-container">
@@ -175,9 +174,21 @@ const Login = ({ onClose, loginButton }) => {
                         <input type="text" placeholder="Country" className="auth-input" value={country} onChange={(e) => setCountry(e.target.value)} required />
                         <input type="text" placeholder="State" className="auth-input" value={state} onChange={(e) => setState(e.target.value)} required />
                         <p>What are your top 3 priority commodities?</p>
-                        <select className="auth-input" value={commodity1} onChange={(e) => setCommodity1(e.target.value)} required>{options}</select>
-                        <select className="auth-input" value={commodity2} onChange={(e) => setCommodity2(e.target.value)} required>{options}</select>
-                        <select className="auth-input" value={commodity3} onChange={(e) => setCommodity3(e.target.value)} required>{options}</select>
+                        <select className="auth-input" value={commodities[0]} onChange={(e) => {
+                            const updatedCommodities = [...commodities];
+                            updatedCommodities[0] = e.target.value;
+                            setCommodities(updatedCommodities);
+                        }} required>{options}</select>
+                        <select className="auth-input" value={commodities[1]} onChange={(e) => {
+                            const updatedCommodities = [...commodities];
+                            updatedCommodities[1] = e.target.value;
+                            setCommodities(updatedCommodities);
+                        }} required>{options}</select>
+                          <select className="auth-input" value={commodities[2]} onChange={(e) => {
+                            const updatedCommodities = [...commodities];
+                            updatedCommodities[2] = e.target.value;
+                            setCommodities(updatedCommodities);
+                        }} required>{options}</select>
                         <p>Password</p>
                         <input type="password" placeholder="Password" className="auth-input" value={password} onChange={(e) => setPassword(e.target.value)} required />
                         <button type="submit" className="auth-button">Sign Up</button>
