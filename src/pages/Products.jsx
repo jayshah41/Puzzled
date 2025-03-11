@@ -11,6 +11,6 @@ const Products = () => {
       <ProductsJoin/>
     </>
   )
-}
+};
 
-export default Products
+export default Products;

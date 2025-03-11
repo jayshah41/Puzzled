@@ -1,5 +1,5 @@
 # Logs
-logs
+logs/
 *.log
 npm-debug.log*
 yarn-debug.log*
@@ -7,18 +7,44 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
-*.local
+# Dependency directories
+node_modules/
+dist/
+dist-ssr/
 
-# Editor directories and files
-.vscode/*
+# Local system files
+*.local
+.vscode/
 !.vscode/extensions.json
-.idea
+.idea/
 .DS_Store
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
+
+# Python Virtual Environment
+venv/
+.env
+*.venv
+Pipfile
+Pipfile.lock
+
+# Django/Migrations
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Ignore Django migrations (except __init__.py)
+*/migrations/*.py
+!*/migrations/__init__.py
+
+# Django database and media/static files
+db.sqlite3
+instance/
+media/
+staticfiles/
+
+**/*.coverage

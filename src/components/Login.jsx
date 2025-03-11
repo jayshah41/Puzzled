@@ -49,7 +49,9 @@ return (
                 <input type="password" placeholder="Password" className="auth-input" required />
                 <div className="options-container">
                     <label className="remember-me">
-                        <input type="checkbox" className="tick-box" required/> Remember me
+
+                        <input type="checkbox" className="tick-box" /> Remember me
+
                     </label>
                     <a href="#" className="forgot-password">Forgot your password?</a>
                 </div>
