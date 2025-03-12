@@ -3,7 +3,7 @@ import "../styles/Modal.css";
 import logo from "../assets/makcorpLogoWithText.png";
 import { motion } from "framer-motion";
 
-const Login = ({ onClose, loginButton }) => {
+const Login = ({ onClose, loginButton, onLoginSuccess }) => {
     const [isLogin, setIsLogin] = useState(loginButton);
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -26,7 +26,6 @@ const Login = ({ onClose, loginButton }) => {
 
     const options = commodityOptions.map(e => <option key={e} value={e}>{e}</option>);
 
-    // 🔹 Handle Login Submission
     const handleLogin = async (e) => {
         e.preventDefault();
         setError("");
@@ -66,6 +65,9 @@ const Login = ({ onClose, loginButton }) => {
 
             alert(`Welcome ${userData.email}! Your access level: ${userData.tier_level}`);
 
+            onLoginSuccess(); 
+    
+
             // Redirect user based on role
             if (userData.is_admin) {
                 window.location.href = "/admin-dashboard";
@@ -79,7 +81,6 @@ const Login = ({ onClose, loginButton }) => {
         }
     };
 
-    // 🔹 Handle Signup Submission
     const handleSignup = async (e) => {
         e.preventDefault();
         setError("");

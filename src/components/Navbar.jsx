@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import makcorpLogoWithText from '../assets/makcorpLogoWithText.png';
+import profileIcon from '../assets/ServicesCards/profileIcon.png';
 import '../styles/Navbar.css';
 import { Link } from 'react-router-dom';
 import Login from './Login';
@@ -8,6 +9,20 @@ const Navbar = () => {
   
   const [showingLogin, setShowingLogin] = useState(false);
   const [showingSignup, setShowingSignup] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    const token = localStorage.getItem("accessToken");
+    if (token) {
+      setIsLoggedIn(true);
+    }
+  }, []);
+  
+  const handleLoginSuccess = () => {
+    setIsLoggedIn(true);
+    setShowingLogin(false);
+    console.log("Login successful. isLoggedIn:", true); 
+  };
 
   return (
     <nav className="navbar sticky">
@@ -22,12 +37,20 @@ const Navbar = () => {
         <Link to="/contact-us">Contact us</Link>
 
         <div>
-          <button onClick={() => {setShowingLogin(true); setShowingSignup(false);}}>Log In</button>
-          <button onClick={() => {setShowingSignup(true); setShowingLogin(true);}}>Sign Up</button>
+          {!isLoggedIn ? (
+            <>
+              <button onClick={() => {setShowingLogin(true); setShowingSignup(false);}}>Log In</button>
+              <button onClick={() => {setShowingSignup(true); setShowingLogin(true);}}>Sign Up</button>
+            </>
+          ) : (
+            <div className="profile-icon" onClick={() => console.log("Profile dropdown clicked")}>
+            <img src= {profileIcon} alt="Profile" />
+            </div>
+          )}
         </div>
-      </div>
+       </div>  
 
-      {showingLogin && <Login onClose={() => setShowingLogin(false)} loginButton={!showingSignup}/>}
+      {showingLogin && <Login onClose={() => setShowingLogin(false)} loginButton={!showingSignup}onLoginSuccess={handleLoginSuccess} />}
     </nav>
   );
 };
