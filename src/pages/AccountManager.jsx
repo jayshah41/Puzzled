@@ -7,6 +7,7 @@ const AccountManager = () => {
   const handleLogout = () => {
     localStorage.removeItem("accessToken");
     navigate("/");
+    window.dispatchEvent(new Event('storage'));
   };
 
   return (
