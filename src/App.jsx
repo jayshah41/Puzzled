@@ -6,7 +6,6 @@ import Pricing from './pages/Pricing';
 import Products from './pages/Products';
 import ContactUs from './pages/ContactUs';
 import AccountManager from './pages/AccountManager';
-import Data from './pages/Data';
 import Footer from './components/Footer';
 import CompanyDetails from './components/CompanyDetails';
 import MarketData from './components/MarketData';
@@ -28,7 +27,6 @@ const App = () => {
           <Route path="/products" element={<Products />} />
           <Route path="/contact-us" element={<ContactUs />} /> 
           <Route path="/account" element={<AccountManager />} />
-          <Route path="/data" element={<Data />} />
           <Route path="/graphs/company-details" element={CompanyDetails} />
           <Route path="/graphs/market-data" element={MarketData} />
           <Route path="/graphs/market-trends" element={MarketTrends} />
