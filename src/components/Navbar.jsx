@@ -15,6 +15,8 @@ const Navbar = () => {
     const token = localStorage.getItem("accessToken");
     if (token) {
       setIsLoggedIn(true);
+    } else {
+      setIsLoggedIn(false);
     }
   }, []);
   
