@@ -14,17 +14,12 @@
     height: 40px;
     border-radius: 50%;
     overflow: hidden;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
+}
   
-  .profile-icon img {
+.profile-icon img {
     width: 100%;
     height: 100%;
-    object-fit: cover; /* Ensures the image covers the circle */
-  }
+}
 
 .navbar-container a {
     color: #2D3748;
