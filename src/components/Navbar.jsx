@@ -47,7 +47,7 @@ const Navbar = () => {
         <Link to="/pricing">Pricing</Link>
         <Link to="/products">Products</Link>
         <Link to="/contact-us">Contact us</Link>
-        {isLoggedIn ? <Link to="/data">Data</Link> : null}
+        {isLoggedIn ?
 
         <div className="dropdown">
           <button 
@@ -70,6 +70,7 @@ const Navbar = () => {
             </div>
           )}
         </div>
+        : null}
 
         <div>
           {!isLoggedIn ? (
