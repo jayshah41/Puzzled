@@ -33,7 +33,7 @@ const Login = ({ onClose, loginButton }) => {
 
         try {
             console.log("Attempting to log in..."); // Log start of login attempt
-            const response = await fetch("/api/token/", {
+            const response = await fetch("/api/login/", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ email, password }),
@@ -49,9 +49,9 @@ const Login = ({ onClose, loginButton }) => {
             localStorage.setItem("accessToken", data.access);
 
             // Fetch user details after login
-            const userResponse = await fetch("/api/current-user/", {
+            const userResponse = await fetch("/api/profile/", {  
                 method: "GET",
-                headers: {
+                headers: { 
                     "Content-Type": "application/json",
                     Authorization: `Bearer ${data.access}`
                 },
@@ -69,7 +69,7 @@ const Login = ({ onClose, loginButton }) => {
             // Redirect user based on role
             if (userData.is_admin) {
                 window.location.href = "/admin-dashboard";
-            } else {
+            } else { 
                 window.location.href = "/user-dashboard";
             }
 
