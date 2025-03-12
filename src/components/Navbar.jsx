@@ -25,7 +25,8 @@ const Navbar = () => {
         <div className="dropdown">
           <button 
             className="dropbtn" 
-            onClick={() => setShowGraphsDropdown(!showGraphsDropdown)}
+            onMouseEnter={() => setShowGraphsDropdown(true)}
+            onMouseExit={() => setShowGraphsDropdown(false)}
           >
             Graphs
           </button>
@@ -44,12 +45,12 @@ const Navbar = () => {
         </div>
 
         <div>
-          <button onClick={() => {setShowingLogin(true); setShowingSignup(false);}}>Log In</button>
-          <button onClick={() => {setShowingSignup(true); setShowingLogin(true);}}>Sign Up</button>
+          <a onClick={() => {setShowingLogin(true); setShowingSignup(false);}}>Log In</a>
+          <a onClick={() => {setShowingSignup(true); setShowingLogin(true);}}>Sign Up</a>
         </div>
       </div>
 
-      {showingLogin && <Login onClose={() => setShowingLogin(false)} loginButton={!showingSignup}/>}
+      {showingLogin && <Login onClose={() => setShowingLogin(false)} logina={!showingSignup}/>}
     </nav>
   );
 };
