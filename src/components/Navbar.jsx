@@ -46,6 +46,7 @@ const Navbar = () => {
         <Link to="/pricing">Pricing</Link>
         <Link to="/products">Products</Link>
         <Link to="/contact-us">Contact us</Link>
+        {isLoggedIn ? <Link to="/data">Data</Link> : null}
 
         <div>
           {!isLoggedIn ? (
