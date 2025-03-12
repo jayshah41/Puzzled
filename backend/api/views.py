@@ -1,7 +1,7 @@
-#from rest_framework.views import APIView
-#from rest_framework.response import Response
-#from .models import MarketTrends
-#from django.db.models import Avg
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from .models import MarketTrends
+from django.db.models import Avg
 
 
 from rest_framework import viewsets
