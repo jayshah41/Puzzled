@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid } from "recharts";
 
-const Statistics = () => {
+const MarketTrends = () => {
     const [stats, setStats] = useState({
         ASX_code_count: 0,
         daily_avg_price_change: 0, 
@@ -36,4 +36,4 @@ useEffect(() => {
     );
 };
 
-export default Statistics;
+export default MarketTrends;
