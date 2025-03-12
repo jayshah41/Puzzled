@@ -16,6 +16,6 @@ const CompanyDetails = () => {
   );
 };
 
-export default CompanyDetails;  // Ensure this line is included
+export default CompanyDetails; 
 
 
