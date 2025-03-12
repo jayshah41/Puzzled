@@ -1,20 +1,22 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "../styles/Modal.css";
 import logo from "../assets/makcorpLogoWithText.png";
 import { motion } from "framer-motion";
 
 const Login = ({ onClose, loginButton, onLoginSuccess }) => {
     const [isLogin, setIsLogin] = useState(loginButton);
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
+    const [formData, setFormData] = useState({
+        email: "",
+        password: "",
+        firstName: "",
+        lastName: "",
+        phoneNumber: "",
+        country: "",
+        state: "",
+        commodities: ["", "", ""]
+    });
     const [error, setError] = useState("");
-    const [firstName, setFirstName] = useState("");
-    const [lastName, setLastName] = useState("");
-    const [phoneNumber, setPhoneNumber] = useState("");
-    const [country, setCountry] = useState("");
-    const [state, setState] = useState("");
-    const [commodities, setCommodities] = useState(["", "", ""]);
-
 
     const commodityOptions = [
         "Aluminum", "Coal", "Cobalt", "Copper", "Gold", "Graphite",
@@ -26,57 +28,55 @@ const Login = ({ onClose, loginButton, onLoginSuccess }) => {
 
     const options = commodityOptions.map(e => <option key={e} value={e}>{e}</option>);
 
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setFormData(prevState => ({ ...prevState, [name]: value }));
+    };
+
+    const handleCommodityChange = (index, value) => {
+        const updatedCommodities = [...formData.commodities];
+        updatedCommodities[index] = value;
+        setFormData(prevState => ({ ...prevState, commodities: updatedCommodities }));
+    };
+
     const handleLogin = async (e) => {
         e.preventDefault();
         setError("");
 
         try {
-            console.log("Attempting to log in..."); // Log start of login attempt
             const response = await fetch("/api/login/", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ email, password }),
+                body: JSON.stringify({ email: formData.email, password: formData.password }),
             });
-
-            console.log("Login response status:", response.status); // Log response status
 
             if (!response.ok) throw new Error("Invalid credentials");
 
             const data = await response.json();
-            console.log("Login successful, access token received:", data.access); // Log access token
-
             localStorage.setItem("accessToken", data.access);
 
-            // Fetch user details after login
-            const userResponse = await fetch("/api/profile/", {  
+            const userResponse = await fetch("/api/profile/", {
                 method: "GET",
-                headers: { 
+                headers: {
                     "Content-Type": "application/json",
                     Authorization: `Bearer ${data.access}`
                 },
             });
 
-            console.log("User details response status:", userResponse.status); // Log user details response status
-
             if (!userResponse.ok) throw new Error("Failed to fetch user data");
 
             const userData = await userResponse.json();
-            console.log("User details fetched:", userData); // Log user details
-
             alert(`Welcome ${userData.email}! Your access level: ${userData.tier_level}`);
 
-            onLoginSuccess(); 
-    
+            onLoginSuccess();
 
-            // Redirect user based on role
             if (userData.is_admin) {
-                window.location.href = "/admin-dashboard";
-            } else { 
-                window.location.href = "/user-dashboard";
+                navigate("/");
+            } else {
+                navigate("/data");
             }
 
         } catch (error) {
-            console.error("Login error:", error); // Log any errors
             setError(error.message);
         }
     };
@@ -90,15 +90,15 @@ const Login = ({ onClose, loginButton, onLoginSuccess }) => {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    first_name: firstName,
-                    last_name: lastName,
-                    email: email,
-                    phone_number: phoneNumber,
-                    country,
-                    state,
-                    commodities: commodities,  // Combine the commodities into a list
-                    password,
-                    tier_level: 1,  // Default tier level for new users
+                    first_name: formData.firstName,
+                    last_name: formData.lastName,
+                    email: formData.email,
+                    phone_number: formData.phoneNumber,
+                    country: formData.country,
+                    state: formData.state,
+                    commodities: formData.commodities,
+                    password: formData.password,
+                    tier_level: 1,
                     user_type: "client"
                 }),
             });
@@ -106,7 +106,7 @@ const Login = ({ onClose, loginButton, onLoginSuccess }) => {
             if (!response.ok) throw new Error("Signup failed, try again");
 
             alert("Account created successfully! Please log in.");
-            setIsLogin(true);  // Switch to login form after signup
+            setIsLogin(true);
 
         } catch (error) {
             setError(error.message);
@@ -151,11 +151,11 @@ const Login = ({ onClose, loginButton, onLoginSuccess }) => {
                     <form className="auth-form" onSubmit={handleLogin}>
                         <input
                             type="email" placeholder="Email address" className="auth-input"
-                            value={email} onChange={(e) => setEmail(e.target.value)} required
+                            name="email" value={formData.email} onChange={handleChange} required
                         />
                         <input
                             type="password" placeholder="Password" className="auth-input"
-                            value={password} onChange={(e) => setPassword(e.target.value)} required
+                            name="password" value={formData.password} onChange={handleChange} required
                         />
                         <div className="options-container">
                             <label className="remember-me">
@@ -168,30 +168,26 @@ const Login = ({ onClose, loginButton, onLoginSuccess }) => {
                 ) : (
                     <form className="auth-form" onSubmit={handleSignup}>
                         <p>User Information</p>
-                        <input type="text" placeholder="First Name" className="auth-input" value={firstName} onChange={(e) => setFirstName(e.target.value)} required />
-                        <input type="text" placeholder="Last Name" className="auth-input" value={lastName} onChange={(e) => setLastName(e.target.value)} required />
-                        <input type="email" placeholder="Email address" className="auth-input" value={email} onChange={(e) => setEmail(e.target.value)} required />
-                        <input type="text" placeholder="Phone Number" className="auth-input" value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} required />
-                        <input type="text" placeholder="Country" className="auth-input" value={country} onChange={(e) => setCountry(e.target.value)} required />
-                        <input type="text" placeholder="State" className="auth-input" value={state} onChange={(e) => setState(e.target.value)} required />
+                        <input type="text" placeholder="First Name" className="auth-input" name="firstName" value={formData.firstName} onChange={handleChange} required />
+                        <input type="text" placeholder="Last Name" className="auth-input" name="lastName" value={formData.lastName} onChange={handleChange} required />
+                        <input type="email" placeholder="Email address" className="auth-input" name="email" value={formData.email} onChange={handleChange} required />
+                        <input type="text" placeholder="Phone Number" className="auth-input" name="phoneNumber" value={formData.phoneNumber} onChange={handleChange} required />
+                        <input type="text" placeholder="Country" className="auth-input" name="country" value={formData.country} onChange={handleChange} required />
+                        <input type="text" placeholder="State" className="auth-input" name="state" value={formData.state} onChange={handleChange} required />
                         <p>What are your top 3 priority commodities?</p>
-                        <select className="auth-input" value={commodities[0]} onChange={(e) => {
-                            const updatedCommodities = [...commodities];
-                            updatedCommodities[0] = e.target.value;
-                            setCommodities(updatedCommodities);
-                        }} required>{options}</select>
-                        <select className="auth-input" value={commodities[1]} onChange={(e) => {
-                            const updatedCommodities = [...commodities];
-                            updatedCommodities[1] = e.target.value;
-                            setCommodities(updatedCommodities);
-                        }} required>{options}</select>
-                          <select className="auth-input" value={commodities[2]} onChange={(e) => {
-                            const updatedCommodities = [...commodities];
-                            updatedCommodities[2] = e.target.value;
-                            setCommodities(updatedCommodities);
-                        }} required>{options}</select>
+                        {formData.commodities.map((commodity, index) => (
+                            <select
+                                key={index}
+                                className="auth-input"
+                                value={commodity}
+                                onChange={(e) => handleCommodityChange(index, e.target.value)}
+                                required
+                            >
+                                {options}
+                            </select>
+                        ))}
                         <p>Password</p>
-                        <input type="password" placeholder="Password" className="auth-input" value={password} onChange={(e) => setPassword(e.target.value)} required />
+                        <input type="password" placeholder="Password" className="auth-input" name="password" value={formData.password} onChange={handleChange} required />
                         <button type="submit" className="auth-button">Sign Up</button>
                     </form>
                 )}
