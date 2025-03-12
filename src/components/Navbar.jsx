@@ -13,11 +13,20 @@ const Navbar = () => {
 
   useEffect(() => {
     const token = localStorage.getItem("accessToken");
-    if (token) {
-      setIsLoggedIn(true);
-    } else {
-      setIsLoggedIn(false);
-    }
+    setIsLoggedIn(!!token);
+  }, []);
+
+  useEffect(() => {
+    const handleStorageChange = () => {
+      const token = localStorage.getItem("accessToken");
+      setIsLoggedIn(!!token);
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };
   }, []);
   
   const handleLoginSuccess = () => {
@@ -54,7 +63,7 @@ const Navbar = () => {
         </div>
        </div>  
 
-      {showingLogin && <Login onClose={() => setShowingLogin(false)} loginButton={!showingSignup}onLoginSuccess={handleLoginSuccess} />}
+      {showingLogin && <Login onClose={() => setShowingLogin(false)} loginButton={!showingSignup} onLoginSuccess={handleLoginSuccess} />}
     </nav>
   );
 };
