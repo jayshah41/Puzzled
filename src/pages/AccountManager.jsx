@@ -1,9 +1,20 @@
-import React from 'react'
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const AccountManager = () => {
-  return (
-    <div>AccountManager</div>
-  )
-}
+  const navigate = useNavigate();
 
-export default AccountManager
+  const handleLogout = () => {
+    localStorage.removeItem("accessToken");
+    navigate("/");
+  };
+
+  return (
+    <div>
+      <h1>Account Manager</h1>
+      <button onClick={handleLogout}>Logout</button>
+    </div>
+  );
+};
+
+export default AccountManager;
