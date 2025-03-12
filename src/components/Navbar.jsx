@@ -8,6 +8,7 @@ const Navbar = () => {
   
   const [showingLogin, setShowingLogin] = useState(false);
   const [showingSignup, setShowingSignup] = useState(false);
+  const [showGraphsDropdown, setShowGraphsDropdown] = useState(false);
 
   return (
     <nav className="navbar sticky">
@@ -20,6 +21,21 @@ const Navbar = () => {
         <Link to="/pricing">Pricing</Link>
         <Link to="/products">Products</Link>
         <Link to="/contact-us">Contact us</Link>
+
+        <div className="dropdown">
+          <button 
+            className="dropbtn" 
+            onClick={() => setShowGraphsDropdown(!showGraphsDropdown)}
+          >
+            Graphs
+          </button>
+          {showGraphsDropdown && (
+            <div className="dropdown-content">
+              <Link to="/graphs/company-details">Company Details</Link>
+            </div>
+          )}
+        </div>
+
 
         <div>
           <button onClick={() => {setShowingLogin(true); setShowingSignup(false);}}>Log In</button>
