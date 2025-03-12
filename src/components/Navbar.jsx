@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import makcorpLogoWithText from '../assets/makcorpLogoWithText.png';
-import profileIcon from '../assets/ServicesCards/profileIcon.png';
+import profileIcon from '../assets/profileIcon.png';
 import '../styles/Navbar.css';
 import { Link } from 'react-router-dom';
 import Login from './Login';
@@ -43,9 +43,11 @@ const Navbar = () => {
               <button onClick={() => {setShowingSignup(true); setShowingLogin(true);}}>Sign Up</button>
             </>
           ) : (
-            <div className="profile-icon" onClick={() => console.log("Profile dropdown clicked")}>
-            <img src= {profileIcon} alt="Profile" />
-            </div>
+            <Link to="/account">
+              <div className="profile-icon">
+                <img src={profileIcon} alt="Profile" />
+              </div>
+            </Link>
           )}
         </div>
        </div>  
