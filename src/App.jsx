@@ -6,6 +6,7 @@ import Pricing from './pages/Pricing';
 import Products from './pages/Products';
 import ContactUs from './pages/ContactUs';
 import AccountManager from './pages/AccountManager';
+import Data from './pages/Data';
 import Footer from './components/Footer';
 
 const App = () => {
@@ -19,6 +20,7 @@ const App = () => {
           <Route path="/products" element={<Products />} />
           <Route path="/contact-us" element={<ContactUs />} />
           <Route path="/account" element={<AccountManager />} />
+          <Route path="/data" element={<Data />} />
         </Routes>
         <Footer />
       </Router>
