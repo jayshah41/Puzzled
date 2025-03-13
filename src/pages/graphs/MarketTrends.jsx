@@ -17,7 +17,7 @@ const MarketTrends = () => {
 //setStates updates stats after fetching data
 
 useEffect(() => {
-    fetch('http://127.0.0.1:8000/api/asx-code-count/')  //replace w django URL
+    fetch('api/asx-code-count/')  //replace w django URL
             .then(response => response.json())
             .then(data => setStats(data)) 
             .catch(error => console.error("Error fetching ASX code count:", error));
