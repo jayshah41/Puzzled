@@ -22,11 +22,11 @@ const Hero = () => {
       .then(data => {
         const titleContent = data.find(item => item.section === 'title');
         const introContent = data.find(item => item.section === 'intro');
-        const bulletPointsContent = data.filter(item => item.section === 'bulletPoints');
+        const bulletPointsContent = data.find(item => item.section === 'bulletPoints');
 
         if (titleContent) setTitle(titleContent.text_value);
         if (introContent) setIntro(introContent.text_value);
-        if (bulletPointsContent) setBulletPoints(bulletPointsContent.map(item => item.text_value));
+        if (bulletPointsContent) setBulletPoints(bulletPointsContent.text_value.split('#'));
       })
       .catch(error => {
         console.error("There was an error fetching the editable content", error);
@@ -37,11 +37,7 @@ const Hero = () => {
     const content = [
       { component: 'Hero', section: 'title', text_value: title },
       { component: 'Hero', section: 'intro', text_value: intro },
-      ...bulletPoints.map((text_value, index) => ({
-        component: 'Hero',
-        section: 'bulletPoints',
-        text_value,
-      })),
+      { component: 'Hero', section: 'bulletPoints', text_value: bulletPoints.join('#') },
     ];
 
     content.forEach(item => {
