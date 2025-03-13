@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import '../styles/GeneralStyles.css';
 import ServicesCardContainer from './ServicesCardContainer';
 import Socials from './Socials';
@@ -13,10 +13,57 @@ const Services = () => {
     "The MakCorp platform can help you become more successful whether you are a retail investor, a corporate investor, or a business owner. Let us help you find your next opportunity for growth."
   );
 
+  useEffect(() => {
+      fetch('/api/editable-content/?component=Services')
+        .then(response => response.json())
+        .then(data => {
+          const titleContent = data.find(item => item.section === 'title');
+          const paraOne = data.find(item => item.section === 'paragraphOne');
+          const paraTwo = data.find(item => item.section === 'paragraphTwo');
+  
+          if (titleContent) setTitle(titleContent.text_value);
+          if (paraOne) setParagraphOne(paraOne.text_value);
+          if (paraTwo) setParagraphTwo(paraTwo.text_value);
+        })
+        .catch(error => {
+          console.error("There was an error fetching the editable content", error);
+        });
+    }, []);
+  
+    const saveContent = () => {
+      const content = [
+        { component: 'Services', section: 'title', text_value: title },
+        { component: 'Services', section: 'paragraphOne', text_value: paragraphOne },
+        { component: 'Services', section: 'paragraphTwo', text_value: paragraphTwo },
+      ];
+  
+      content.forEach(item => {
+        fetch('/api/editable-content/update/', {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(item),
+        })
+          .then(response => response.json())
+          .then(data => {
+            console.log('Content saved successfully:', data);
+          })
+          .catch(error => {
+            console.error('There was an error saving the content', error);
+          });
+      });
+    };
+
   return (
     <div className="standard-padding" style={{ textAlign: 'center' }}>
       <button 
-        onClick={() => setIsEditing(!isEditing)}
+        onClick={() => {
+          if (isEditing) {
+            saveContent();
+          }
+          setIsEditing(!isEditing);
+        }}
         style={{ marginBottom: '1rem' }}
       >
         {isEditing ? "Stop Editing" : "Edit"}
