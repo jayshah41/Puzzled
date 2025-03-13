@@ -1,11 +1,14 @@
 import React from 'react';
+import NewsHero from '../components/NewsHero';
+import NewsContent from '../components/NewsContent';
 
-const Pricing = () => {
+const News = () => {
   return (
     <>
-        News!
+      <NewsHero/>
+      <NewsContent/>
     </>
   )
 }
 
-export default Pricing
+export default News
