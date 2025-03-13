@@ -84,6 +84,21 @@ class Command(BaseCommand):
                 "section": "bulletPoints",
                 "text_value": "Over 30,000 ASX projects/tenements including commodities, stages, locations, jorcs and more#Over 8,500 directors including remuneration and shareholdings#Over 2,700 capital raises and their information#Over 29,000 Top 20 shareholders transactions#Financials including quarterlies, half yearly and annual"
             },
+            {
+                "component": "Services",
+                "section": "title",
+                "text_value": "Services we provide"
+            },
+            {
+                "component": "Services",
+                "section": "paragraphOne",
+                "text_value": "Makcorp provides a wide range of services for opportunities related to the mining industry. Whether you are an investor or a business looking to expand your footprint within the industry, MakCorp has tools available to provide research and analytics on mining organisations listed on the ASX."
+            },
+            {
+                "component": "Services",
+                "section": "paragraphTwo",
+                "text_value": "The MakCorp platform can help you become more successful whether you are a retail investor, a corporate investor, or a business owner. Let us help you find your next opportunity for growth."
+            },
         ]
 
         for data in content_data:
