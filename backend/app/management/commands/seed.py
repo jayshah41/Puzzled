@@ -82,7 +82,7 @@ class Command(BaseCommand):
             {
                 "component": "Hero",
                 "section": "bulletPoints",
-                "text_value": "Over 30,000 ASX projects/tenements including commodities, stages, locations, jorcs and more;Over 8,500 directors including remuneration and shareholdings;Over 2,700 capital raises and their information;Over 29,000 Top 20 shareholders transactions;Financials including quarterlies, half yearly and annual"
+                "text_value": "Over 30,000 ASX projects/tenements including commodities, stages, locations, jorcs and more#Over 8,500 directors including remuneration and shareholdings#Over 2,700 capital raises and their information#Over 29,000 Top 20 shareholders transactions#Financials including quarterlies, half yearly and annual"
             },
         ]
 
