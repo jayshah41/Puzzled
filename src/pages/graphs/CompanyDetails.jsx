@@ -1,13 +1,11 @@
-/**import React from 'react';
+import React from 'react';
+import useAuthRedirect from '../../hooks/useAuthRedirect';
 import { LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid } from "recharts";
 
-export default CompanyDetails*/
-
-// src/components/CompanyDetails.jsx
-
-import React from 'react';
-
 const CompanyDetails = () => {
+  
+  useAuthRedirect();
+
   return (
     <div>
       <h1>Company Details</h1>
@@ -16,6 +14,4 @@ const CompanyDetails = () => {
   );
 };
 
-export default CompanyDetails; 
-
-
+export default CompanyDetails;

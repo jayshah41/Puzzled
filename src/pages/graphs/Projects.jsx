@@ -1,6 +1,10 @@
 import React from 'react';
+import useAuthRedirect from '../../hooks/useAuthRedirect';
 
 const Projects = () => {
+
+  useAuthRedirect();
+
   return (
     <div>
       <h1>Projects</h1>
