@@ -99,6 +99,51 @@ class Command(BaseCommand):
                 "section": "paragraphTwo",
                 "text_value": "The MakCorp platform can help you become more successful whether you are a retail investor, a corporate investor, or a business owner. Let us help you find your next opportunity for growth."
             },
+            {
+                "component": "Values",
+                "section": "heading",
+                "text_value": "MakCorp's Value to Clients"
+            },
+            {
+                "component": "Values",
+                "section": "title1",
+                "text_value": "We save you time"
+            },
+            {
+                "component": "Values",
+                "section": "content1",
+                "text_value": "We save you time; We provide the research that is often time consuming to allow our clients to focus on managing their investments, not finding them."
+            },
+            {
+                "component": "Values",
+                "section": "title2",
+                "text_value": "Visualization of Key Data"
+            },
+            {
+                "component": "Values",
+                "section": "content2",
+                "text_value": "MakCorp provides in depth data in a visual interface. Our clients aren't just limited to searching by a company or a code, but by project areas, directors and financial indicators."
+            },
+            {
+                "component": "Values",
+                "section": "title3",
+                "text_value": "Critical Information",
+            },
+            {
+                "component": "Values",
+                "section": "content3",
+                "text_value": "MakCorp uses its research team to compile the most critical data in researching resource stocks. Our goal is to connect our clients with the right data and tools to unleash their Investment potential.",
+            },
+            {
+                "component": "Values",
+                "section": "title4",
+                "text_value": "Time Saving Analytics",
+            },
+            {
+                "component": "Values",
+                "section": "content4",
+                "text_value": "Dissect and query over 600 data points from projects, market data, directors, top 20, financials in seconds, not hours, days or weeks that it would take to do manually."
+            }
         ]
 
         for data in content_data:
