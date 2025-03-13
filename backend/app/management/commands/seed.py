@@ -143,6 +143,96 @@ class Command(BaseCommand):
                 "component": "Values",
                 "section": "content4",
                 "text_value": "Dissect and query over 600 data points from projects, market data, directors, top 20, financials in seconds, not hours, days or weeks that it would take to do manually."
+            },
+            {
+                "component": "Contact",
+                "section": "title",
+                "text_value": "Meet Our Team"
+            },
+            {
+                "component": "Contact",
+                "section": "introText",
+                "text_value": "Our team has over 50 years combined experience in the resource sector, from working on mine sites to ERP software reviews."
+            },
+            {
+                "component": "Contact",
+                "section": "name1",
+                "text_value": "Steve Rosewell"
+            },
+            {
+                "component": "Contact",
+                "section": "role1",
+                "text_value": "Executive Chairman"
+            },
+            {
+                "component": "Contact",
+                "section": "phone1",
+                "text_value": "+61 (4) 0555 1055"
+            },
+            {
+                "component": "Contact",
+                "section": "email1",
+                "text_value": "steve@makcorp.com.au"
+            },
+            {
+                "component": "Contact",
+                "section": "name2",
+                "text_value": "Robert Williamson"
+            },
+            {
+                "component": "Contact",
+                "section": "role2",
+                "text_value": "Director"
+            },
+            {
+                "component": "Contact",
+                "section": "phone2",
+                "text_value": ""
+            },
+            {
+                "component": "Contact",
+                "section": "email2",
+                "text_value": "robert@makcorp.com.au"
+            },
+            {
+                "component": "Contact",
+                "section": "name3",
+                "text_value": "Scott Yull"
+            },
+            {
+                "component": "Contact",
+                "section": "role3",
+                "text_value": "Director"
+            },
+            {
+                "component": "Contact",
+                "section": "phone3",
+                "text_value": ""
+            },
+            {
+                "component": "Contact",
+                "section": "email3",
+                "text_value": "info@makcorp.com.au"
+            },
+            {
+                "component": "Contact",
+                "section": "name4",
+                "text_value": "Emmanuel Heyndrickx"
+            },
+            {
+                "component": "Contact",
+                "section": "role4",
+                "text_value": "Executive Director"
+            },
+            {
+                "component": "Contact",
+                "section": "phone4",
+                "text_value": "+44 7739 079 787"
+            },
+            {
+                "component": "Contact",
+                "section": "email4",
+                "text_value": "emmanuel@makcorp.com.au"
             }
         ]
 
