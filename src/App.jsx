@@ -7,14 +7,14 @@ import Products from './pages/Products';
 import ContactUs from './pages/ContactUs';
 import AccountManager from './pages/AccountManager';
 import Footer from './components/Footer';
-import CompanyDetails from './components/CompanyDetails';
-import MarketData from './components/MarketData';
-import MarketTrends from './components/MarketTrends';
-import Directors from './components/Directors';
-import Shareholders from './components/Shareholders';
-import CapitalRaises from './components/CapitalRaises';
-import Projects from './components/Projects';
-import Financials from './components/Financials';
+import CompanyDetails from './pages/graphs/CompanyDetails';
+import MarketData from './pages/graphs/MarketData';
+import MarketTrends from './pages/graphs/MarketTrends';
+import Directors from './pages/graphs/Directors';
+import Shareholders from './pages/graphs/Shareholders';
+import CapitalRaises from './pages/graphs/CapitalRaises';
+import Projects from './pages/graphs/Projects';
+import Financials from './pages/graphs/Financials';
 
 const App = () => {
   return (
