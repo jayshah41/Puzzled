@@ -20,6 +20,7 @@ const Navbar = () => {
         <Link to="/pricing">Pricing</Link>
         <Link to="/products">Products</Link>
         <Link to="/contact-us">Contact us</Link>
+        <Link to="/news">News</Link>
 
         <div>
           <button onClick={() => {setShowingLogin(true); setShowingSignup(false);}}>Log In</button>
