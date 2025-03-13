@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import hero from '../assets/hero-picture.png';
 import '../styles/GeneralStyles.css';
 
@@ -16,6 +16,52 @@ const Hero = () => {
     "Financials including quarterlies, half yearly and annual",
   ]);
 
+  useEffect(() => {
+    fetch('/api/editable-content/?component=Hero')
+      .then(response => response.json())
+      .then(data => {
+        const titleContent = data.find(item => item.section === 'title');
+        const introContent = data.find(item => item.section === 'intro');
+        const bulletPointsContent = data.filter(item => item.section === 'bulletPoints');
+
+        if (titleContent) setTitle(titleContent.text_value);
+        if (introContent) setIntro(introContent.text_value);
+        if (bulletPointsContent) setBulletPoints(bulletPointsContent.map(item => item.text_value));
+      })
+      .catch(error => {
+        console.error("There was an error fetching the editable content", error);
+      });
+  }, []);
+
+  const saveContent = () => {
+    const content = [
+      { component: 'Hero', section: 'title', text_value: title },
+      { component: 'Hero', section: 'intro', text_value: intro },
+      ...bulletPoints.map((text_value, index) => ({
+        component: 'Hero',
+        section: 'bulletPoints',
+        text_value,
+      })),
+    ];
+
+    content.forEach(item => {
+      fetch('/api/editable-content/update/', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(item),
+      })
+        .then(response => response.json())
+        .then(data => {
+          console.log('Content saved successfully:', data);
+        })
+        .catch(error => {
+          console.error('There was an error saving the content', error);
+        });
+    });
+  };
+
   const addBulletPoint = () => {
     setBulletPoints([...bulletPoints, ""]);
   };
@@ -28,7 +74,13 @@ const Hero = () => {
   return (
     <div className="two-card-container standard-padding">
       <div>
-        <button onClick={()=>{setIsEditing(!isEditing)}}>{isEditing ? 'Stop Editing' : 'Edit'}</button>
+        <button onClick={() => {
+          if (isEditing) {
+            saveContent();
+          }
+          setIsEditing(!isEditing);
+        }}>
+          {isEditing ? 'Stop Editing' : 'Edit'}</button>
         {isEditing ? (
           <input
             type="text"
