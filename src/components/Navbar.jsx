@@ -34,6 +34,7 @@ const Navbar = () => {
     setShowingLogin(false);
     console.log("Login successful. isLoggedIn:", true); 
   };
+  const [showGraphsDropdown, setShowGraphsDropdown] = useState(false);
 
   return (
     <nav className="navbar sticky">
@@ -46,7 +47,30 @@ const Navbar = () => {
         <Link to="/pricing">Pricing</Link>
         <Link to="/products">Products</Link>
         <Link to="/contact-us">Contact us</Link>
-        {isLoggedIn ? <Link to="/data">Data</Link> : null}
+        {isLoggedIn ?
+
+        <div className="dropdown">
+          <button 
+            className="dropbtn" 
+            onMouseEnter={() => setShowGraphsDropdown(true)}
+            onMouseExit={() => setShowGraphsDropdown(false)}
+          >
+            Graphs
+          </button>
+          {showGraphsDropdown && (
+            <div className="dropdown-content">
+              <Link to="/graphs/company-details">Company Details</Link>
+              <Link to="/graphs/market-data">Market Data</Link>
+              <Link to="/graphs/market-trends">Market Trends</Link>
+              <Link to="/graphs/directors">Directors</Link>
+              <Link to="/graphs/shareholders">Shareholders</Link>
+              <Link to="/graphs/capital-raises">Capital Raises</Link>
+              <Link to="/graphs/projects">Projects</Link>
+              <Link to="/graphs/financials">Financials</Link>
+            </div>
+          )}
+        </div>
+        : null}
 
         <div>
           {!isLoggedIn ? (
@@ -70,3 +94,5 @@ const Navbar = () => {
 };
 
 export default Navbar;
+
+
