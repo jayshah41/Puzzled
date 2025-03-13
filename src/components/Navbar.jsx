@@ -53,7 +53,6 @@ const Navbar = () => {
           <button 
             className="dropbtn" 
             onMouseEnter={() => setShowGraphsDropdown(true)}
-            onMouseExit={() => setShowGraphsDropdown(false)}
           >
             Graphs
           </button>
