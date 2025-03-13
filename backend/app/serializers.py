@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from .models import EditableContent
 from rest_framework import serializers
 
 User = get_user_model()  # Dynamically retrieve the custom User model
@@ -13,3 +14,9 @@ class UserSerializer(serializers.ModelSerializer):
         if len(value) > 3:
             raise serializers.ValidationError("You can only specify up to 3 commodities.")
         return value
+
+
+class EditableContentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = EditableContent
+        fields = ['component', 'section', 'text_value']
