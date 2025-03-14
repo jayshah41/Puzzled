@@ -52,19 +52,19 @@ const Services = () => {
   };
 
   return (
-    <div className="standard-padding" style={{ textAlign: 'center' }}>
-      <button 
-        onClick={() => {
-          if (isEditing) {
-            saveContent();
-          }
-          setIsEditing(!isEditing);
-        }}
-        style={{ marginBottom: '1rem' }}
-      >
-        {isEditing ? "Stop Editing" : "Edit"}
-      </button>
-      
+  <div className="standard-padding">
+    <button
+      onClick={() => {
+        if (isEditing) {
+          saveContent();
+        }
+        setIsEditing(!isEditing);
+      }}
+      style={{ marginBottom: '1rem' }}
+    >
+      {isEditing ? "Stop Editing" : "Edit"}
+    </button>
+    <div style={{ textAlign: 'center' }}>
       {isEditing ? (
         <input
           type="text"
@@ -104,6 +104,7 @@ const Services = () => {
         <Socials />
       </div>
     </div>
+  </div>
   );
 };
 

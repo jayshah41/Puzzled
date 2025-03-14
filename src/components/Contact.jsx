@@ -180,58 +180,60 @@ const Contact = () => {
   };
 
   return (
-    <div className="standard-padding" style={{ textAlign: 'center', marginBottom: '75px' }}>
+    <div className="standard-padding">
       <div style={{ marginBottom: '75px' }}>
-        <button onClick={() => {
-            if (isEditing) {
-              saveContent();
-            }
-            setIsEditing(!isEditing);
-          }}>
-          {isEditing ? 'Stop Editing' : 'Edit'}
-        </button>
-        {isEditing ? (
-          <input
-            type="text"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            className="auth-input"
-          />
-        ) : (
-          <h1>{title}</h1>
-        )}
-        {isEditing ? (
-          <input
-            type="text"
-            value={introText}
-            onChange={(e) => setIntroText(e.target.value)}
-            className="auth-input"
-          />
-        ) : (
-          <p>{introText}</p>
-        )}
-      </div>
-      <div className="two-card-container" style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap' }}>
-        {contacts.slice(0, 2).map((contact, index) => (
-          <ContactCard
-            key={index}
-            contact={contact}
-            index={index}
-            setContacts={setContacts}
-            isEditing={isEditing}
-          />
-        ))}
-      </div>
-      <div className="two-card-container" style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap', paddingTop: '20px' }}>
-        {contacts.slice(2, 4).map((contact, index) => (
-          <ContactCard
-            key={index}
-            contact={contact}
-            index={index + 2}
-            setContacts={setContacts}
-            isEditing={isEditing}
-          />
-        ))}
+          <button onClick={() => {
+              if (isEditing) {
+                saveContent();
+              }
+              setIsEditing(!isEditing);
+            }}>
+            {isEditing ? 'Stop Editing' : 'Edit'}
+          </button>
+      <div style={{ textAlign: 'center', marginBottom: '75px' }}>
+          {isEditing ? (
+            <input
+              type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              className="auth-input"
+            />
+          ) : (
+            <h1>{title}</h1>
+          )}
+          {isEditing ? (
+            <input
+              type="text"
+              value={introText}
+              onChange={(e) => setIntroText(e.target.value)}
+              className="auth-input"
+            />
+          ) : (
+            <p>{introText}</p>
+          )}
+        </div>
+        <div className="two-card-container" style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap' }}>
+          {contacts.slice(0, 2).map((contact, index) => (
+            <ContactCard
+              key={index}
+              contact={contact}
+              index={index}
+              setContacts={setContacts}
+              isEditing={isEditing}
+            />
+          ))}
+        </div>
+        <div className="two-card-container" style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap', paddingTop: '20px' }}>
+          {contacts.slice(2, 4).map((contact, index) => (
+            <ContactCard
+              key={index}
+              contact={contact}
+              index={index + 2}
+              setContacts={setContacts}
+              isEditing={isEditing}
+            />
+          ))}
+        </div>
       </div>
     </div>
   );
