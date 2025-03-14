@@ -12,8 +12,8 @@ const ContactCard = ({ contact, index, setContacts, isEditing }) => {
   };
 
   return (
-    <div style={{ width: '25vw', backgroundColor: 'white', display:'flex', flexDirection: 'column', boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)', margin: 'auto' }}>
-        <img src={contact.image} alt={contact.name} />
+    <div style={{ width: '25vw', backgroundColor: 'white', display:'flex', flexDirection: 'column', boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)', margin: '20px', borderRadius: '10px' }}>
+        <img src={contact.image} alt={contact.name} style={{ borderRadius: '1000px', width: '70%', margin: 'auto', marginTop: '25px' }} />
         {isEditing ? (
           <input
             type="text"
@@ -54,7 +54,9 @@ const ContactCard = ({ contact, index, setContacts, isEditing }) => {
         ) : (
           contact.email ? <h4 style={{ margin: 'auto' }}>email: {contact.email}</h4> : <></>
         )}
-        <Socials />
+        <div style={{ marginBottom: '25px' }}>
+          <Socials />
+        </div>
     </div>
   )
 }

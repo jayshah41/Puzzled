@@ -211,7 +211,7 @@ const Contact = () => {
           <p>{introText}</p>
         )}
       </div>
-      <div className="two-card-container">
+      <div className="two-card-container" style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap' }}>
         {contacts.slice(0, 2).map((contact, index) => (
           <ContactCard
             key={index}
@@ -222,7 +222,7 @@ const Contact = () => {
           />
         ))}
       </div>
-      <div className="two-card-container" style={{ paddingTop: '20px' }}>
+      <div className="two-card-container" style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap', paddingTop: '20px' }}>
         {contacts.slice(2, 4).map((contact, index) => (
           <ContactCard
             key={index}
