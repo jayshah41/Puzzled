@@ -1,14 +1,12 @@
 from django.core.management.base import BaseCommand
 from django.contrib.auth.hashers import make_password
-from app.models import User
-from app.models import EditableContent
+from app.models import User, EditableContent
 
 class Command(BaseCommand):
 
     def handle(self, *args, **options):
         self.create_users()
         self.create_editable_content()
-
 
     def create_users(self):
         print("Seeding users...")
@@ -64,7 +62,6 @@ class Command(BaseCommand):
             user.save()
             self.stdout.write(self.style.SUCCESS(f"Created user: {user.email}"))
 
-
     def create_editable_content(self):
         print("Seeding editable content...")
 
@@ -86,7 +83,7 @@ class Command(BaseCommand):
             },
             {
                 "component": "Services",
-                "section": "title",
+                "section": "heading",
                 "text_value": "Services we provide"
             },
             {
@@ -98,6 +95,36 @@ class Command(BaseCommand):
                 "component": "Services",
                 "section": "paragraphTwo",
                 "text_value": "The MakCorp platform can help you become more successful whether you are a retail investor, a corporate investor, or a business owner. Let us help you find your next opportunity for growth."
+            },
+            {
+                "component": "Services",
+                "section": "title1",
+                "text_value": "Commodity Pricing"
+            },
+            {
+                "component": "Services",
+                "section": "content1",
+                "text_value": "See the prices for each commodity on a daily basis including potential value of JORCS."
+            },
+            {
+                "component": "Services",
+                "section": "title2",
+                "text_value": "Stock Performance"
+            },
+            {
+                "component": "Services",
+                "section": "content2",
+                "text_value": "See the performances on stocks by any period since 2018 including daily, weekly, monthly, and yearly."
+            },
+            {
+                "component": "Services",
+                "section": "title3",
+                "text_value": "Data Services"
+            },
+            {
+                "component": "Services",
+                "section": "content3",
+                "text_value": "Contact us for other data services including project research and director research."
             },
             {
                 "component": "Values",
