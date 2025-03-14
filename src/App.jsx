@@ -27,14 +27,14 @@ const App = () => {
           <Route path="/products" element={<Products />} />
           <Route path="/contact-us" element={<ContactUs />} /> 
           <Route path="/account" element={<AccountManager />} />
-          <Route path="/graphs/company-details" element={CompanyDetails} />
-          <Route path="/graphs/market-data" element={MarketData} />
-          <Route path="/graphs/market-trends" element={MarketTrends} />
-          <Route path="/graphs/directors" element={Directors} />
-          <Route path="/graphs/shareholders" element={Shareholders} />
-          <Route path="/graphs/capital-raises" element={CapitalRaises} />
-          <Route path="/graphs/projects" element={Projects} />
-          <Route path="/graphs/financials" element={Financials} />
+          <Route path="/graphs/company-details" element={<CompanyDetails />} />
+          <Route path="/graphs/market-data" element={<MarketData />} />
+          <Route path="/graphs/market-trends" element={<MarketTrends />} />
+          <Route path="/graphs/directors" element={<Directors />} />
+          <Route path="/graphs/shareholders" element={<Shareholders />} />
+          <Route path="/graphs/capital-raises" element={<CapitalRaises />} />
+          <Route path="/graphs/projects" element={<Projects />} />
+          <Route path="/graphs/financials" element={<Financials />} />
         </Routes>
         <Footer />
       </Router>

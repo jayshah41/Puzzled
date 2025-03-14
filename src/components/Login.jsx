@@ -66,15 +66,9 @@ const Login = ({ onClose, loginButton, onLoginSuccess }) => {
             if (!userResponse.ok) throw new Error("Failed to fetch user data");
 
             const userData = await userResponse.json();
-            alert(`Welcome ${userData.email}! Your access level: ${userData.tier_level}`);
 
             onLoginSuccess();
 
-            if (userData.is_admin) {
-                navigate("/");
-            } else {
-                navigate("/data");
-            }
 
         } catch (error) {
             setError(error.message);
