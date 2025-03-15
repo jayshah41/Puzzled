@@ -7,6 +7,9 @@ import scottYull from '../assets/MeetTheTeam/scott-yull.png';
 import robertWilliamson from '../assets/MeetTheTeam/robert-williamson.png';
 
 const Contact = () => {
+  const isAdminUser = localStorage.getItem("user_tier_level") == 2;
+
+
   const [isEditing, setIsEditing] = useState(false);
   const [title, setTitle] = useState("Meet Our Team");
   const [introText, setIntroText] = useState("Our team has over 50 years combined experience in the resource sector, from working on mine sites to ERP software reviews.");
@@ -182,6 +185,7 @@ const Contact = () => {
   return (
     <div className="standard-padding">
       <div style={{ marginBottom: '75px' }}>
+        {isAdminUser ?
           <button onClick={() => {
               if (isEditing) {
                 saveContent();
@@ -190,6 +194,7 @@ const Contact = () => {
             }}>
             {isEditing ? 'Stop Editing' : 'Edit'}
           </button>
+        : null}
       <div style={{ textAlign: 'center', marginBottom: '75px' }}>
           {isEditing ? (
             <input

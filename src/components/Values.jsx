@@ -3,6 +3,8 @@ import '../styles/ValueComponent.css';
 import ValueComponent from './ValueComponent';
 
 const Values = () => {
+  const isAdminUser = localStorage.getItem("user_tier_level") == 2;
+  
   const [isEditing, setIsEditing] = useState(false);
   const [heading, setHeading] = useState("MakCorp's Value to Clients");
   const [contentMap, setContentMap] = useState([]);
@@ -51,7 +53,7 @@ const Values = () => {
     })
       .then(response => response.json())
       .then(data => {
-        console.log('Heading saved successfully:', data);
+        // console.log('Heading saved successfully:', data);
       })
       .catch(error => {
         console.error('There was an error saving the heading', error);
@@ -60,7 +62,8 @@ const Values = () => {
 
   return (
     <div className="values-container">
-      <button onClick={() => {
+      {isAdminUser ?
+        <button onClick={() => {
           if (isEditing) {
             saveContent();
           }
@@ -68,6 +71,7 @@ const Values = () => {
         }}
         style={{ marginBottom: '1rem' }}>
           {isEditing ? 'Stop Editing' : 'Edit'}</button>
+      : null}
       <div className="values-header">
         {isEditing ? (
           <input

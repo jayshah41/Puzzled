@@ -3,6 +3,7 @@ import hero from '../assets/hero-picture.png';
 import '../styles/GeneralStyles.css';
 
 const Hero = () => {
+  const isAdminUser = localStorage.getItem("user_tier_level") == 2;
 
   const [isEditing, setIsEditing] = useState(false);
 
@@ -70,7 +71,8 @@ const Hero = () => {
   return (
     <div className="two-card-container standard-padding">
       <div>
-        <button onClick={() => {
+        {isAdminUser ?
+          <button onClick={() => {
           if (isEditing) {
             saveContent();
           }
@@ -78,6 +80,7 @@ const Hero = () => {
         }}
         style={{ marginBottom: '1rem' }}>
           {isEditing ? 'Stop Editing' : 'Edit'}</button>
+        : null}
         {isEditing ? (
           <input
             type="text"

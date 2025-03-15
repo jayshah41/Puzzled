@@ -4,6 +4,8 @@ import ServicesCardContainer from './ServicesCardContainer';
 import Socials from './Socials';
 
 const Services = () => {
+  const isAdminUser = localStorage.getItem("user_tier_level") == 2;
+
   const [isEditing, setIsEditing] = useState(false);
   const [heading, setHeading] = useState("");
   const [paragraphOne, setParagraphOne] = useState("");
@@ -53,7 +55,8 @@ const Services = () => {
 
   return (
   <div className="standard-padding">
-    <button
+    {isAdminUser ?
+      <button
       onClick={() => {
         if (isEditing) {
           saveContent();
@@ -64,6 +67,7 @@ const Services = () => {
     >
       {isEditing ? "Stop Editing" : "Edit"}
     </button>
+    : null}
     <div style={{ textAlign: 'center' }}>
       {isEditing ? (
         <input
