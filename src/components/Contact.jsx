@@ -191,7 +191,8 @@ const Contact = () => {
                 saveContent();
               }
               setIsEditing(!isEditing);
-            }}>
+            }}
+            style={{ marginBottom: '1rem' }}>
             {isEditing ? 'Stop Editing' : 'Edit'}
           </button>
         : null}
