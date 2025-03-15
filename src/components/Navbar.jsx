@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import makcorpLogoWithText from '../assets/makcorpLogoWithText.png';
 import profileIcon from '../assets/profileIcon.png';
 import '../styles/Navbar.css';
@@ -6,10 +7,12 @@ import { Link } from 'react-router-dom';
 import Login from './Login';
 
 const Navbar = () => {
+  const navigate = useNavigate();
   
   const [showingLogin, setShowingLogin] = useState(false);
   const [showingSignup, setShowingSignup] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [showGraphsDropdown, setShowGraphsDropdown] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem("accessToken");
@@ -32,9 +35,9 @@ const Navbar = () => {
   const handleLoginSuccess = () => {
     setIsLoggedIn(true);
     setShowingLogin(false);
-    console.log("Login successful. isLoggedIn:", true); 
+    console.log("Login successful. isLoggedIn:", true);
+    navigate("/account");
   };
-  const [showGraphsDropdown, setShowGraphsDropdown] = useState(false);
 
   return (
     <nav className="navbar sticky">
