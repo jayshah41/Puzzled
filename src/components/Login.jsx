@@ -66,6 +66,7 @@ const Login = ({ onClose, loginButton, onLoginSuccess }) => {
             if (!userResponse.ok) throw new Error("Failed to fetch user data");
 
             const userData = await userResponse.json();
+            localStorage.setItem("user_tier_level", userData.tier_level);
 
             onLoginSuccess();
 
