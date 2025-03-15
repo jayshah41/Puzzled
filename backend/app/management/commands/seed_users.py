@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
 from django.contrib.auth.hashers import make_password
-from app.models import User  # Replace `myapp` with the name of your app
+from app.models import User 
 
 class Command(BaseCommand):
 
@@ -44,7 +44,7 @@ class Command(BaseCommand):
         ]
 
         for data in users_data:
-            user = User(
+            user, _ = User.objects.get_or_create(
                 email=data["email"],
                 username=data["username"],
                 password=make_password(data["password"]),
@@ -55,7 +55,6 @@ class Command(BaseCommand):
                 tier_level=data["tier_level"],
                 user_type=data["user_type"],
             )
-            user.save()
             self.stdout.write(self.style.SUCCESS(f"Created user: {user.email}"))
 
         self.stdout.write(self.style.SUCCESS("Successfully seeded users!"))
