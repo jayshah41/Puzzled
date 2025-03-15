@@ -1,12 +1,5 @@
-from django.contrib.auth.models import AbstractUser # extends default user mode
+from django.contrib.auth.models import AbstractUser
 from django.db import models
-
-# Create your models here.
-# User 
-# Types of Users = admin and client, 
-# 3 levels of tiers = level 0 (basic), level 1 (all features), level 2 (admin access = all features + editting)
-# Catagories; First Name, Last Name, email Add (primary key), phone number, country, state, Top 3 commodities (list?), tier level, user types, password
-# we want to be able to know if a user is currently online through like an  
 
 class User(AbstractUser):
     
@@ -21,7 +14,7 @@ class User(AbstractUser):
     TIER_CHOICES = [
         (0, "Basic"),
         (1, "Paid"),
-        (2, "Admin"),
+        (2, "Admin")
     ]
     
     tier_level = models.IntegerField(choices=TIER_CHOICES, default=0)
