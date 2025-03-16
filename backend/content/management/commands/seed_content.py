@@ -1,5 +1,5 @@
 from django.core.management.base import BaseCommand
-from content.models import User, EditableContent
+from content.models import EditableContent
 
 class Command(BaseCommand):
 
