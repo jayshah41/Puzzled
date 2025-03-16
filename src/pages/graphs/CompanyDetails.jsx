@@ -11,7 +11,6 @@ const CompanyDetails = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
 
-    // Fetch companies without debounce
     const fetchCompanies = useCallback(async () => {
         const token = localStorage.getItem("accessToken");
 
@@ -33,8 +32,8 @@ const CompanyDetails = () => {
             });
 
             console.log("API Response:", response.data);
-            setCompanies(response.data || []); // ✅ Fix: Handle response as an array
-            setTotalCompanies(response.data.length || 0); // ✅ Fix: Get actual number of companies
+            setCompanies(response.data || []); 
+            setTotalCompanies(response.data.length || 0); 
             setError("");
         } catch (error) {
             console.error("Error fetching companies:", error.response?.data || error);
@@ -44,7 +43,6 @@ const CompanyDetails = () => {
         }
     }, [minPrice, maxPrice, startDate, endDate]);
 
-    // Fetch data on mount & when filters change
     useEffect(() => {
         console.log("Fetching companies...");
         fetchCompanies();
