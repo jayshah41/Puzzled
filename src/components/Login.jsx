@@ -93,7 +93,6 @@ const Login = ({ onClose, loginButton, onLoginSuccess }) => {
                     commodities: formData.commodities,
                     password: formData.password,
                     tier_level: 1,
-                    user_type: "client"
                 }),
             });
 
