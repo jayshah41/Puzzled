@@ -5,7 +5,7 @@ const ServicesCard = ({ image, title, content }) => {
 
 return (
     <div className="card" style={{ height: '275px' }}>
-        <img src={image} style={{ width: '50px' }}></img>
+        <img src={image} style={{ width: '50px', margin: 'auto' }}></img>
         <h3 className="card-header">{title}</h3>
         <p className="card-content">{content}</p>
     </div>
