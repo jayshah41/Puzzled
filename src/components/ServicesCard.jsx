@@ -13,15 +13,7 @@ const ServicesCard = ({ index, image, title, content, setValues, isEditing }) =>
 
   return (
     <div className="card" style={{ height: '275px' }}>
-      <img src={image} style={{ width: '50px', margin: 'auto' }} alt={title} />
-      {isEditing ? (
-        <input
-          type="text"
-          value={title}
-          onChange={(e) => handleChange('title', e.target.value)}
-          className="auth-input"
-        />
-      ) : (
+        <img src={image} style={{ width: '50px', margin: 'auto' }}></img>
         <h3 className="card-header">{title}</h3>
       )}
       {isEditing ? (

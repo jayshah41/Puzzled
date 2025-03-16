@@ -28,7 +28,7 @@ urlpatterns = [
     path('login/', LoginView.as_view(), name='login'),
     path('profile/', ProfileView.as_view(), name='profile'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-    path('api/', include('api.urls')),
+    path('data/', include('api.urls')),
     path('editable-content/', EditableContentView.as_view(), name='editable-content'),
     path('editable-content/update/', EditableContentUpdateView.as_view(), name='editable-content-update'),
 ]

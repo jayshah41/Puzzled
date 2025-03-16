@@ -17,5 +17,5 @@ router.register(r'capital-raises', CapitalRaisesViewSet)
 router.register(r'projects', ProjectsViewSet)
 
 urlpatterns = [
-    path('', include(router.urls)),  # No 'api/' prefix here
+    path('', include(router.urls)), 
 ]
