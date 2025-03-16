@@ -54,11 +54,4 @@ class User(AbstractUser):
         return f"{self.email} - {self.user_type} (Tier {self.tier_level})"
   
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['username'] 
-
-
-
-class EditableContent(models.Model):
-    component = models.TextField(max_length=100)
-    section = models.TextField(max_length=100)
-    text_value = models.TextField()
+    REQUIRED_FIELDS = ['username']
