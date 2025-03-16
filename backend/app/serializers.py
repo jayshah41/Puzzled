@@ -1,5 +1,4 @@
 from django.contrib.auth import get_user_model
-from .models import EditableContent
 from rest_framework import serializers
 
 User = get_user_model()  # Dynamically retrieve the custom User model

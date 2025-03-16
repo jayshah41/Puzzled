@@ -6,8 +6,6 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
 from django.contrib.auth import get_user_model
 from .serializers import UserSerializer
-from .models import EditableContent
-from .serializers import EditableContentSerializer
 
 User = get_user_model()
 

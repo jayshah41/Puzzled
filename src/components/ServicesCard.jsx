@@ -15,7 +15,6 @@ const ServicesCard = ({ index, image, title, content, setValues, isEditing }) =>
     <div className="card" style={{ height: '275px' }}>
         <img src={image} style={{ width: '50px', margin: 'auto' }}></img>
         <h3 className="card-header">{title}</h3>
-      )}
       {isEditing ? (
         <textarea
           value={content}
