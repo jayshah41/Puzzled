@@ -1,5 +1,7 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+from rest_framework_simplejwt.authentication import JWTAuthentication
 from .models import MarketTrends
 from django.db.models import Avg
 
@@ -18,6 +20,8 @@ from .serializers import (
 class CompanyViewSet(viewsets.ModelViewSet):
     queryset = Company.objects.all()
     serializer_class = CompanySerializer
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated] 
 
 class FinancialViewSet(viewsets.ModelViewSet):
     queryset = Financial.objects.all()

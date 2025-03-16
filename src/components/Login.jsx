@@ -66,6 +66,7 @@ const Login = ({ onClose, loginButton, onLoginSuccess }) => {
             if (!userResponse.ok) throw new Error("Failed to fetch user data");
 
             const userData = await userResponse.json();
+            console.log("User Data:", userData);
 
             onLoginSuccess();
 
