@@ -4,6 +4,8 @@ import '../styles/GeneralStyles.css';
 
 const Hero = () => {
   const isAdminUser = localStorage.getItem("user_tier_level") == 2;
+  const token = localStorage.getItem("accessToken");
+  const isLoggedIn = !!token;
 
   const [isEditing, setIsEditing] = useState(false);
 
@@ -134,7 +136,9 @@ const Hero = () => {
           </button>
         )}
         </ul>
+        {!isLoggedIn ? 
         <button className="defulatButton">Start now</button>
+        : null}
       </div>
       <img src={hero} style={{ width: '45vw', paddingLeft: "35px" }}></img>
     </div>
