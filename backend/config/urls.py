@@ -18,6 +18,8 @@ from django.contrib import admin
 from django.urls import path, include
 from app.views import RegisterView, LoginView, ProfileView
 from rest_framework_simplejwt.views import TokenRefreshView
+from content.views import EditableContentView
+from content.views import EditableContentUpdateView
 
 
 urlpatterns = [
@@ -27,4 +29,6 @@ urlpatterns = [
     path('profile/', ProfileView.as_view(), name='profile'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('data/', include('api.urls')),
+    path('editable-content/', EditableContentView.as_view(), name='editable-content'),
+    path('editable-content/update/', EditableContentUpdateView.as_view(), name='editable-content-update'),
 ]
