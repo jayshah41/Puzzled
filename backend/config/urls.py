@@ -18,8 +18,8 @@ from django.contrib import admin
 from django.urls import path, include
 from app.views import RegisterView, LoginView, ProfileView
 from rest_framework_simplejwt.views import TokenRefreshView
-from app.views import EditableContentView
-from app.views import EditableContentUpdateView
+from content.views import EditableContentView
+from content.views import EditableContentUpdateView
 
 
 urlpatterns = [
