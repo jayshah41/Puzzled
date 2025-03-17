@@ -5,12 +5,17 @@ import '../styles/SubscriptionStyles.css';
 const SubscriptionPlans = () => {
   const [paymentOption, setPaymentOption] = useState("$3995 Per Annum");
   const [numOfUsers, setNumOfUsers] = useState("one");
-  const [tierLevel, setTierLevel] = useState("1");
+  const [tierLevel, setTierLevel] = useState("2");
   
   const colourMap = {
     "$895 Per Month": "#cd7f32",
     "$1495 Per Quarter": "#c0c0c0",
     "$3995 Per Annum": "#ffd700"
+  };
+
+  const getColour = () => {
+    if (tierLevel === "1") return "#000000";
+    return colourMap[paymentOption];
   };
 
   const calculatePrice = (paymentOption, numOfUsers) => {
@@ -66,8 +71,8 @@ const SubscriptionPlans = () => {
   return (
     <div className="container standard-padding">
       <div className="pricing-card">
-        <div className="pricing-header" style={{ backgroundColor: colourMap[paymentOption] }}>
-        <h3 style={{ margin: 'auto' }}>Tier {tierLevel} Pricing {`(${titleCase(numOfUsers)} User${numOfUsers == 'five' ? 's' : ''})`}</h3>
+        <div className="pricing-header" style={{ backgroundColor: getColour() }}>
+        <h3 style={{ margin: 'auto' }}>Tier {tierLevel} Pricing {tierLevel==="2" ? `(${titleCase(numOfUsers)} User${numOfUsers == 'five' ? 's' : ''})` : null}</h3>
         </div>
         <div className="pricing-content">
           <div className="price">
@@ -103,7 +108,8 @@ const SubscriptionPlans = () => {
             Two
           </label>
         </div>
-      
+      {tierLevel === "2" ?
+        <>
         <div className="control-section">
           <h3>Select your payment period</h3>
           <label className="radio-option">
@@ -156,6 +162,8 @@ const SubscriptionPlans = () => {
             Five
           </label>
         </div>
+        </>
+        : null}
       </div>
     </div>
   )
