@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import { Bar, Line, Pie, Doughnut, Radar, Scatter, Bubble } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, PointElement, LineElement, ArcElement, RadialLinearScale } from 'chart.js';
 import '../styles/Graphs.css';
@@ -23,26 +23,61 @@ const GraphPage = ({
   metricCards = [],
   chartData = [],
   tableColumns = [],
-  tableData = []
+  tableData = [],
+  handleRemoveFilter, 
+  handleAddFilter
 }) => {
+
+  const [localFilterTags, setLocalFilterTags] = useState(filterTags);
+  const [localFilterOptions, setLocalFilterOptions] = useState(filterOptions);
+
+  const handleRemoveLocalFilter = (filterLabel) => {
+    handleRemoveFilter(filterLabel);
+  };
+
+  const handleAddLocalFilter = (filter) => {
+    handleAddFilter(filter); 
+  };
+
   return (
     <div className="dashboard-container">
-      {/* Page Title */}
       <h2 className="dashboard-title">{title} Dashboard</h2>
       
-      {/* Filter Tags Section */}
       <div className="filter-tags">
         {filterTags.map((tag, index) => (
           <div key={index} className="filter-tag">
             <span>{tag.label}: {tag.value}</span>
-            <button className="close-btn" onClick={tag.onRemove}>×</button>
+            <button className="close-btn" onClick={() => handleRemoveLocalFilter(tag.label)} style={{color:'black'}}>×</button>
           </div>
         ))}
-        <button className="add-filter-btn">+ Add filter</button>
-      </div>
+        <div className="filter-add-container">
+          {filterOptions.length > 0 ? (
+            <select 
+              className="add-filter-select"
+              onChange={(e) => {
+                if (e.target.value) {
+                  const selectedOption = filterOptions.find(opt => opt.label === e.target.value);
+                  if (selectedOption) {
+                    handleAddLocalFilter(selectedOption);
+                    e.target.value = 'Add filter';
+                  }
+                }
+              }}
+              value="Add filter"
+              style={{color: 'black'}}
+            >
+              <option value="">+ Add filter</option>
+              {filterOptions.map((option, idx) => (
+                <option key={idx} value={option.label}>{option.label}</option>
+              ))}
+            </select>
+          ) : (
+            <span className="no-filters-message">No more filters available</span>
+          )}
+        </div>
+        </div>
       
       <div className="filter-controls">
-        {/* Filter Section */}
         <div className="filter-section">
           <h3>Filters</h3>
           <div className="filter-options">
@@ -51,7 +86,7 @@ const GraphPage = ({
                 <label>{filter.label}</label>
                 <select 
                   className="filter-select" 
-                  onChange={filter.onChange}
+                  onChange={(e) => filter.onChange(e.target.value)}
                   value={filter.value}
                 >
                   {filter.options.map((option, i) => (
@@ -66,8 +101,7 @@ const GraphPage = ({
           <div className="filter-actions">
             <button className="button apply-btn">Apply changes</button>
             <button className="button cancel-btn">Cancel changes</button>
-            <button className="button clear-btn" style={{ color: 'black' }}>Clear form</button>
-
+            <button className="button clear-btn" style={{ color: 'black'}}>Clear form</button>
           </div>
         </div>
         
