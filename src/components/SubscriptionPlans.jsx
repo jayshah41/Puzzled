@@ -5,6 +5,7 @@ import '../styles/SubscriptionStyles.css';
 const SubscriptionPlans = () => {
   const [paymentOption, setPaymentOption] = useState("$3995 Per Annum");
   const [numOfUsers, setNumOfUsers] = useState("one");
+  const [tierLevel, setTierLevel] = useState("1");
   
   const colourMap = {
     "$895 Per Month": "#cd7f32",
@@ -28,6 +29,10 @@ const SubscriptionPlans = () => {
   const handleNumOfUsersChange = (event) => {
     setNumOfUsers(event.target.value);
   };
+  
+  const handleTierLevelChange = (event) => {
+    setTierLevel(event.target.value);
+  };
 
   const titleCase = (s) => {
     return s.toLowerCase()
@@ -36,11 +41,11 @@ const SubscriptionPlans = () => {
             .join(' ');
   };
 
-  const currentPrice = pricingMap[`${paymentOption},${numOfUsers}`];
-  const info = [currentPrice, 'Company: All data', 'Market Data: All Data', 'Projects: All Data', 'Shareholders: All Data', 'Directors: All Data', 'Financials: All Data', 'Capital Raises: All Data'];
+  const currentPrice = tierLevel === "1" ? "Free" : pricingMap[`${paymentOption},${numOfUsers}`];
+  const info = ['Company: All data', 'Market Data: All Data', 'Projects: All Data', 'Shareholders: All Data', 'Directors: All Data', 'Financials: All Data', 'Capital Raises: All Data'];
   const features = info.map((feature, index) => (
     <li key={index} className="feature-item">
-      <span className="checkmark">✓</span>
+      <span className="checkmark">{tierLevel==="1" ? "✗" : "✓"}</span>
       {feature}
     </li>
   ));
@@ -49,19 +54,43 @@ const SubscriptionPlans = () => {
     <div className="container standard-padding">
       <div className="pricing-card">
         <div className="pricing-header" style={{ backgroundColor: colourMap[paymentOption] }}>
-        <h3 style={{ margin: 'auto' }}>Tier 2 Pricing {`(${titleCase(numOfUsers)} User${numOfUsers == 'five' ? 's' : ''})`}</h3>
+        <h3 style={{ margin: 'auto' }}>Tier {tierLevel} Pricing {`(${titleCase(numOfUsers)} User${numOfUsers == 'five' ? 's' : ''})`}</h3>
         </div>
         <div className="pricing-content">
           <div className="price">
             {currentPrice.split(' ')[0]}
           </div>
           <ul className="feature-list">
+          <li key="price" className="feature-item"><span className="checkmark">✓</span>{currentPrice}</li>
+          <li key="news" className="feature-item"><span className="checkmark">✓</span>News</li>
             {features}
           </ul>
         </div>
       </div>
       
       <div className="controls-container">
+      <div className="control-section">
+          <h3>Select the tier level</h3>
+          <label className="radio-option">
+            <input 
+              type="radio"
+              value="1"
+              checked={tierLevel === "1"} 
+              onChange={handleTierLevelChange} 
+            />
+            One
+          </label>
+          <label className="radio-option">
+            <input 
+              type="radio"
+              value="2"
+              checked={tierLevel === "2"} 
+              onChange={handleTierLevelChange} 
+            />
+            Two
+          </label>
+        </div>
+      
         <div className="control-section">
           <h3>Select your payment period</h3>
           <label className="radio-option">
