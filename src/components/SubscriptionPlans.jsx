@@ -13,13 +13,26 @@ const SubscriptionPlans = () => {
     "$3995 Per Annum": "#ffd700"
   };
 
-  const pricingMap = {
-    "$895 Per Month,one": "$895 Per Month",
-    "$1495 Per Quarter,one": "$1495 Per Quarter",
-    "$3995 Per Annum,one": "$3995 Per Annum",
-    "$895 Per Month,five": "$1295 Per Month",
-    "$1495 Per Quarter,five": "$2995 Per Quarter",
-    "$3995 Per Annum,five": "$9995 Per Annum"
+  const calculatePrice = (paymentOption, numOfUsers) => {
+    const basePrices = {
+      "$895 Per Month": 895,
+      "$1495 Per Quarter": 1495,
+      "$3995 Per Annum": 3995
+    };
+
+    const userMultipliers = {
+      "one": 1,
+      "five": {
+        "$895 Per Month": 1295 / 895,
+        "$1495 Per Quarter": 2995 / 1495,
+        "$3995 Per Annum": 9995 / 3995
+      }
+    };
+
+    const basePrice = basePrices[paymentOption];
+    const multiplier = numOfUsers === "one" ? userMultipliers["one"] : userMultipliers["five"][paymentOption];
+
+    return `$${Math.round(basePrice * multiplier)} Per ${paymentOption.split(' ')[2]}`;
   };
 
   const handlePaymentChange = (event) => {
@@ -41,7 +54,7 @@ const SubscriptionPlans = () => {
             .join(' ');
   };
 
-  const currentPrice = tierLevel === "1" ? "Free" : pricingMap[`${paymentOption},${numOfUsers}`];
+  const currentPrice = tierLevel === "1" ? "Free" : calculatePrice(paymentOption, numOfUsers);
   const info = ['Company: All data', 'Market Data: All Data', 'Projects: All Data', 'Shareholders: All Data', 'Directors: All Data', 'Financials: All Data', 'Capital Raises: All Data'];
   const features = info.map((feature, index) => (
     <li key={index} className="feature-item">
