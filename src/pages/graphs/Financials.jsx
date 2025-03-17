@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import '../../styles/GeneralStyles.css';
 import GraphPage from '../../components/GraphPage.jsx';
 
 const Financials = () => {
@@ -99,6 +100,7 @@ const Financials = () => {
   ]);
 
   return (
+    <div className="standard-padding">
     <GraphPage
       title="Financial"
       filterTags={filterTags}
@@ -108,6 +110,7 @@ const Financials = () => {
       tableColumns={tableColumns}
       tableData={tableData}
     />
+    </div>
   );
 };
 
