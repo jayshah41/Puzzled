@@ -26,6 +26,82 @@ class Command(BaseCommand):
                 "section": "bulletPoints",
                 "text_value": "Over 30,000 ASX projects/tenements including commodities, stages, locations, jorcs and more#Over 8,500 directors including remuneration and shareholdings#Over 2,700 capital raises and their information#Over 29,000 Top 20 shareholders transactions#Financials including quarterlies, half yearly and annual"
             },
+            # NewsContent data
+            {
+                "component": "NewsContent",
+                "section": "card1_category",
+                "text_value": "Mining Exploration"
+            },
+            {
+                "component": "NewsContent",
+                "section": "card1_date",
+                "text_value": "March 12, 2025"
+            },
+            {
+                "component": "NewsContent",
+                "section": "card1_title",
+                "text_value": "Lincoln Minerals' Eureka moment at Minbrie"
+            },
+            {
+                "component": "NewsContent",
+                "section": "card1_paragraphs",
+                "text_value": "Lincoln Minerals has made a significant discovery at its Minbrie project on South Australia's Eyre Peninsula, with initial drilling results indicating strong potential for copper and rare earth elements.#The company's drilling program has intersected substantial mineralization, revealing a promising geological structure that could lead to a substantial mineral resource. This discovery comes after extensive exploration efforts in the region.#Lincoln Minerals' CEO expressed excitement about the findings, stating that this could be a \"game-changer\" for the company and potentially for Australia's rare earth elements supply chain."
+            },
+            {
+                "component": "NewsContent",
+                "section": "card1_link",
+                "text_value": "https://mining.com.au/lincoln-minerals-eureka-moment-at-minbrie/"
+            },
+            {
+                "component": "NewsContent",
+                "section": "card2_category",
+                "text_value": "Gold Mining"
+            },
+            {
+                "component": "NewsContent",
+                "section": "card2_date",
+                "text_value": "March 15, 2025"
+            },
+            {
+                "component": "NewsContent",
+                "section": "card2_title",
+                "text_value": "Metal Bank adds to Livingstone's gold resource supply"
+            },
+            {
+                "component": "NewsContent",
+                "section": "card2_paragraphs",
+                "text_value": "Metal Bank Limited has announced a significant expansion to the gold resource at its Livingstone project, following an extensive drilling campaign that confirmed extensions to previously identified gold zones.#The updated mineral resource estimate shows a 34% increase in contained gold ounces, strengthening the economic viability of the project and positioning Metal Bank as an emerging player in Australia's gold sector.#Industry analysts suggest this resource upgrade could attract potential investors and partners as Metal Bank continues to advance the project toward development and production stages."
+            },
+            {
+                "component": "NewsContent",
+                "section": "card2_link",
+                "text_value": "https://mining.com.au/metal-bank-adds-to-livingstones-gold-resource-supply/"
+            },
+            {
+                "component": "NewsContent",
+                "section": "card3_category",
+                "text_value": "Coal Mining Technology"
+            },
+            {
+                "component": "NewsContent",
+                "section": "card3_date",
+                "text_value": "March 16, 2025"
+            },
+            {
+                "component": "NewsContent",
+                "section": "card3_title",
+                "text_value": "Vulcan South mine deploys Australian-first coal extraction tech"
+            },
+            {
+                "component": "NewsContent",
+                "section": "card3_paragraphs",
+                "text_value": "The Vulcan South mine has become the first in Australia to implement a revolutionary coal extraction technology that promises to increase efficiency while significantly reducing environmental impact.#This innovative system, developed after years of research and testing, uses precision excavation techniques and real-time geological modeling to maximize resource recovery while minimizing waste material and energy consumption.#Industry experts are closely watching this deployment, as successful implementation could set new standards for sustainable mining practices across Australia's coal sector and potentially transform mining operations globally."
+            },
+            {
+                "component": "NewsContent",
+                "section": "card3_link",
+                "text_value": "https://mining.com.au/vulcan-south-mine-deploys-australian-first-coal-extraction-tech/"
+            },
             {
                 "component": "Services",
                 "section": "heading",
