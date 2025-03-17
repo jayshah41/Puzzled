@@ -1,5 +1,20 @@
 import React from 'react';
+import { Bar, Line, Pie, Doughnut, Radar, Scatter, Bubble } from 'react-chartjs-2';
+import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, PointElement, LineElement, ArcElement, RadialLinearScale } from 'chart.js';
 import '../styles/Graphs.css';
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  LineElement,
+  PointElement,
+  ArcElement,
+  RadialLinearScale,
+  Title,
+  Tooltip,
+  Legend
+);
 
 const GraphPage = ({ 
   title,
@@ -77,10 +92,13 @@ const GraphPage = ({
         {chartData.map((chart, index) => (
           <div key={index} className="chart-container">
             <h3>{chart.title}</h3>
-            <div className="chart-placeholder">
-              {/* This is where you would render your actual chart component */}
-              <div className={`chart-placeholder-${chart.color || 'default'}`}></div>
-            </div>
+            {chart.type === "bar" && <Bar data={chart.data} options={chart.options} />}
+            {chart.type === "line" && <Line data={chart.data} options={chart.options} />}
+            {chart.type === "pie" && <Pie data={chart.data} options={chart.options} />}
+            {chart.type === "doughnut" && <Doughnut data={chart.data} options={chart.options} />}
+            {chart.type === "radar" && <Radar data={chart.data} options={chart.options} />}
+            {chart.type === "scatter" && <Scatter data={chart.data} options={chart.options} />}
+            {chart.type === "bubble" && <Bubble data={chart.data} options={chart.options} />}
           </div>
         ))}
       </div>
