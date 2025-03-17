@@ -51,7 +51,8 @@ const GraphPage = ({
           <div className="filter-actions">
             <button className="button apply-btn">Apply changes</button>
             <button className="button cancel-btn">Cancel changes</button>
-            <button className="button clear-btn">Clear form</button>
+            <button className="button clear-btn" style={{ color: 'black' }}>Clear form</button>
+
           </div>
         </div>
         

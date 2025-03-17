@@ -1,255 +1,221 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import '../../styles/GeneralStyles.css';
+import GraphPage from '../../components/GraphPage.jsx';
 
-const DataFilter = () => {
-  const [filters, setFilters] = useState({
-    asx: "",
-    priorityCommodity: "",
-    projectLocationCountry: "",
-    projectArea: "",
-    projectStage: "",
-    price: 0,
-    marketCap: 0,
-    bankBalance: 0,
-    projectSpending: 0,
-    totalShares: 0,
-  });
+const MarketTrends = () => {
+  const [filterTags] = useState([
+    { label: 'ASX', value: 'Any', onRemove: () => console.log('Remove ASX filter') },
+    { label: 'Priotiy Commodity', value: 'Any', onRemove: () => console.log('Remove priority commodity filter') },
+    { label: 'Project Location Country', value: 'Any', onRemove: () => console.log('Remove project location country filter') },
+    { label: 'Project Area', value: 'Any', onRemove: () => console.log('Remove project area filter') },
+    { label: 'Project Stage', value: 'Any', onRemove: () => console.log('Remove project stage filter') },
+    { label: 'Price', value: '0', onRemove: () => console.log('Remove price filter') },
+    { label: 'Market Cap', value: '0', onRemove: () => console.log('Remove market cap filter') },
+    { label: 'Bank Balance', value: '0', onRemove: () => console.log('Remove bank balance filter') },
+    { label: 'Project Spending', value: '0', onRemove: () => console.log('Remove project spending filter') },
+    { label: 'Total Shares', value: '0', onRemove: () => console.log('Remove total shares filter') },
+   
+]);
+  
+  const [filterOptions] = useState([
+    {
+      label: 'ASX',
+      value: 'Any',
+      onChange: () => console.log('ASX Changed'),
+      options: [
+        { label: 'TAT', value: 'TAT' },
+        { label: 'GCM', value: 'GCM' },
+        { label: 'GMN', value: 'GMN' }
+      ]
+    },
+    {
+      label: 'Priority Commodity',
+      value: 'Any',
+      onChange: () => console.log('Priotiy Commodity changed'),
+      options: [
+        { label: 'Gold', value: 'Gold' },
+        { label: 'Copper', value: 'Copper' },
+        { label: 'Lithium', value: 'Lithium' },
+      ]
+    },
+    {
+      label: 'Project Location Country',
+      value: 'Any',
+      onChange: () => console.log('Project Location Country changed'),
+      options: [
+        { label: 'Australia', value: 'Australia' },
+        { label: 'Canada', value: 'Canada' },
+        { label: 'Brazil', value: 'Brazil' }
+      ]
+    },
+    {
+        label: 'Project Area',
+        value: 'Any',
+        onChange: () => console.log('Project area changed'),
+        options: [
+          { label: 'Australia', value: 'Australia' },
+          { label: 'Canada', value: 'Canada' },
+          { label: 'Brazil', value: 'Brazil' }
+        ]
+      },
+      {
+        label: 'Project Stage',
+        value: 'Any',
+        onChange: () => console.log('Project stage changed'),
+        options: [
+          { label: 'Australia', value: 'Australia' },
+          { label: 'Canada', value: 'Canada' },
+          { label: 'Brazil', value: 'Brazil' }
+        ]
+      },
+      {
+        label: 'Price',
+        value: 'Any',
+        onChange: () => console.log('Price changed'),
+        options: [
+          { label: 'Australia', value: 'Australia' },
+          { label: 'Canada', value: 'Canada' },
+          { label: 'Brazil', value: 'Brazil' }
+        ]
+      },
+      {
+        label: 'Market Cap',
+        value: 'Any',
+        onChange: () => console.log('Market cap changed'),
+        options: [
+          { label: 'Australia', value: 'Australia' },
+          { label: 'Canada', value: 'Canada' },
+          { label: 'Brazil', value: 'Brazil' }
+        ]
+      },
+      {
+        label: 'Bank Balance',
+        value: 'Any',
+        onChange: () => console.log('Bank balance changed'),
+        options: [
+          { label: 'Australia', value: 'Australia' },
+          { label: 'Canada', value: 'Canada' },
+          { label: 'Brazil', value: 'Brazil' }
+        ]
+      },
+      {
+        label: 'Project Spending',
+        value: 'Any',
+        onChange: () => console.log('Project spending changed'),
+        options: [
+          { label: 'Australia', value: 'Australia' },
+          { label: 'Canada', value: 'Canada' },
+          { label: 'Brazil', value: 'Brazil' }
+        ]
+      },
+      {
+        label: 'Total Shares',
+        value: 'Any',
+        onChange: () => console.log('Total shares changed'),
+        options: [
+          { label: 'Australia', value: 'Australia' },
+          { label: 'Canada', value: 'Canada' },
+          { label: 'Brazil', value: 'Brazil' }
+        ]
+      }
 
-  const [commodities, setCommodities] = useState([]);
-  const [filteredData, setFilteredData] = useState([]);
-  const [asxCodes, setAsxCode] = useState([]);
-  const [stats, setStats] = useState({
-    ASX_code_count: 0,
-    daily_avg_price_change: 0,
-    avg_weekly_price_change: 0,
-    avg_monthly_price_change: 0,
-    avg_yearly_price_change: 0,
-    daily_relative_volume_change: 0,
-  });
+  ]);
+  
+  const [metricCards] = useState([
+    {
+      title: 'ASX Code Count',
+      value: '$2,345,678',
+      trend: 'positive',
+      description: 'YoY: +15%'
+    },
+    {
+      title: 'Daily Average Price Change %',
+      value: '$1,456,789',
+      trend: 'negative',
+      description: 'YoY: +8%'
+    },
+    {
+      title: 'Weekly Average Price Change %',
+      value: '$888,889',
+      trend: 'positive',
+      description: 'YoY: +27%'
+    },
+    {
+      title: 'Monthly Average Price Change %',
+      value: '37.9%',
+      trend: 'positive'
+    },
+    {
+        title: 'Yearly Average Price Change %',
+        value: '37.9%',
+        trend: 'positive'
+    },
+    {
+        title: 'Daily Relative Volume Change %',
+        value: '37.9%',
+        trend: 'positive'
+    },
+    {
+        title: 'Average Weekly Relative Volume Change %',
+        value: '37.9%',
+        trend: 'positive'
+    },
+    {
+        title: 'Average Monthly Relative Change %',
+        value: '37.9%',
+        trend: 'positive'
+    },
+    {
+        title: 'Average Yearly Relative Volume Change %',
+        value: '37.9%',
+        trend: 'positive'
+    },
 
-  useEffect(() => {
-    axios.get('http://127.0.0.1:8000/api/commodities') //replace w API endpoint
-      .then(response => {
-        setCommodities(response.data);
-        setFilteredData(response.data);
-        const uniqueAsx = [...new Set(response.data.map(item => item.asx))];
-        setAsxCodes(uniqueAsx);
-      })
-      .catch(error => console.error('Error fetching commodities:', error));
-
-    axios.get('http://127.0.0.1:8000/api/stats') //replace w API endpoint
-      .then(response => {
-        setStats(response.data);
-      })
-      .catch(error => console.error('Error fetching stats:', error));
-  }, []);
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFilters((prev) => {
-      const updatedFilters = {
-        ...prev,
-        [name]: value,
-      };
-      filterData(updatedFilters);
-      return updatedFilters;
-    });
-  };
-
-  const filterData = (updatedFilters) => {
-    let filtered = commodities;
-
-    if (updatedFilters.asx) {
-      filtered = filtered.filter(item => item.asx === updatedFilters.asx);
+  ]);
+  
+  const [chartData] = useState([
+    {
+      title: 'Revenue by Quarter',
+      color: 'blue'
+    },
+    {
+      title: 'Expense Breakdown',
+      color: 'red'
+    },
+    {
+      title: 'Profit Trend',
+      color: 'green'
     }
-    if (updatedFilters.priorityCommodity) {
-      filtered = filtered.filter(item => item.priorityCommodity === updatedFilters.priorityCommodity);
-    }
-    if (updatedFilters.projectLocationCountry) {
-      filtered = filtered.filter(item => item.projectLocationCountry === updatedFilters.projectLocationCountry);
-    }
-    if (updatedFilters.projectArea) {
-      filtered = filtered.filter(item => item.projectArea === updatedFilters.projectArea);
-    }
-    if (updatedFilters.projectStage) {
-      filtered = filtered.filter(item => item.projectStage === updatedFilters.projectStage);
-    }
-    if (updatedFilters.price > 0) {
-      filtered = filtered.filter(item => item.price <= updatedFilters.price);
-    }
-    if (updatedFilters.marketCap > 0) {
-      filtered = filtered.filter(item => item.marketCap === updatedFilters.marketCap);
-    }
-    if (updatedFilters.bankBalance > 0) {
-      filtered = filtered.filter(item => item.bankBalance === updatedFilters.bankBalance);
-    }
-    if (updatedFilters.projectSpending > 0) {
-      filtered = filtered.filter(item => item.projectSpending === updatedFilters.projectSpending);
-    }
-    if (updatedFilters.totalShares > 0) {
-      filtered = filtered.filter(item => item.totalShares === updatedFilters.totalShares);
-    }
-
-    setFilteredData(filtered);
-  };
+  ]);
+  
+  const [tableColumns] = useState([
+    { header: 'ASX', key: 'month' },
+    { header: 'Daily % Price Change', key: 'revenue' },
+    { header: 'Last Week Price Change', key: 'expenses' },
+    { header: 'Last Month Price Change', key: 'profit' },
+    { header: 'Last Year Price Change', key: 'margin' }
+  ]);
+  
+  const [tableData] = useState([
+    { month: 'January', revenue: '$789,123', expenses: '$456,789', profit: '$332,334', margin: '42.1%' },
+    { month: 'February', revenue: '$812,345', expenses: '$478,912', profit: '$333,433', margin: '41.0%' },
+    { month: 'March', revenue: '$765,432', expenses: '$521,098', profit: '$244,334', margin: '31.9%' }
+    // Add more rows as needed
+  ]);
 
   return (
-    <div>
-      <h2>Filter Data</h2>
-
-      <div>
-        <label>ASX:</label>
-        <select name="asx" value={filters.asx} onChange={handleChange}>
-          <option value="">Select ASX</option>
-          {asxCodes.length > 0 ? (
-            asxCodes.map((code, index) => (
-              <option key={index} value={code}>{code}</option>
-            ))
-          ) : (
-            <option value="">Loading...</option>
-          )}
-        </select>
-      </div>
-
-      <div>
-        <label>Priority Commodity:</label>
-        <select name="priorityCommodity" value={filters.priorityCommodity} onChange={handleChange}>
-          <option value="">Select Commodity</option>
-          {commodities.length > 0 ? (
-            commodities.map((commodity, index) => (
-              <option key={index} value={commodity.name}>{commodity.name}</option>
-            ))
-          ) : (
-            <option value="">Loading...</option>
-          )}
-        </select>
-      </div>
-
-      <div>
-        <label>Project Location Country:</label>
-        <select name="projectLocationCountry" value={filters.projectLocationCountry} onChange={handleChange}>
-          <option value="">Select Country</option>
-          <option value="Australia">Australia</option>
-          <option value="USA">USA</option>
-        </select>
-      </div>
-
-      <div>
-        <label>Project Area:</label>
-        <select name="projectArea" value={filters.projectArea} onChange={handleChange}>
-          <option value="">Select Area</option>
-          <option value="North">North</option>
-          <option value="South">South</option>
-        </select>
-      </div>
-
-      <div>
-        <label>Project Stage:</label>
-        <select name="projectStage" value={filters.projectStage} onChange={handleChange}>
-          <option value="">Select Stage</option>
-          <option value="Exploration">Exploration</option>
-          <option value="Development">Development</option>
-        </select>
-      </div>
-
-      <div>
-        <label>Price:</label>
-        <input
-          type="number"
-          name="price"
-          value={filters.price}
-          min="0"
-          max="10"
-          onChange={handleChange}
-        />
-      </div>
-
-      <div>
-        <label>Market Cap:</label>
-        <select name="marketCap" value={filters.marketCap} onChange={handleChange}>
-          <option value="">Select Market Cap</option>
-          <option value="Small">Small</option>
-          <option value="Large">Large</option>
-        </select>
-      </div>
-
-      <div>
-        <label>Bank Balance:</label>
-        <select name="bankBalance" value={filters.bankBalance} onChange={handleChange}>
-          <option value="">Select Balance</option>
-          <option value="Low">Low</option>
-          <option value="High">High</option>
-        </select>
-      </div>
-
-      <div>
-        <label>Project Spending:</label>
-        <select name="projectSpending" value={filters.projectSpending} onChange={handleChange}>
-          <option value="">Select Spending</option>
-          <option value="Low">Low</option>
-          <option value="High">High</option>
-        </select>
-      </div>
-
-      <div>
-        <label>Total Shares:</label>
-        <select name="totalShares" value={filters.totalShares} onChange={handleChange}>
-          <option value="">Select Shares</option>
-          <option value="Few">Few</option>
-          <option value="Many">Many</option>
-        </select>
-      </div>
-
-      <button onClick={() => console.log(filters)}>Apply Filters</button>
-
-      <h2>Statistics</h2>
-      <div className="stats-container">
-        <div className="stat-box">
-          <h3>ASX Code Count</h3>
-          <p>{stats.ASX_code_count}</p>
-        </div>
-
-        <div className="p-4 border rounded-lg bg-gray-100 mb-4">
-                <h2 className="text-lg font-semibold">ASX Code Count</h2>
-                <p className="text-2xl">{asxCodes}</p>
-        </div>
-
-        <div className="stat-box">
-          <h3>Daily Avg Price Change</h3>
-          <p>{stats.daily_avg_price_change}</p>
-        </div>
-
-        <div className="stat-box">
-          <h3>Weekly Avg Price Change</h3>
-          <p>{stats.avg_weekly_price_change}</p>
-        </div>
-
-        <div className="stat-box">
-          <h3>Monthly Avg Price Change</h3>
-          <p>{stats.avg_monthly_price_change}</p>
-        </div>
-
-        <div className="stat-box">
-          <h3>Yearly Avg Price Change</h3>
-          <p>{stats.avg_yearly_price_change}</p>
-        </div>
-
-        <div className="stat-box">
-          <h3>Daily Relative Volume Change</h3>
-          <p>{stats.daily_relative_volume_change}</p>
-        </div>
-      </div>
-
-      <h2>Filtered Data</h2>
-      <div>
-        {filteredData.length === 0 ? (
-          <p>No data matches the selected filters</p>
-        ) : (
-          <pre>{JSON.stringify(filteredData, null, 2)}</pre> 
-        )}
-      </div>
+    <div className="standard-padding">
+    <GraphPage
+      title="Market Trends"
+      filterTags={filterTags}
+      filterOptions={filterOptions}
+      metricCards={metricCards}
+      chartData={chartData}
+      tableColumns={tableColumns}
+      tableData={tableData}
+    />
     </div>
   );
 };
 
-export default DataFilter;
+export default MarketTrends;
