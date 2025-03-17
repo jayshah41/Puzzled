@@ -119,15 +119,100 @@ const CapitalRaises = () => {
   const [chartData] = useState([
     {
       title: 'Yearly Amount Raised',
-      color: 'blue'
+      type: 'bar',
+      options: {
+        responsive: true,
+        scales: {
+          x: {
+            title: {
+              display: true,
+              text: 'Amount Raised (in $)',
+            },
+         },
+          y: {
+            title: {
+              display: true,
+              text: 'Year',
+            },
+          },
+        },
+      },
+      data: {
+        labels: ['2021', '2022', '2023', '2024'],
+        datasets: [
+          {
+            label: 'Amount Raised by Year',
+            data: [50000000, 70000000, 90000000, 100000000],
+            backgroundColor: '#36a2eb',
+          },
+        ],
+      },
     },
     {
       title: 'Monthly Amount Raised',
-      color: 'red'
+      type: 'bar',
+      options: {
+        responsive: true,
+        scales: {
+          x: {
+            title: {
+              display: true,
+              text: 'Amount Raised (in $)',
+            },
+          },
+          y: {
+            title: {
+              display: true,
+              text: 'Month',
+            },
+          },
+        },
+      },
+      data: {
+        labels: ['January', 'February', 'March', 'April', 'May', 'June'],
+        datasets: [
+          {
+            label: 'Amount Raised per Month',
+            data: [10000000, 12000000, 15000000, 17000000, 14000000, 13000000],
+            backgroundColor: '#ff6384',
+          },
+        ],
+      },
     },
     {
       title: 'Capital Raise by ASX Code',
-      color: 'green'
+      type: 'bar',
+      color: 'green',
+      options: {
+        responsive: true,
+        indexAxis: 'y', 
+        scales: {
+          x: {
+            title: {
+              display: true,
+              text: 'Capital Raise Amount (in $)',
+            },
+          },
+          y: {
+            title: {
+              display: true,
+              text: 'ASX Code',
+            },
+          },
+        },
+      },
+      data: {
+        labels: ['RLT', 'MIN', 'IGO', 'BHP', 'FMG', 'CSL', 'NAB', 'WBC', 'CBA', 'ANZ'],
+        datasets: [
+          {
+            label: 'Capital Raised by ASX Code',
+            data: [
+             50000000, 75000000, 65000000, 120000000, 95000000, 115000000, 105000000, 110000000, 125000000, 130000000
+            ],
+            backgroundColor: '#4caf50',
+          },
+        ],
+      },
     }
   ]);
   

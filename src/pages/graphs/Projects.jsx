@@ -165,15 +165,67 @@ const Projects = () => {
   const [chartData] = useState([
     {
       title: 'Top 15 Projects by Commodity',
-      color: 'blue'
+      type: 'pie',
+      options: {
+        responsive: true,
+      },
+      data: {
+        labels: ['Gold', 'Lithium', 'Uranium', 'Coal', 'Copper', 'Nickel', 'Silver', 'Platinum', 'Iron Ore', 'Zinc', 'Lead', 'Diamonds', 'Tin', 'Manganese', 'Cobalt'],
+        datasets: [
+          {
+            data: [20, 15, 10, 8, 6, 5, 4, 4, 3, 3, 2, 2, 1, 1, 1],
+            backgroundColor: ['#ff6384', '#36a2eb', '#ffce56', '#4bc0c0', '#9966ff', '#ff9f40', '#ffbf00', '#00c2ff', '#ff3366', '#7bbf00', '#ff3366', '#c23236', '#6b33ff', '#5bafab', '#32a838'],
+          },
+        ],
+      },
     },
     {
       title: 'Top 10 Project Location Countries',
-      color: 'red'
+      type: 'pie',
+      options: {
+        responsive: true,
+      },
+      data: {
+        labels: ['Australia', 'Canada', 'Chile', 'United States', 'Brazil', 'Russia', 'South Africa', 'Argentina', 'China', 'Mexico'],
+        datasets: [
+          {
+            data: [25, 20, 15, 10, 8, 7, 5, 4, 3, 3],
+            backgroundColor: ['#ff6384', '#36a2eb', '#ffce56', '#4bc0c0', '#9966ff', '#ff9f40', '#ffbf00', '#00c2ff', '#ff3366', '#7bbf00'],
+          },
+        ],
+      },
     },
     {
       title: 'Top 10 Project Activity by Commodity',
-      color: 'green'
+      type: 'bar',
+      options: {
+        responsive: true,
+        indexAxis: 'y', 
+        scales: {
+          x: {
+            title: {
+              display: true,
+              text: 'Commodity by Number of Periods',
+            },
+          },
+          y: {
+            title: {
+              display: true,
+              text: 'Top 10 Commodities by Number of ASX Codes and Period Activity',
+            },
+          },
+        },
+      },
+      data: {
+        labels: ['Gold', 'Lithium', 'Uranium', 'Copper', 'Nickel', 'Zinc', 'Iron Ore', 'Silver', 'Coal', 'Platinum'],
+        datasets: [
+          {
+            label: 'Commodity by Number of Periods',
+            data: [120, 105, 95, 85, 80, 75, 70, 65, 60, 55],
+            backgroundColor: '#4bc0c0',
+          },
+        ],
+      },
     }
   ]);
   

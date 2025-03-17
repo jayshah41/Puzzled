@@ -97,15 +97,47 @@ const Shareholders = () => {
   const [chartData] = useState([
     {
       title: 'Top 5 Shareholders For Top 20 Companies by Market Cap',
-      color: 'blue'
+      type: "bar",
+      data: {
+        labels: ["Shareholder A", "Shareholder B", "Shareholder C", "Shareholder D", "Shareholder E"],
+        datasets: [
+          {
+            label: "% Ownership",
+            data: [20, 18, 15, 12, 10],
+            backgroundColor: "#5271b9",
+          },
+        ],
+      },
     },
     {
       title: 'T20 By ASX Code By %',
-      color: 'red'
+      type: "bar",
+      options: { indexAxis: "y", responsive: true }, 
+      data: {
+        labels: ["ASX1", "ASX2", "ASX3", "ASX4", "ASX5"],
+        datasets: [
+          {
+            label: "Market Cap %",
+            data: [25, 22, 18, 15, 10],
+            backgroundColor: "#dc3545",
+          },
+        ],
+      },
     },
     {
       title: 'T20 By Priority Commodity By Value',
-      color: 'green'
+      type: "bar",
+      options: { indexAxis: "y", responsive: true }, 
+      data: {
+        labels: ["Gold", "Lithium", "Copper", "Uranium", "Nickel"],
+        datasets: [
+          {
+            label: "Investment Value",
+            data: [500000, 450000, 400000, 350000, 300000],
+            backgroundColor: "#28a745",
+          },
+        ],
+      },
     }
   ]);
   

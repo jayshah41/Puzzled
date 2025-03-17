@@ -175,16 +175,49 @@ const MarketTrends = () => {
   
   const [chartData] = useState([
     {
-      title: 'Revenue by Quarter',
-      color: 'blue'
+      title: 'Daily Top 10 Commodity by Price Change (Market Trends)',
+      type: "pie",
+      options: { responsive: true },
+      data: {
+        labels: ["Gold", "Copper", "Lithium", "Zinc", "Silver", "Platinum", "Nickel", "Cobalt", "Lead", "Iron"],
+        datasets: [
+          {
+            label: "Price Change (%)",
+            data: [15, 12, 9, 8, 6, 5, 4, 3, 2, 1],  // Example values in percentage
+            backgroundColor: ["#ff6384", "#36a2eb", "#ffce56", "#4bc0c0", "#9966ff", "#ff9f40", "#66b3ff", "#ff6666", "#c2c2f0", "#ffb3e6"],
+          },
+        ],
+      },
     },
     {
-      title: 'Expense Breakdown',
-      color: 'red'
+      title: 'Daily Top 10 Commodity by Volume Change (Market Trends)',
+      type: "pie",
+      options: { responsive: true },
+      data: {
+        labels: ["Gold", "Copper", "Lithium", "Zinc", "Silver", "Platinum", "Nickel", "Cobalt", "Lead", "Iron"],
+        datasets: [
+          {
+            label: "Volume Change (%)",
+            data: [18, 15, 10, 9, 7, 5, 4, 3, 2, 1],  // Example values in percentage
+            backgroundColor: ["#ff6384", "#36a2eb", "#ffce56", "#4bc0c0", "#9966ff", "#ff9f40", "#66b3ff", "#ff6666", "#c2c2f0", "#ffb3e6"],
+          },
+        ],
+      },
     },
     {
-      title: 'Profit Trend',
-      color: 'green'
+      title: 'Tier 2 Top 10 Commodity by Trade Value (Market Trends',
+      type: "pie",
+      options: { responsive: true },
+      data: {
+        labels: ["Gold", "Copper", "Lithium", "Zinc", "Silver", "Platinum", "Nickel", "Cobalt", "Lead", "Iron"],
+        datasets: [
+          {
+            label: "Trade Value ($M)",
+            data: [200, 150, 100, 75, 60, 50, 40, 35, 30, 25],  // Example values in millions
+            backgroundColor: ["#ff6384", "#36a2eb", "#ffce56", "#4bc0c0", "#9966ff", "#ff9f40", "#66b3ff", "#ff6666", "#c2c2f0", "#ffb3e6"],
+          },
+        ],
+      },
     }
   ]);
   
