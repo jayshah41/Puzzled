@@ -5,97 +5,120 @@ import GraphPage from '../../components/GraphPage.jsx';
 const Shareholders = () => {
   // Sample data for financial dashboard
   const [filterTags] = useState([
-    { label: 'Year', value: '2024', onRemove: () => console.log('Remove year filter') },
-    { label: 'Quarter', value: 'Q1', onRemove: () => console.log('Remove quarter filter') }
+    { label: 'ASX Code', value: 'Any', onRemove: () => console.log('Remove asx filter') },
+    { label: 'Ann Type', value: 'Any', onRemove: () => console.log('Remove ann filter') }, 
+    { label: 'Entity', value: 'Any', onRemove: () => console.log('Remove quarter filter') },
+    { label: 'Value', value: 'Any', onRemove: () => console.log('Remove quarter filter') }, 
+    { label: 'Priority Commodities', value: 'Q1', onRemove: () => console.log('Remove quarter filter') }, 
+    { label: 'Project Area', value: 'Q1', onRemove: () => console.log('Remove quarter filter') }, 
+    { label: 'Transaction Type', value: 'Q1', onRemove: () => console.log('Remove quarter filter') }
   ]);
   
   const [filterOptions] = useState([
     {
-      label: 'Year',
-      value: '2024',
-      onChange: () => console.log('Year changed'),
+      label: 'ASX Code',
+      value: 'Any',
+      onChange: () => console.log('ASX Code changed'),
       options: [
-        { label: '2024', value: '2024' },
-        { label: '2023', value: '2023' },
-        { label: '2022', value: '2022' }
+        { label: 'RLT', value: 'RLT' },
+        { label: 'MIN', value: 'MIN' },
+        { label: 'IGO', value: 'IGO' }
       ]
     },
     {
-      label: 'Quarter',
-      value: 'Q1',
-      onChange: () => console.log('Quarter changed'),
+      label: 'Ann Type',
+      value: 'Any',
+      onChange: () => console.log('Ann Type changed'),
       options: [
-        { label: 'Q1', value: 'Q1' },
-        { label: 'Q2', value: 'Q2' },
-        { label: 'Q3', value: 'Q3' },
-        { label: 'Q4', value: 'Q4' }
+        { label: 'DirectorNew', value: 'DirectorNew' },
+        { label: 'DailyNew', value: 'DailyNew' },
+        { label: 'DirectorOld', value: 'DirectorOld' }
       ]
     },
     {
-      label: 'Metric Type',
-      value: 'revenue',
-      onChange: () => console.log('Metric type changed'),
+      label: 'Entity',
+      value: 'Any',
+      onChange: () => console.log('Entity changed'),
       options: [
-        { label: 'Revenue', value: 'revenue' },
-        { label: 'Expenses', value: 'expenses' },
-        { label: 'Profit', value: 'profit' }
+        { label: 'Mr Luigi Mattecucci', value: 'Mr Luigi Mattecucci' },
+        { label: 'Mr Stefano Marani', value: 'Mr Stefano Marani' },
+        { label: 'Mr Luke Atkins', value: 'Mr Luke Atkins' }
+      ]
+    },
+    {
+      label: 'Value',
+      value: 'Any',
+      onChange: () => console.log('Value changed'),
+      options: [
+        { label: '', value: '' }
+      ]
+    },
+    {
+      label: 'Priority Commodities',
+      value: 'Any',
+      onChange: () => console.log('Priority Commodities changed'),
+      options: [
+        { label: 'Gold', value: 'Gold' },
+        { label: 'Lithium', value: 'Lithium' },
+        { label: 'Uranium', value: 'Uranium' }
+      ]
+    },
+    {
+      label: 'Project Area',
+      value: 'Any',
+      onChange: () => console.log('Project Area changed'),
+      options: [
+        { label: 'Kimberly Region', value: 'Kimberly Region' },
+        { label: 'Lachian Fold Region', value: 'Lachian Fold Region' },
+        { label: 'Southern Cross Region', value: 'Southern Cross Region' }
+      ]
+    },
+    {
+      label: 'Transaction Type',
+      value: 'Any',
+      onChange: () => console.log('Transaction Type changed'),
+      options: [
+        { label: '', value: '' }
       ]
     }
   ]);
   
   const [metricCards] = useState([
     {
-      title: 'Total Revenue',
-      value: '$2,345,678',
-      trend: 'positive',
-      description: 'YoY: +15%'
+      title: 'No Of ASX Codes',
+      value: '3'
     },
     {
-      title: 'Total Expenses',
-      value: '$1,456,789',
-      trend: 'negative',
-      description: 'YoY: +8%'
-    },
-    {
-      title: 'Net Profit',
-      value: '$888,889',
-      trend: 'positive',
-      description: 'YoY: +27%'
-    },
-    {
-      title: 'Profit Margin',
-      value: '37.9%',
-      trend: 'positive'
+      title: 'No of Entities(Shareholders)',
+      value: '3'
     }
   ]);
   
   const [chartData] = useState([
     {
-      title: 'Revenue by Quarter',
+      title: 'Top 5 Shareholders For Top 20 Companies by Market Cap',
       color: 'blue'
     },
     {
-      title: 'Expense Breakdown',
+      title: 'T20 By ASX Code By %',
       color: 'red'
     },
     {
-      title: 'Profit Trend',
+      title: 'T20 By Priority Commodity By Value',
       color: 'green'
     }
   ]);
   
   const [tableColumns] = useState([
-    { header: 'Month', key: 'month' },
-    { header: 'Revenue', key: 'revenue' },
-    { header: 'Expenses', key: 'expenses' },
-    { header: 'Profit', key: 'profit' },
-    { header: 'Margin', key: 'margin' }
+    { header: 'Ann Date', key: 'ann' },
+    { header: 'ASX Code', key: 'asx' },
+    { header: 'Entity', key: 'entity' }
   ]);
   
   const [tableData] = useState([
-    { month: 'January', revenue: '$789,123', expenses: '$456,789', profit: '$332,334', margin: '42.1%' },
-    { month: 'February', revenue: '$812,345', expenses: '$478,912', profit: '$333,433', margin: '41.0%' },
-    { month: 'March', revenue: '$765,432', expenses: '$521,098', profit: '$244,334', margin: '31.9%' }
+    { ann: 'Director New', asx: 'RLT', entity: 'Mr Luigi Mattecucci'},
+    { ann: 'Daily New', asx: 'MIN', entity: 'Mr Stefano Marani'},
+    { ann: 'Director Old', asx: 'IGO', entity: 'Mr Luke Atkins'}
     // Add more rows as needed
   ]);
 
