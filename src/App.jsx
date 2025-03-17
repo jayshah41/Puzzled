@@ -15,6 +15,7 @@ import Shareholders from './pages/graphs/Shareholders';
 import CapitalRaises from './pages/graphs/CapitalRaises';
 import Projects from './pages/graphs/Projects';
 import Financials from './pages/graphs/Financials';
+import News from './pages/News';
 
 const App = () => {
   return (
@@ -35,6 +36,7 @@ const App = () => {
           <Route path="/graphs/capital-raises" element={<CapitalRaises />} />
           <Route path="/graphs/projects" element={<Projects />} />
           <Route path="/graphs/financials" element={<Financials />} />
+          <Route path="/news" element={<News />} />
         </Routes>
         <Footer />
       </Router>
