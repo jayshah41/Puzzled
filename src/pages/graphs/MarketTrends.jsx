@@ -261,68 +261,16 @@ const MarketTrends = () => {
   
   const [chartData] = useState([
     {
-      title: 'Revenue by Quarter',
-      type: 'bar',  // Added type property
-      data: {       // Added proper data structure
-        labels: ['Q1', 'Q2', 'Q3', 'Q4'],
-        datasets: [{
-          label: 'Revenue',
-          data: [12000, 19000, 17000, 23000],
-          backgroundColor: 'rgba(54, 162, 235, 0.5)',
-        }]
-      },
-      options: {    // Added options
-        responsive: true,
-        plugins: {
-          legend: {
-            position: 'top',
-          },
-          title: {
-            display: true,
-            text: 'Revenue by Quarter'
-          }
-        }
-      }
+      title: 'Daily Top 10 Commodity by Volume Change (Market Trends)',
+      color: 'blue'
     },
     {
-      title: 'Expense Breakdown',
-      type: 'pie',
-      data: {
-        labels: ['Marketing', 'Development', 'Operations', 'Admin'],
-        datasets: [{
-          data: [30, 40, 20, 10],
-          backgroundColor: [
-            'rgba(255, 99, 132, 0.5)',
-            'rgba(54, 162, 235, 0.5)',
-            'rgba(255, 206, 86, 0.5)',
-            'rgba(75, 192, 192, 0.5)'
-          ]
-        }]
-      },
-      options: {
-        responsive: true,
-        plugins: {
-          legend: {
-            position: 'right'
-          }
-        }
-      }
+      title: 'Daily Top 10 Commodity by Price Change (Market Trends)',
+      color: 'red'
     },
     {
-      title: 'Profit Trend',
-      type: 'line',
-      data: {
-        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-        datasets: [{
-          label: 'Profit',
-          data: [12, 19, 15, 20, 22, 25],
-          borderColor: 'rgba(75, 192, 192, 1)',
-          tension: 0.1
-        }]
-      },
-      options: {
-        responsive: true
-      }
+      title: 'Tier 2 Top 10 Commodity by Trade Value (Market Trends',
+      color: 'green'
     }
   ]);
   

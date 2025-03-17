@@ -173,11 +173,74 @@ const Directors = () => {
   const [chartData] = useState([
     {
       title: 'Top 10 Average/Median Total Renumeration By Priority Commodity',
-      color: 'blue'
+      type: 'bar',
+      options: {
+        responsive: true,
+        indexAxis: 'y', 
+        scales: {
+          x: {
+            title: {
+              display: true,
+              text: 'Total Renumeration (in $)',
+            },
+          },
+          y: {
+            title: {
+              display: true,
+              text: 'Priority Commodities',
+            },
+          },
+        },
+      },
+      data: {
+        labels: ['Gold', 'Lithium', 'Uranium', 'Copper', 'Nickel', 'Zinc', 'Silver', 'Iron Ore', 'Platinum', 'Coal'],
+        datasets: [
+          {
+            label: 'Average/Median Total Renumeration',
+            data: [150000, 130000, 120000, 110000, 100000, 95000, 90000, 85000, 80000, 75000],
+            backgroundColor: '#36a2eb',
+          },
+        ],
+      },
     },
     {
       title: 'Top 25 Total Renumeration by Director',
-      color: 'red'
+      type: 'bar',
+      options: {
+        responsive: true,
+        scales: {
+          x: {
+            title: {
+              display: true,
+              text: 'Total Renumeration (in $)',
+            },
+          },
+          y: {
+            title: {
+              display: true,
+              text: 'Directors',
+            },
+          },
+        },
+      },
+      data: {
+        labels: [
+          'D 1', 'D 2', 'D 3', 'D 4', 'D 5', 'D 6', 'D 7', 'D 8', 'D 9', 'D 10',
+          'D 11', 'D 12', 'D 13', 'D 14', 'D 15', 'D 16', 'D 17', 'D 18', 'D 19', 'D 20',
+          'D 21', 'D 22', 'D 23', 'D 24', 'D 25'
+        ],
+        datasets: [
+          {
+            label: 'Total Renumeration by Director',
+            data: [
+              500000, 450000, 420000, 400000, 380000, 360000, 350000, 340000, 330000, 320000,
+              310000, 300000, 290000, 280000, 270000, 260000, 250000, 240000, 230000, 220000,
+              210000, 200000, 190000, 180000, 170000
+            ],
+            backgroundColor: '#ff6384',
+          },
+        ],
+      },
     },
   ]);
 

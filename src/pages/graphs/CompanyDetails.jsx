@@ -170,15 +170,60 @@ const CompanyDetails = () => {
   const [chartData] = useState([
     {
       title: 'Top 10 Bank Balance by ASX Code',
-      color: 'blue'
+      type: 'bar', 
+      options: {
+        responsive: true,
+        scales: {
+          x: { title: { display: true, text: "ASX Code" } },
+          y: { title: { display: true, text: "Bank Balance ($M)" } },
+        },
+      },
+      data: {
+        labels: ["ASX1", "ASX2", "ASX3", "ASX4", "ASX5", "ASX6", "ASX7", "ASX8", "ASX9", "ASX10"],
+        datasets: [
+          {
+            label: "Bank Balance",
+            data: [500, 450, 400, 350, 300, 250, 200, 180, 160, 140],
+            backgroundColor: "#5271b9",
+          },
+        ],
+      },
     },
     {
       title: 'Top 5 values of Project Location Area/Region',
-      color: 'red'
+      type: "pie",
+      options: { responsive: true },
+      data: {
+        labels: ["Kimberly", "Lachian Fold", "Southern Cross", "Pilbara", "Yilgarn"],
+        datasets: [
+          {
+            label: "Project Value ($M)",
+            data: [30, 25, 20, 15, 10],
+            backgroundColor: ["#ff6384", "#36a2eb", "#ffce56", "#4bc0c0", "#9966ff"],
+          },
+        ],
+      },
     },
     {
       title: 'Monthly Amount Raised',
-      color: 'green'
+      type: "bar", 
+      options: {
+        responsive: true,
+        scales: {
+          x: { title: { display: true, text: "Month" } },
+          y: { title: { display: true, text: "Amount Raised ($M)" } },
+        },
+      },
+      data: {
+        labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+        datasets: [
+          {
+            label: "Funds Raised",
+            data: [10, 12, 8, 15, 14, 20, 22, 18, 25, 28, 30, 35],
+            backgroundColor: "#28a745",
+          },
+        ],
+      },
     }
   ]);
   
