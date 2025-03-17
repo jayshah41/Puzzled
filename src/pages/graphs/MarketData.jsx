@@ -1,179 +1,115 @@
-import React from 'react';
-import '../../styles/Graphs.css';
+import React, { useState } from 'react';
+import '../../styles/GeneralStyles.css';
+import GraphPage from '../../components/GraphPage.jsx';
 
 const MarketData = () => {
+  // Sample data for financial dashboard
+  const [filterTags] = useState([
+    { label: 'Year', value: '2024', onRemove: () => console.log('Remove year filter') },
+    { label: 'Quarter', value: 'Q1', onRemove: () => console.log('Remove quarter filter') }
+  ]);
+  
+  const [filterOptions] = useState([
+    {
+      label: 'Year',
+      value: '2024',
+      onChange: () => console.log('Year changed'),
+      options: [
+        { label: '2024', value: '2024' },
+        { label: '2023', value: '2023' },
+        { label: '2022', value: '2022' }
+      ]
+    },
+    {
+      label: 'Quarter',
+      value: 'Q1',
+      onChange: () => console.log('Quarter changed'),
+      options: [
+        { label: 'Q1', value: 'Q1' },
+        { label: 'Q2', value: 'Q2' },
+        { label: 'Q3', value: 'Q3' },
+        { label: 'Q4', value: 'Q4' }
+      ]
+    },
+    {
+      label: 'Metric Type',
+      value: 'revenue',
+      onChange: () => console.log('Metric type changed'),
+      options: [
+        { label: 'Revenue', value: 'revenue' },
+        { label: 'Expenses', value: 'expenses' },
+        { label: 'Profit', value: 'profit' }
+      ]
+    }
+  ]);
+  
+  const [metricCards] = useState([
+    {
+      title: 'Total Revenue',
+      value: '$2,345,678',
+      trend: 'positive',
+      description: 'YoY: +15%'
+    },
+    {
+      title: 'Total Expenses',
+      value: '$1,456,789',
+      trend: 'negative',
+      description: 'YoY: +8%'
+    },
+    {
+      title: 'Net Profit',
+      value: '$888,889',
+      trend: 'positive',
+      description: 'YoY: +27%'
+    },
+    {
+      title: 'Profit Margin',
+      value: '37.9%',
+      trend: 'positive'
+    }
+  ]);
+  
+  const [chartData] = useState([
+    {
+      title: 'Revenue by Quarter',
+      color: 'blue'
+    },
+    {
+      title: 'Expense Breakdown',
+      color: 'red'
+    },
+    {
+      title: 'Profit Trend',
+      color: 'green'
+    }
+  ]);
+  
+  const [tableColumns] = useState([
+    { header: 'Month', key: 'month' },
+    { header: 'Revenue', key: 'revenue' },
+    { header: 'Expenses', key: 'expenses' },
+    { header: 'Profit', key: 'profit' },
+    { header: 'Margin', key: 'margin' }
+  ]);
+  
+  const [tableData] = useState([
+    { month: 'January', revenue: '$789,123', expenses: '$456,789', profit: '$332,334', margin: '42.1%' },
+    { month: 'February', revenue: '$812,345', expenses: '$478,912', profit: '$333,433', margin: '41.0%' },
+    { month: 'March', revenue: '$765,432', expenses: '$521,098', profit: '$244,334', margin: '31.9%' }
+    // Add more rows as needed
+  ]);
+
   return (
-    <div className="dashboard-container">
-      {/* Filter Tags */}
-      <div className="filter-tags">
-        <div className="filter-tag">
-          <span>Project Stage keyword: Exploration</span>
-          <button className="close-btn">×</button>
-        </div>
-        <div className="filter-tag">
-          <span>Commodity Type keyword: Gold</span>
-          <button className="close-btn">×</button>
-        </div>
-        <button className="add-filter-btn">+ Add filter</button>
-      </div>
-      
-      {/* Main Filter and Metrics Row */}
-      <div className="main-row">
-        {/* Filter Controls */}
-        <div className="filter-panel">
-          <h3>Project Filters</h3>
-          <div className="filter-options">
-            <div className="filter-group">
-              <label>Country</label>
-              <select>
-                <option>Select...</option>
-              </select>
-            </div>
-            <div className="filter-group">
-              <label>Stage</label>
-              <select>
-                <option>Select...</option>
-              </select>
-            </div>
-            <div className="filter-group">
-              <label>Commodity Type</label>
-              <select>
-                <option>Select...</option>
-              </select>
-            </div>
-          </div>
-          <div className="filter-buttons">
-            <button className="apply-btn">Apply changes</button>
-            <button className="cancel-btn">Cancel changes</button>
-            <button className="clear-btn">Clear form</button>
-          </div>
-        </div>
-        
-        {/* Metrics Cards */}
-        <div className="metrics-panel">
-          <div className="metric-card">
-            <div className="metric-title"># of Project Companies</div>
-            <div className="metric-value">463</div>
-            <div className="metric-subtitle">Unique count of ASX Codes/keyword</div>
-          </div>
-          
-          <div className="metric-card">
-            <div className="metric-title">Average Admin Cost Spend</div>
-            <div className="metric-value negative">-828,394.948</div>
-          </div>
-          
-          <div className="metric-card">
-            <div className="metric-title">Average Staff Cost Spend</div>
-            <div className="metric-value negative">-598,631.54</div>
-          </div>
-          
-          <div className="metric-card">
-            <div className="metric-title">Average Project Spend</div>
-            <div className="metric-value negative">-4,003,485.309</div>
-          </div>
-          
-          <div className="metric-card">
-            <div className="metric-title">Average Income</div>
-            <div className="metric-value positive">4,274,431.762</div>
-          </div>
-        </div>
-      </div>
-      
-      {/* Charts Row */}
-      <div className="charts-row">
-        <div className="chart-container">
-          <h3>Top 15 Countries</h3>
-          <div className="chart-placeholder">
-            {/* Country chart placeholder */}
-            <div className="donut-chart brown"></div>
-          </div>
-        </div>
-        
-        <div className="chart-container">
-          <h3>Projects by Stage</h3>
-          <div className="chart-placeholder">
-            {/* Stage chart placeholder */}
-            <div className="donut-chart blue"></div>
-          </div>
-        </div>
-        
-        <div className="chart-container">
-          <h3>Top 15 Projects by Commodity</h3>
-          <div className="chart-placeholder">
-            {/* Commodity chart placeholder */}
-            <div className="donut-chart green"></div>
-          </div>
-        </div>
-      </div>
-      
-      {/* Table Section */}
-      <div className="table-section">
-        <div className="table-header">
-          <h3>81 Projects</h3>
-          <div className="pagination">
-            <span>1-50 of 3169</span>
-            <button className="page-btn">←</button>
-            <button className="page-btn">→</button>
-          </div>
-        </div>
-        
-        <table className="data-table">
-          <thead>
-            <tr>
-              <th></th>
-              <th>ASX Codes</th>
-              <th>Companies</th>
-              <th>MarketCap</th>
-              <th>Enterprise Market Value</th>
-              <th>TotalShares</th>
-              <th>Admin Costs</th>
-              <th>Income</th>
-              <th>Project Spend</th>
-              <th>Staff Costs</th>
-              <th>Project Name & Commodities</th>
-              <th>Commodity Type</th>
-              <th>Project Stage</th>
-              <th>Project Location Country</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>1</td>
-              <td>ACE</td>
-              <td>FORCE COMMODITIES LTD</td>
-              <td>19,302,414</td>
-              <td>19,013,217</td>
-              <td>1,575,800,855</td>
-              <td>-274,000</td>
-              <td>0</td>
-              <td>-103,000</td>
-              <td>-37,000</td>
-              <td>Halls Peak</td>
-              <td>Gold</td>
-              <td>Exploration</td>
-              <td>Australia</td>
-            </tr>
-            {[...Array(9)].map((_, index) => (
-              <tr key={index + 2}>
-                <td>{index + 2}</td>
-                <td>ATM</td>
-                <td>AIC MINES LIMITED</td>
-                <td>19,927,355</td>
-                <td>13,286,355</td>
-                <td>68,718,018</td>
-                <td>-477,000</td>
-                <td>0</td>
-                <td>-3,999,000</td>
-                <td>-715,000</td>
-                <td>Marymia Sample</td>
-                <td>Gold</td>
-                <td>Exploration</td>
-                <td>Australia</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+    <div className="standard-padding">
+    <GraphPage
+      title="Market Data"
+      filterTags={filterTags}
+      filterOptions={filterOptions}
+      metricCards={metricCards}
+      chartData={chartData}
+      tableColumns={tableColumns}
+      tableData={tableData}
+    />
     </div>
   );
 };
