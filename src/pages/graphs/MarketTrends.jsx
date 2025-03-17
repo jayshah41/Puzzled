@@ -17,6 +17,7 @@ const DataFilter = () => {
 
   const [commodities, setCommodities] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
+  const [asxCodes, setAsxCode] = useState([]);
   const [stats, setStats] = useState({
     ASX_code_count: 0,
     daily_avg_price_change: 0,
@@ -31,6 +32,8 @@ const DataFilter = () => {
       .then(response => {
         setCommodities(response.data);
         setFilteredData(response.data);
+        const uniqueAsx = [...new Set(response.data.map(item => item.asx))];
+        setAsxCodes(uniqueAsx);
       })
       .catch(error => console.error('Error fetching commodities:', error));
 
@@ -98,8 +101,13 @@ const DataFilter = () => {
         <label>ASX:</label>
         <select name="asx" value={filters.asx} onChange={handleChange}>
           <option value="">Select ASX</option>
-          <option value="ASX1">ASX1</option>
-          <option value="ASX2">ASX2</option>
+          {asxCodes.length > 0 ? (
+            asxCodes.map((code, index) => (
+              <option key={index} value={code}>{code}</option>
+            ))
+          ) : (
+            <option value="">Loading...</option>
+          )}
         </select>
       </div>
 
@@ -199,6 +207,11 @@ const DataFilter = () => {
         <div className="stat-box">
           <h3>ASX Code Count</h3>
           <p>{stats.ASX_code_count}</p>
+        </div>
+
+        <div className="p-4 border rounded-lg bg-gray-100 mb-4">
+                <h2 className="text-lg font-semibold">ASX Code Count</h2>
+                <p className="text-2xl">{asxCodes}</p>
         </div>
 
         <div className="stat-box">
