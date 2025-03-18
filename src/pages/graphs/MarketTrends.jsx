@@ -4,29 +4,30 @@ import GraphPage from '../../components/GraphPage.jsx';
 
 const MarketTrends = () => {
   const [filterTags, setFilterTags] = useState([
-    { label: 'ASX', value: 'Any', onRemove: () => console.log('Remove asx filter') },
-    { label: 'Priority Commodity', value: 'Any', onRemove: () => console.log('Remove priority commodity filter') },
-    { label: 'Project Location Country', value: 'Any', onRemove: () => console.log('Remove project location country filter') },
-    { label: 'Project Area', value: 'Any', onRemove: () => console.log('Remove project area filter') },
-    { label: 'Project Stage', value: 'Any', onRemove: () => console.log('Remove project stage filter') },
-    { label: 'Price', value: '0', onRemove: () => console.log('Remove price filter') },
-    { label: 'Market Cap', value: '0', onRemove: () => console.log('Remove market cap filter') },
-    { label: 'Bank Balance', value: '0', onRemove: () => console.log('Remove bank balance filter') },
-    { label: 'Project Spending', value: '0', onRemove: () => console.log('Remove project spending filter') },
-    { label: 'Total Shares', value: '0', onRemove: () => console.log('Remove total shares filter') },
+    { label: 'ASX', value: 'Default', onRemove: () => console.log('Remove asx filter') },
+    { label: 'Priority Commodity', value: 'Default', onRemove: () => console.log('Remove priority commodity filter') },
+    { label: 'Project Location Country', value: 'Default', onRemove: () => console.log('Remove project location country filter') },
+    { label: 'Project Area', value: 'Default', onRemove: () => console.log('Remove project area filter') },
+    { label: 'Project Stage', value: 'Default', onRemove: () => console.log('Remove project stage filter') },
+    { label: 'Price', value: 'Default', onRemove: () => console.log('Remove price filter') },
+    { label: 'Market Cap', value: 'Default', onRemove: () => console.log('Remove market cap filter') },
+    { label: 'Bank Balance', value: 'Default', onRemove: () => console.log('Remove bank balance filter') },
+    { label: 'Project Spending', value: 'Default', onRemove: () => console.log('Remove project spending filter') },
+    { label: 'Total Shares', value: 'Default', onRemove: () => console.log('Remove total shares filter') },
   ]);
 
   const allFilterOptions = [
     {
-      label: 'ASX',
-      value: 'Any',
-      onChange: (value) => {
-        setFilterTags(prevTags => 
-          prevTags.map(tag => 
-            tag.label === 'ASX' ? {...tag, value} : tag
-          )
-        );
-      },
+        label: 'ASX',
+        value: 'Default',
+        onChange: (value) => {
+            setFilterTags(prevTags => 
+              prevTags.map(tag => 
+                tag.label === 'ASX' ? {...tag, value} : tag
+              )
+            );
+            if(value != "Default"){handleAddFilter({label: 'ASX', value})};
+          },
       options: [
         {label: 'Default', value: 'Default'},
         { label: 'TAT', value: 'TAT' },
@@ -36,15 +37,17 @@ const MarketTrends = () => {
     },
     {
       label: 'Priority Commodity',
-      value: 'Any',
+      value: 'Default',
       onChange: (value) => {
         setFilterTags(prevTags => 
           prevTags.map(tag => 
             tag.label === 'Priority Commodity' ? {...tag, value} : tag
           )
         );
+        if(value != "Default"){handleAddFilter({label: 'Priority Commodity', value})};
       },
       options: [
+        {label: 'Default', value: 'Default'},
         { label: 'Gold', value: 'Gold' },
         { label: 'Copper', value: 'Copper' },
         { label: 'Lithium', value: 'Lithium' },
@@ -52,15 +55,17 @@ const MarketTrends = () => {
     },
     {
       label: 'Project Location Country',
-      value: 'Any',
+      value: 'Default',
       onChange: (value) => {
         setFilterTags(prevTags => 
           prevTags.map(tag => 
             tag.label === 'Project Location Country' ? {...tag, value} : tag
           )
         );
+        if(value != "Default"){handleAddFilter({label: 'Project Location Country', value})};
       },
       options: [
+        {label: 'Default', value: 'Default'},
         { label: 'Australia', value: 'Australia' },
         { label: 'Canada', value: 'Canada' },
         { label: 'Brazil', value: 'Brazil' }
@@ -68,15 +73,17 @@ const MarketTrends = () => {
     },
     {
       label: 'Project Area',
-      value: 'Any',
+      value: 'Default',
       onChange: (value) => {
         setFilterTags(prevTags => 
           prevTags.map(tag => 
             tag.label === 'Project Area' ? {...tag, value} : tag
           )
         );
+        if(value != "Default"){handleAddFilter({label: 'Project Area', value})};
       },
       options: [
+        {label: 'Default', value: 'Default'},
         { label: 'Australia', value: 'Australia' },
         { label: 'Canada', value: 'Canada' },
         { label: 'Brazil', value: 'Brazil' }
@@ -84,15 +91,17 @@ const MarketTrends = () => {
     },
     {
       label: 'Project Stage',
-      value: 'Any',
+      value: 'Default',
       onChange: (value) => {
         setFilterTags(prevTags => 
           prevTags.map(tag => 
             tag.label === 'Project Stage' ? {...tag, value} : tag
           )
         );
+        if(value != "Default"){handleAddFilter({label: 'Project Stage', value})};
       },
       options: [
+        {label: 'Default', value: 'Default'},
         { label: 'Australia', value: 'Australia' },
         { label: 'Canada', value: 'Canada' },
         { label: 'Brazil', value: 'Brazil' }
@@ -100,15 +109,17 @@ const MarketTrends = () => {
     },
     {
       label: 'Price',
-      value: 'Any',
+      value: 'Default',
       onChange: (value) => {
         setFilterTags(prevTags => 
           prevTags.map(tag => 
             tag.label === 'Price' ? {...tag, value} : tag
           )
         );
+        if(value != "Default"){handleAddFilter({label: 'Price', value})};
       },
       options: [
+        {label: 'Default', value: 'Default'},
         { label: 'Australia', value: 'Australia' },
         { label: 'Canada', value: 'Canada' },
         { label: 'Brazil', value: 'Brazil' }
@@ -116,15 +127,17 @@ const MarketTrends = () => {
     },
     {
       label: 'Market Cap',
-      value: 'Any',
+      value: 'Default',
       onChange: (value) => {
         setFilterTags(prevTags => 
           prevTags.map(tag => 
             tag.label === 'Market Cap' ? {...tag, value} : tag
           )
         );
+        if(value != "Default"){handleAddFilter({label: 'Market Cap', value})};
       },
       options: [
+        {label: 'Default', value: 'Default'},
         { label: 'Australia', value: 'Australia' },
         { label: 'Canada', value: 'Canada' },
         { label: 'Brazil', value: 'Brazil' }
@@ -132,15 +145,17 @@ const MarketTrends = () => {
     },
     {
       label: 'Bank Balance',
-      value: 'Any',
+      value: 'Default',
       onChange: (value) => {
         setFilterTags(prevTags => 
           prevTags.map(tag => 
             tag.label === 'Bank Balance' ? {...tag, value} : tag
           )
         );
+        if(value != "Default"){handleAddFilter({label: 'Bank Balance', value})};
       },
       options: [
+        {label: 'Default', value: 'Default'},
         { label: 'Australia', value: 'Australia' },
         { label: 'Canada', value: 'Canada' },
         { label: 'Brazil', value: 'Brazil' }
@@ -148,15 +163,17 @@ const MarketTrends = () => {
     },
     {
       label: 'Project Spending',
-      value: 'Any',
+      value: 'Default',
       onChange: (value) => {
         setFilterTags(prevTags => 
           prevTags.map(tag => 
             tag.label === 'Project Spending' ? {...tag, value} : tag
           )
         );
+        if(value != "Default"){handleAddFilter({label: 'Project Spending', value})};
       },
       options: [
+        {label: 'Default', value: 'Default'},
         { label: 'Australia', value: 'Australia' },
         { label: 'Canada', value: 'Canada' },
         { label: 'Brazil', value: 'Brazil' }
@@ -164,15 +181,17 @@ const MarketTrends = () => {
     },
     {
       label: 'Total Shares',
-      value: 'Any',
+      value: 'Default',
       onChange: (value) => {
         setFilterTags(prevTags => 
           prevTags.map(tag => 
             tag.label === 'Total Shares' ? {...tag, value} : tag
           )
         );
+        if(value != "Default"){handleAddFilter({label: 'Total Shares', value})};
       },
       options: [
+        {label: 'Default', value: 'Default'},
         { label: 'Australia', value: 'Australia' },
         { label: 'Canada', value: 'Canada' },
         { label: 'Brazil', value: 'Brazil' }
@@ -185,7 +204,8 @@ const MarketTrends = () => {
   const [filterOptions, setFilterOptions] = useState(() => {
     const currentTagLabels = filterTags.map(tag => tag.label);
     return allFilterOptions.filter(option => !currentTagLabels.includes(option.label));
-  });
+});
+
 
   const handleRemoveFilter = (filterLabel) => {
     const removedFilter = filterTags.find(tag => tag.label === filterLabel);
@@ -199,12 +219,23 @@ const MarketTrends = () => {
   };
   
   const handleAddFilter = (filter) => {
-    setFilterTags(prevTags => [...prevTags, filter]);
+    setFilterTags(prevTags => {
+        const exists = prevTags.some(tag => tag.label === filter.label);
+        if (exists) {
+            return prevTags.map(tag => 
+                tag.label === filter.label ? { ...tag, value: filter.value } : tag
+            );
+        }
+        return [...prevTags, filter];
+    });
+
+    /*
     setFilterOptions(prevOptions => 
-      prevOptions.filter(opt => opt.label !== filter.label)
+        prevOptions.filter(opt => opt.label !== filter.label)
     );
-  };
-  
+    */
+    };
+
 
   const [metricCards] = useState([
     {
