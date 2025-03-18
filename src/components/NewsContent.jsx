@@ -8,6 +8,7 @@ const NewsContent = () => {
   const isLoggedIn = !!token;
   
   const [isEditing, setIsEditing] = useState(false);
+  const [cardToDelete, setCardToDelete] = useState(null); // Track which card is being considered for deletion
   
   const [newsCards, setNewsCards] = useState([
     {
@@ -163,9 +164,21 @@ const NewsContent = () => {
     setNewsCards([...newsCards, newCard]);
   };
 
-  const deleteCard = (cardIndex) => {
-    const updatedCards = newsCards.filter((_, index) => index !== cardIndex);
-    setNewsCards(updatedCards);
+  // Modified delete flow to use confirmation dialog
+  const confirmDeleteCard = (cardIndex) => {
+    setCardToDelete(cardIndex);
+  };
+
+  const deleteCard = () => {
+    if (cardToDelete !== null) {
+      const updatedCards = newsCards.filter((_, index) => index !== cardToDelete);
+      setNewsCards(updatedCards);
+      setCardToDelete(null); // Reset after deletion
+    }
+  };
+
+  const cancelDeleteCard = () => {
+    setCardToDelete(null);
   };
 
   const moveCardUp = (cardIndex) => {
@@ -219,6 +232,70 @@ const NewsContent = () => {
     setNewsCards(updatedCards);
   };
 
+  // Delete confirmation dialog component
+  const DeleteConfirmationDialog = ({ isOpen, onConfirm, onCancel, cardTitle }) => {
+    if (!isOpen) return null;
+    
+    return (
+      <div 
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          zIndex: 1000
+        }}
+      >
+        <div 
+          style={{
+            backgroundColor: 'white',
+            padding: '20px',
+            borderRadius: '5px',
+            maxWidth: '400px',
+            width: '90%',
+            boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)'
+          }}
+        >
+          <h3 style={{ marginTop: 0 }}>Confirm Deletion</h3>
+          <p>Are you sure you want to delete the card "{cardTitle}"?</p>
+          <p style={{ color: '#ff6b6b', fontSize: '0.9rem' }}>This action cannot be undone.</p>
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '20px' }}>
+            <button 
+              onClick={onCancel}
+              style={{
+                padding: '8px 16px',
+                backgroundColor: '#555555',
+                border: '1px solid #ddd',
+                borderRadius: '4px',
+                cursor: 'pointer'
+              }}
+            >
+              Cancel
+            </button>
+            <button 
+              onClick={onConfirm}
+              style={{
+                padding: '8px 16px',
+                backgroundColor: '#ff6b6b',
+                color: 'white',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: 'pointer'
+              }}
+            >
+              Delete
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="news-content-container">
       {isAdminUser && (
@@ -234,6 +311,14 @@ const NewsContent = () => {
           {isEditing ? 'Save & Stop Editing' : 'Edit News Content'}
         </button>
       )}
+
+      {/* Delete confirmation dialog */}
+      <DeleteConfirmationDialog 
+        isOpen={cardToDelete !== null}
+        onConfirm={deleteCard}
+        onCancel={cancelDeleteCard}
+        cardTitle={cardToDelete !== null ? newsCards[cardToDelete].title : ''}
+      />
 
       {newsCards.map((card, cardIndex) => (
         <div className="news-card" key={cardIndex} style={{ position: 'relative' }}>
@@ -389,7 +474,7 @@ const NewsContent = () => {
                 </button>
               </div>
               <button 
-                onClick={() => deleteCard(cardIndex)}
+                onClick={() => confirmDeleteCard(cardIndex)} // Changed to confirmation function
                 style={{ backgroundColor: '#ff6b6b' }}
               >
                 Delete Card
