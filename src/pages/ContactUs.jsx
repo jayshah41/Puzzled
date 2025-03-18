@@ -9,6 +9,6 @@ const ContactUs = () => {
       <ContactUsForm/>
     </>
   )
-}
+};
 
-export default ContactUs
+export default ContactUs;

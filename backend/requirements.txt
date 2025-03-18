@@ -1,0 +1,10 @@
+Django>=5.1
+djangorestframework
+pandas
+pyyaml
+faker
+requests
+django-cors-headers  # If React needs CORS
+django-environ  # For managing environment variables
+coverage
+djangorestframework-simplejwt
