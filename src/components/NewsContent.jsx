@@ -8,6 +8,7 @@ const NewsContent = () => {
   const isLoggedIn = !!token;
   
   const [isEditing, setIsEditing] = useState(false);
+  const [cardToDelete, setCardToDelete] = useState(null);
   
   const [newsCards, setNewsCards] = useState([
     {
@@ -163,9 +164,20 @@ const NewsContent = () => {
     setNewsCards([...newsCards, newCard]);
   };
 
-  const deleteCard = (cardIndex) => {
-    const updatedCards = newsCards.filter((_, index) => index !== cardIndex);
-    setNewsCards(updatedCards);
+  const confirmDeleteCard = (cardIndex) => {
+    setCardToDelete(cardIndex);
+  };
+
+  const deleteCard = () => {
+    if (cardToDelete !== null) {
+      const updatedCards = newsCards.filter((_, index) => index !== cardToDelete);
+      setNewsCards(updatedCards);
+      setCardToDelete(null);
+    }
+  };
+
+  const cancelDeleteCard = () => {
+    setCardToDelete(null);
   };
 
   const moveCardUp = (cardIndex) => {
@@ -219,6 +231,34 @@ const NewsContent = () => {
     setNewsCards(updatedCards);
   };
 
+  const DeleteConfirmationDialog = ({ isOpen, onConfirm, onCancel, cardTitle }) => {
+    if (!isOpen) return null;
+    
+    return (
+      <div className="modal-overlay">
+        <div className="modal-content">
+          <h3 className="modal-title">Confirm Deletion</h3>
+          <p>Are you sure you want to delete the card "{cardTitle}"?</p>
+          <p className="modal-warning">This action cannot be undone.</p>
+          <div className="modal-actions">
+            <button 
+              onClick={onCancel}
+              className="modal-cancel-button"
+            >
+              Cancel
+            </button>
+            <button 
+              onClick={onConfirm}
+              className="modal-confirm-button"
+            >
+              Delete
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="news-content-container">
       {isAdminUser && (
@@ -229,14 +269,21 @@ const NewsContent = () => {
             }
             setIsEditing(!isEditing);
           }}
-          style={{ marginBottom: '1rem' }}
+          className="admin-button"
         >
           {isEditing ? 'Save & Stop Editing' : 'Edit News Content'}
         </button>
       )}
 
+      <DeleteConfirmationDialog 
+        isOpen={cardToDelete !== null}
+        onConfirm={deleteCard}
+        onCancel={cancelDeleteCard}
+        cardTitle={cardToDelete !== null ? newsCards[cardToDelete].title : ''}
+      />
+
       {newsCards.map((card, cardIndex) => (
-        <div className="news-card" key={cardIndex} style={{ position: 'relative' }}>
+        <div className="news-card" key={cardIndex}>
           <div className="news-details">
             {isEditing ? (
               <>
@@ -244,15 +291,13 @@ const NewsContent = () => {
                   type="text"
                   value={card.category}
                   onChange={(e) => updateCardField(cardIndex, 'category', e.target.value)}
-                  className="auth-input"
-                  style={{ marginRight: '10px', width: '150px' }}
+                  className="auth-input edit-input"
                 />
                 <input
                   type="text"
                   value={card.date}
                   onChange={(e) => updateCardField(cardIndex, 'date', e.target.value)}
-                  className="auth-input"
-                  style={{ width: '150px' }}
+                  className="auth-input edit-input"
                 />
               </>
             ) : (
@@ -268,8 +313,7 @@ const NewsContent = () => {
               type="text"
               value={card.title}
               onChange={(e) => updateCardField(cardIndex, 'title', e.target.value)}
-              className="auth-input"
-              style={{ fontSize: '1.2rem', fontWeight: 'bold', marginBottom: '10px' }}
+              className="auth-input edit-title-input"
             />
           ) : (
             <h2 className="news-title">{card.title}</h2>
@@ -279,34 +323,26 @@ const NewsContent = () => {
             {isEditing ? (
               <div className="paragraph-editor">
                 {card.paragraphs.map((paragraph, paragraphIndex) => (
-                  <div key={paragraphIndex} className="paragraph-edit-container" style={{ marginBottom: '15px' }}>
+                  <div key={paragraphIndex} className="paragraph-edit-container">
                     <textarea
                       value={paragraph}
                       onChange={(e) => updateParagraph(cardIndex, paragraphIndex, e.target.value)}
-                      className="auth-input"
-                      style={{ width: '100%', minHeight: '80px' }}
+                      className="auth-input paragraph-textarea"
                       placeholder="Enter paragraph text"
                     />
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '5px' }}>
+                    <div className="paragraph-controls">
                       <div>
                         <button
                           onClick={() => moveParagraphUp(cardIndex, paragraphIndex)}
                           disabled={paragraphIndex === 0}
-                          style={{ 
-                            marginRight: '5px', 
-                            padding: '2px 8px',
-                            opacity: paragraphIndex === 0 ? 0.5 : 1 
-                          }}
+                          className={`paragraph-move-button ${paragraphIndex === 0 ? 'paragraph-move-button-disabled' : ''}`}
                         >
                           ↑
                         </button>
                         <button
                           onClick={() => moveParagraphDown(cardIndex, paragraphIndex)}
                           disabled={paragraphIndex === card.paragraphs.length - 1}
-                          style={{ 
-                            padding: '2px 8px',
-                            opacity: paragraphIndex === card.paragraphs.length - 1 ? 0.5 : 1 
-                          }}
+                          className={`paragraph-move-button ${paragraphIndex === card.paragraphs.length - 1 ? 'paragraph-move-button-disabled' : ''}`}
                         >
                           ↓
                         </button>
@@ -314,11 +350,7 @@ const NewsContent = () => {
                       <button
                         onClick={() => deleteParagraph(cardIndex, paragraphIndex)}
                         disabled={card.paragraphs.length === 1}
-                        style={{ 
-                          backgroundColor: '#ff6b6b', 
-                          padding: '2px 8px',
-                          opacity: card.paragraphs.length === 1 ? 0.5 : 1
-                        }}
+                        className={`paragraph-delete-button ${card.paragraphs.length === 1 ? 'paragraph-delete-button-disabled' : ''}`}
                       >
                         Delete
                       </button>
@@ -327,16 +359,7 @@ const NewsContent = () => {
                 ))}
                 <button
                   onClick={() => addParagraph(cardIndex)}
-                  style={{
-                    display: 'block',
-                    margin: '10px 0',
-                    padding: '5px 10px',
-                    backgroundColor: '#4CAF50',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '4px',
-                    cursor: 'pointer'
-                  }}
+                  className="add-button"
                 >
                   + Add Paragraph
                 </button>
@@ -354,9 +377,8 @@ const NewsContent = () => {
                 type="text"
                 value={card.link}
                 onChange={(e) => updateCardField(cardIndex, 'link', e.target.value)}
-                className="auth-input"
+                className="auth-input edit-link-input"
                 placeholder="Article URL"
-                style={{ width: '100%' }}
               />
             ) : (
               <a 
@@ -371,26 +393,26 @@ const NewsContent = () => {
           </div>
           
           {isEditing && (
-            <div style={{ marginTop: '15px', display: 'flex', justifyContent: 'space-between' }}>
+            <div className="card-controls">
               <div>
                 <button 
                   onClick={() => moveCardUp(cardIndex)}
                   disabled={cardIndex === 0}
-                  style={{ marginRight: '10px', opacity: cardIndex === 0 ? 0.5 : 1 }}
+                  className={`card-move-button ${cardIndex === 0 ? 'card-move-button-disabled' : ''}`}
                 >
                   ↑ Move Up
                 </button>
                 <button 
                   onClick={() => moveCardDown(cardIndex)}
                   disabled={cardIndex === newsCards.length - 1}
-                  style={{ opacity: cardIndex === newsCards.length - 1 ? 0.5 : 1 }}
+                  className={`card-move-button ${cardIndex === newsCards.length - 1 ? 'card-move-button-disabled' : ''}`}
                 >
                   ↓ Move Down
                 </button>
               </div>
               <button 
-                onClick={() => deleteCard(cardIndex)}
-                style={{ backgroundColor: '#ff6b6b' }}
+                onClick={() => confirmDeleteCard(cardIndex)}
+                className="card-delete-button"
               >
                 Delete Card
               </button>
@@ -402,16 +424,7 @@ const NewsContent = () => {
       {isEditing && (
         <button 
           onClick={addNewCard}
-          style={{ 
-            display: 'block', 
-            margin: '20px auto', 
-            padding: '10px 20px',
-            backgroundColor: '#4CAF50',
-            color: 'white',
-            border: 'none',
-            borderRadius: '4px',
-            cursor: 'pointer'
-          }}
+          className="add-card-button"
         >
           + Add Card
         </button>

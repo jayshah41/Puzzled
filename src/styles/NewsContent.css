@@ -10,6 +10,7 @@
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   padding: 2rem;
   margin-bottom: 2rem;
+  position: relative;
 }
 
 .news-details {
@@ -58,4 +59,156 @@
 
 .read-more-btn:hover {
   background-color: #3570b8;
+}
+
+.admin-button {
+  margin-bottom: 1rem;
+}
+
+.edit-input {
+  margin-right: 10px;
+  width: 150px;
+}
+
+.edit-title-input {
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin-bottom: 10px;
+  width: 100%;
+}
+
+.edit-link-input {
+  width: 100%;
+}
+
+.paragraph-editor {
+  width: 100%;
+}
+
+.paragraph-edit-container {
+  margin-bottom: 15px;
+}
+
+.paragraph-textarea {
+  width: 100%;
+  min-height: 80px;
+}
+
+.paragraph-controls {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 5px;
+}
+
+.paragraph-move-button {
+  margin-right: 5px;
+  padding: 2px 8px;
+}
+
+.paragraph-move-button-disabled {
+  opacity: 0.5;
+}
+
+.paragraph-delete-button {
+  background-color: #ff6b6b;
+  padding: 2px 8px;
+}
+
+.paragraph-delete-button-disabled {
+  opacity: 0.5;
+}
+
+.card-controls {
+  margin-top: 15px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.card-move-button {
+  margin-right: 10px;
+}
+
+.card-move-button-disabled {
+  opacity: 0.5;
+}
+
+.card-delete-button {
+  background-color: #ff6b6b;
+}
+
+.add-button {
+  display: block;
+  margin: 10px 0;
+  padding: 5px 10px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.add-card-button {
+  display: block;
+  margin: 20px auto;
+  padding: 10px 20px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background-color: white;
+  padding: 20px;
+  border-radius: 5px;
+  max-width: 400px;
+  width: 90%;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.modal-title {
+  margin-top: 0;
+}
+
+.modal-warning {
+  color: #ff6b6b;
+  font-size: 0.9rem;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.modal-cancel-button {
+  padding: 8px 16px;
+  background-color: #555555;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.modal-confirm-button {
+  padding: 8px 16px;
+  background-color: #ff6b6b;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
 }
