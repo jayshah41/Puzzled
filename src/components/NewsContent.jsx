@@ -9,7 +9,6 @@ const NewsContent = () => {
   
   const [isEditing, setIsEditing] = useState(false);
   
-  // News cards state
   const [newsCards, setNewsCards] = useState([
     {
       category: "Mining Exploration",
@@ -50,24 +49,39 @@ const NewsContent = () => {
     fetch('/api/editable-content/?component=NewsContent')
       .then(response => response.json())
       .then(data => {
-        const newCards = [...newsCards];
+        const fetchedCards = [];
+        const cardIndices = [...new Set(data
+          .filter(item => item.section.startsWith('card') && item.section.includes('_'))
+          .map(item => parseInt(item.section.split('_')[0].replace('card', '')))
+        )].sort((a, b) => a - b);
         
-        for (let i = 0; i < 3; i++) {
-          const cardIndex = i + 1;
+        cardIndices.forEach(cardIndex => {
+          const card = {
+            category: "",
+            date: "",
+            title: "",
+            paragraphs: [],
+            link: ""
+          };
+          
           const categoryContent = data.find(item => item.section === `card${cardIndex}_category`);
           const dateContent = data.find(item => item.section === `card${cardIndex}_date`);
           const titleContent = data.find(item => item.section === `card${cardIndex}_title`);
           const paragraphsContent = data.find(item => item.section === `card${cardIndex}_paragraphs`);
           const linkContent = data.find(item => item.section === `card${cardIndex}_link`);
           
-          if (categoryContent) newCards[i].category = categoryContent.text_value;
-          if (dateContent) newCards[i].date = dateContent.text_value;
-          if (titleContent) newCards[i].title = titleContent.text_value;
-          if (paragraphsContent) newCards[i].paragraphs = paragraphsContent.text_value.split('#');
-          if (linkContent) newCards[i].link = linkContent.text_value;
-        }
+          if (categoryContent) card.category = categoryContent.text_value;
+          if (dateContent) card.date = dateContent.text_value;
+          if (titleContent) card.title = titleContent.text_value;
+          if (paragraphsContent) card.paragraphs = paragraphsContent.text_value.split('#');
+          if (linkContent) card.link = linkContent.text_value;
+          
+          fetchedCards.push(card);
+        });
         
-        setNewsCards(newCards);
+        if (fetchedCards.length > 0) {
+          setNewsCards(fetchedCards);
+        }
       })
       .catch(error => {
         console.error("There was an error fetching the editable content", error);
@@ -77,35 +91,52 @@ const NewsContent = () => {
   const saveContent = () => {
     const content = [];
     
-    for (let i = 0; i < newsCards.length; i++) {
-      const cardIndex = i + 1;
-      const card = newsCards[i];
-      
-      content.push(
-        { component: 'NewsContent', section: `card${cardIndex}_category`, text_value: card.category },
-        { component: 'NewsContent', section: `card${cardIndex}_date`, text_value: card.date },
-        { component: 'NewsContent', section: `card${cardIndex}_title`, text_value: card.title },
-        { component: 'NewsContent', section: `card${cardIndex}_paragraphs`, text_value: card.paragraphs.join('#') },
-        { component: 'NewsContent', section: `card${cardIndex}_link`, text_value: card.link }
-      );
-    }
+    fetch('/api/editable-content/delete-component/', {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ component: 'NewsContent' }),
+    })
+      .then(response => response.json())
+      .then(data => {
+        console.log('Old content deleted successfully:', data);
+        
+        for (let i = 0; i < newsCards.length; i++) {
+          const cardIndex = i + 1;
+          const card = newsCards[i];
+          
+          content.push(
+            { component: 'NewsContent', section: `card${cardIndex}_category`, text_value: card.category },
+            { component: 'NewsContent', section: `card${cardIndex}_date`, text_value: card.date },
+            { component: 'NewsContent', section: `card${cardIndex}_title`, text_value: card.title },
+            { component: 'NewsContent', section: `card${cardIndex}_paragraphs`, text_value: card.paragraphs.join('#') },
+            { component: 'NewsContent', section: `card${cardIndex}_link`, text_value: card.link }
+          );
+        }
 
-    content.forEach(item => {
-      fetch('/api/editable-content/update/', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(item),
+        const savePromises = content.map(item => 
+          fetch('/api/editable-content/update/', {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(item),
+          })
+          .then(response => response.json())
+        );
+        
+        Promise.all(savePromises)
+          .then(() => {
+            console.log('All content saved successfully');
+          })
+          .catch(error => {
+            console.error('There was an error saving the content', error);
+          });
       })
-        .then(response => response.json())
-        .then(data => {
-          console.log('Content saved successfully:', data);
-        })
-        .catch(error => {
-          console.error('There was an error saving the content', error);
-        });
-    });
+      .catch(error => {
+        console.error('There was an error deleting old content', error);
+      });
   };
 
   const updateCardField = (cardIndex, field, value) => {
@@ -114,21 +145,77 @@ const NewsContent = () => {
     setNewsCards(updatedCards);
   };
 
-  const updateParagraph = (cardIndex, paragraphIndex, value) => {
+  const updateParagraph = (cardIndex, paragraphIndex, text) => {
     const updatedCards = [...newsCards];
-    updatedCards[cardIndex].paragraphs[paragraphIndex] = value;
+    updatedCards[cardIndex].paragraphs[paragraphIndex] = text;
+    setNewsCards(updatedCards);
+  };
+
+  const addNewCard = () => {
+    const newCard = {
+      category: "New Category",
+      date: new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
+      title: "New Article Title",
+      paragraphs: ["Enter your first paragraph here."],
+      link: "https://example.com/new-article"
+    };
+    
+    setNewsCards([...newsCards, newCard]);
+  };
+
+  const deleteCard = (cardIndex) => {
+    const updatedCards = newsCards.filter((_, index) => index !== cardIndex);
+    setNewsCards(updatedCards);
+  };
+
+  const moveCardUp = (cardIndex) => {
+    if (cardIndex === 0) return;
+    const updatedCards = [...newsCards];
+    const temp = updatedCards[cardIndex];
+    updatedCards[cardIndex] = updatedCards[cardIndex - 1];
+    updatedCards[cardIndex - 1] = temp;
+    setNewsCards(updatedCards);
+  };
+
+  const moveCardDown = (cardIndex) => {
+    if (cardIndex === newsCards.length - 1) return;
+    const updatedCards = [...newsCards];
+    const temp = updatedCards[cardIndex];
+    updatedCards[cardIndex] = updatedCards[cardIndex + 1];
+    updatedCards[cardIndex + 1] = temp;
     setNewsCards(updatedCards);
   };
 
   const addParagraph = (cardIndex) => {
     const updatedCards = [...newsCards];
-    updatedCards[cardIndex].paragraphs.push("");
+    updatedCards[cardIndex].paragraphs.push("New paragraph");
     setNewsCards(updatedCards);
   };
 
-  const removeParagraph = (cardIndex, paragraphIndex) => {
+  const deleteParagraph = (cardIndex, paragraphIndex) => {
     const updatedCards = [...newsCards];
-    updatedCards[cardIndex].paragraphs = updatedCards[cardIndex].paragraphs.filter((_, i) => i !== paragraphIndex);
+    updatedCards[cardIndex].paragraphs.splice(paragraphIndex, 1);
+    if (updatedCards[cardIndex].paragraphs.length === 0) {
+      updatedCards[cardIndex].paragraphs = [""];
+    }
+    setNewsCards(updatedCards);
+  };
+
+  const moveParagraphUp = (cardIndex, paragraphIndex) => {
+    if (paragraphIndex === 0) return;
+    const updatedCards = [...newsCards];
+    const temp = updatedCards[cardIndex].paragraphs[paragraphIndex];
+    updatedCards[cardIndex].paragraphs[paragraphIndex] = updatedCards[cardIndex].paragraphs[paragraphIndex - 1];
+    updatedCards[cardIndex].paragraphs[paragraphIndex - 1] = temp;
+    setNewsCards(updatedCards);
+  };
+
+  const moveParagraphDown = (cardIndex, paragraphIndex) => {
+    const updatedCards = [...newsCards];
+    if (paragraphIndex === updatedCards[cardIndex].paragraphs.length - 1) return;
+    const temp = updatedCards[cardIndex].paragraphs[paragraphIndex];
+    updatedCards[cardIndex].paragraphs[paragraphIndex] = updatedCards[cardIndex].paragraphs[paragraphIndex + 1];
+    updatedCards[cardIndex].paragraphs[paragraphIndex + 1] = temp;
     setNewsCards(updatedCards);
   };
 
@@ -149,7 +236,7 @@ const NewsContent = () => {
       )}
 
       {newsCards.map((card, cardIndex) => (
-        <div className="news-card" key={cardIndex}>
+        <div className="news-card" key={cardIndex} style={{ position: 'relative' }}>
           <div className="news-details">
             {isEditing ? (
               <>
@@ -189,32 +276,75 @@ const NewsContent = () => {
           )}
           
           <div className="news-excerpt">
-            {card.paragraphs.map((paragraph, paragraphIndex) => (
-              <div key={paragraphIndex}>
-                {isEditing ? (
-                  <div style={{ display: 'flex', alignItems: 'flex-start', marginBottom: '10px' }}>
+            {isEditing ? (
+              <div className="paragraph-editor">
+                {card.paragraphs.map((paragraph, paragraphIndex) => (
+                  <div key={paragraphIndex} className="paragraph-edit-container" style={{ marginBottom: '15px' }}>
                     <textarea
                       value={paragraph}
                       onChange={(e) => updateParagraph(cardIndex, paragraphIndex, e.target.value)}
                       className="auth-input"
-                      style={{ flex: 1, minHeight: '80px' }}
+                      style={{ width: '100%', minHeight: '80px' }}
+                      placeholder="Enter paragraph text"
                     />
-                    <button
-                      style={{ marginLeft: '8px' }}
-                      onClick={() => removeParagraph(cardIndex, paragraphIndex)}
-                    >
-                      -
-                    </button>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '5px' }}>
+                      <div>
+                        <button
+                          onClick={() => moveParagraphUp(cardIndex, paragraphIndex)}
+                          disabled={paragraphIndex === 0}
+                          style={{ 
+                            marginRight: '5px', 
+                            padding: '2px 8px',
+                            opacity: paragraphIndex === 0 ? 0.5 : 1 
+                          }}
+                        >
+                          ↑
+                        </button>
+                        <button
+                          onClick={() => moveParagraphDown(cardIndex, paragraphIndex)}
+                          disabled={paragraphIndex === card.paragraphs.length - 1}
+                          style={{ 
+                            padding: '2px 8px',
+                            opacity: paragraphIndex === card.paragraphs.length - 1 ? 0.5 : 1 
+                          }}
+                        >
+                          ↓
+                        </button>
+                      </div>
+                      <button
+                        onClick={() => deleteParagraph(cardIndex, paragraphIndex)}
+                        disabled={card.paragraphs.length === 1}
+                        style={{ 
+                          backgroundColor: '#ff6b6b', 
+                          padding: '2px 8px',
+                          opacity: card.paragraphs.length === 1 ? 0.5 : 1
+                        }}
+                      >
+                        Delete
+                      </button>
+                    </div>
                   </div>
-                ) : (
-                  <p>{paragraph}</p>
-                )}
+                ))}
+                <button
+                  onClick={() => addParagraph(cardIndex)}
+                  style={{
+                    display: 'block',
+                    margin: '10px 0',
+                    padding: '5px 10px',
+                    backgroundColor: '#4CAF50',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '4px',
+                    cursor: 'pointer'
+                  }}
+                >
+                  + Add Paragraph
+                </button>
               </div>
-            ))}
-            {isEditing && (
-              <button onClick={() => addParagraph(cardIndex)} style={{ marginBottom: '10px' }}>
-                + Add Paragraph
-              </button>
+            ) : (
+              card.paragraphs.map((paragraph, paragraphIndex) => (
+                <p key={paragraphIndex}>{paragraph}</p>
+              ))
             )}
           </div>
           
@@ -239,8 +369,53 @@ const NewsContent = () => {
               </a>
             )}
           </div>
+          
+          {isEditing && (
+            <div style={{ marginTop: '15px', display: 'flex', justifyContent: 'space-between' }}>
+              <div>
+                <button 
+                  onClick={() => moveCardUp(cardIndex)}
+                  disabled={cardIndex === 0}
+                  style={{ marginRight: '10px', opacity: cardIndex === 0 ? 0.5 : 1 }}
+                >
+                  ↑ Move Up
+                </button>
+                <button 
+                  onClick={() => moveCardDown(cardIndex)}
+                  disabled={cardIndex === newsCards.length - 1}
+                  style={{ opacity: cardIndex === newsCards.length - 1 ? 0.5 : 1 }}
+                >
+                  ↓ Move Down
+                </button>
+              </div>
+              <button 
+                onClick={() => deleteCard(cardIndex)}
+                style={{ backgroundColor: '#ff6b6b' }}
+              >
+                Delete Card
+              </button>
+            </div>
+          )}
         </div>
       ))}
+      
+      {isEditing && (
+        <button 
+          onClick={addNewCard}
+          style={{ 
+            display: 'block', 
+            margin: '20px auto', 
+            padding: '10px 20px',
+            backgroundColor: '#4CAF50',
+            color: 'white',
+            border: 'none',
+            borderRadius: '4px',
+            cursor: 'pointer'
+          }}
+        >
+          + Add Card
+        </button>
+      )}
     </div>
   );
 };
