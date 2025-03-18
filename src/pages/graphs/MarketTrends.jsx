@@ -4,8 +4,8 @@ import GraphPage from '../../components/GraphPage.jsx';
 
 const MarketTrends = () => {
   const [filterTags, setFilterTags] = useState([
-    { label: 'ASX', value: 'Any'},
-    { label: 'Priotiy Commodity', value: 'Any', onRemove: () => console.log('Remove priority commodity filter') },
+    { label: 'ASX', value: 'Any', onRemove: () => console.log('Remove asx filter') },
+    { label: 'Priority Commodity', value: 'Any', onRemove: () => console.log('Remove priority commodity filter') },
     { label: 'Project Location Country', value: 'Any', onRemove: () => console.log('Remove project location country filter') },
     { label: 'Project Area', value: 'Any', onRemove: () => console.log('Remove project area filter') },
     { label: 'Project Stage', value: 'Any', onRemove: () => console.log('Remove project stage filter') },
@@ -28,6 +28,7 @@ const MarketTrends = () => {
         );
       },
       options: [
+        {label: 'Default', value: 'Default'},
         { label: 'TAT', value: 'TAT' },
         { label: 'GCM', value: 'GCM' },
         { label: 'GMN', value: 'GMN' }
@@ -179,34 +180,31 @@ const MarketTrends = () => {
     }
   ];
 
+  const copyFilterOptions = Array.from(allFilterOptions);
+
   const [filterOptions, setFilterOptions] = useState(() => {
-    return allFilterOptions.filter(
-      option => !filterTags.some(tag => tag.label === option.label)
-    );
+    const currentTagLabels = filterTags.map(tag => tag.label);
+    return allFilterOptions.filter(option => !currentTagLabels.includes(option.label));
   });
 
   const handleRemoveFilter = (filterLabel) => {
     const removedFilter = filterTags.find(tag => tag.label === filterLabel);
+    setFilterTags(prevTags => prevTags.filter(tag => tag.label !== filterLabel));
     
     if (removedFilter) {
-      setFilterTags(prevTags => prevTags.filter(tag => tag.label !== filterLabel));
-      
-      const fullOption = allFilterOptions.find(option => option.label === filterLabel);
-      
-      if (fullOption && !filterOptions.some(option => option.label === filterLabel)) {
-        setFilterOptions(prevOptions => [...prevOptions, fullOption]);
-      }
+      setFilterOptions(prevOptions => [...prevOptions, 
+        allFilterOptions.find(opt => opt.label === filterLabel)
+      ]);
     }
   };
-
+  
   const handleAddFilter = (filter) => {
-    const filterExists = filterOptions.find(option => option.label === filter.label);
-    
-    if (filterExists) {
-      setFilterTags(prevTags => [...prevTags, filterExists]);
-      setFilterOptions(prevOptions => prevOptions.filter(option => option.label !== filterExists.label));
-    }
+    setFilterTags(prevTags => [...prevTags, filter]);
+    setFilterOptions(prevOptions => 
+      prevOptions.filter(opt => opt.label !== filter.label)
+    );
   };
+  
 
   const [metricCards] = useState([
     {
@@ -294,6 +292,7 @@ const MarketTrends = () => {
       title="Market Trends"
       filterTags={filterTags}
       filterOptions={filterOptions}
+      allFilterOptions={copyFilterOptions}
       metricCards={metricCards}
       chartData={chartData}
       tableColumns={tableColumns}

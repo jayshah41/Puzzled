@@ -20,6 +20,7 @@ const GraphPage = ({
   title,
   filterTags = [],
   filterOptions = [],
+  allFilterOptions = [],
   metricCards = [],
   chartData = [],
   tableColumns = [],
@@ -28,15 +29,21 @@ const GraphPage = ({
   handleAddFilter
 }) => {
 
-  const [localFilterTags, setLocalFilterTags] = useState(filterTags);
-  const [localFilterOptions, setLocalFilterOptions] = useState(filterOptions);
-
-  const handleRemoveLocalFilter = (filterLabel) => {
-    handleRemoveFilter(filterLabel);
+  const isDefaultValue = (filter) => {
+    const filterOption = allFilterOptions.find(opt => opt.label === filter.label);
+    return filter.value === "Default"
   };
 
-  const handleAddLocalFilter = (filter) => {
-    handleAddFilter(filter); 
+  const visibleFilterTags = filterTags.filter(tag => !isDefaultValue(tag));
+
+  const handleRemoveFilterAndReset = (filterLabel) => {
+    const filterOption = allFilterOptions.find(opt => opt.label === filterLabel);
+    
+    if (filterOption) {
+      filterOption.onChange("Any");
+    }
+    
+    handleRemoveFilter(filterLabel);
   };
 
   return (
@@ -47,7 +54,7 @@ const GraphPage = ({
         {filterTags.map((tag, index) => (
           <div key={index} className="filter-tag">
             <span>{tag.label}: {tag.value}</span>
-            <button className="close-btn" onClick={() => handleRemoveLocalFilter(tag.label)} style={{color:'black'}}>×</button>
+            <button className="close-btn" onClick={() => handleRemoveFilterAndReset(tag.label)} style={{color:'black'}}>×</button>
           </div>
         ))}
         <div className="filter-add-container">
@@ -58,7 +65,7 @@ const GraphPage = ({
                 if (e.target.value) {
                   const selectedOption = filterOptions.find(opt => opt.label === e.target.value);
                   if (selectedOption) {
-                    handleAddLocalFilter(selectedOption);
+                    handleAddFilter(selectedOption);
                     e.target.value = 'Add filter';
                   }
                 }
@@ -77,30 +84,34 @@ const GraphPage = ({
         </div>
         </div>
       
-      <div className="filter-controls">
+        <div className="filter-controls">
         <div className="filter-section">
           <h3>Filters</h3>
           <div className="filter-options">
-            {filterOptions.map((filter, index) => (
-              <div key={index} className="filter-column">
-                <label>{filter.label}</label>
-                <select 
-                  className="filter-select" 
-                  onChange={(e) => filter.onChange(e.target.value)}
-                  value={filter.value}
-                >
-                  {filter.options.map((option, i) => (
-                    <option key={i} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            ))}
+            {allFilterOptions.map((filter, index) => {
+              const currentTag = filterTags.find(tag => tag.label === filter.label);
+              const currentValue = currentTag ? currentTag.value : filter.value;
+              
+              return (
+                <div key={index} className="filter-column">
+                  <label>{filter.label}</label>
+                  <select 
+                    className="filter-select" 
+                    onChange={(e) => filter.onChange(e.target.value)}
+                    value={currentValue}  
+                  >
+                    {filter.options.map((option, i) => (
+                      <option key={i} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              );
+            })}
           </div>
           <div className="filter-actions">
             <button className="button apply-btn">Apply changes</button>
-            <button className="button cancel-btn">Cancel changes</button>
             <button className="button clear-btn" style={{ color: 'black'}}>Clear form</button>
           </div>
         </div>
