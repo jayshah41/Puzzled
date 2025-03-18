@@ -46,3 +46,7 @@
 .defulatButton:hover {
     background-color: #1E3A8A;
 }
+
+.text-center {
+    text-align: center;
+  }
