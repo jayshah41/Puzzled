@@ -60,7 +60,9 @@ const TwitterFeed = ({ username }) => {
                     {tweets.length > 0 ? tweets.map((tweet, index) => (
                         <div className="twitter-card" key={index}>
                             <div className="twitter-details">
-                                <span className="twitter-category">Tweet</span>
+                                <a href={`https://twitter.com/${username}`} target="_blank" rel="noopener noreferrer">
+                                    <span className="twitter-category">Nasa</span>
+                                </a>
                                 <span className="twitter-date">{tweet.date}</span>
                             </div>
                             <p dangerouslySetInnerHTML={{ __html: tweet.content }} />

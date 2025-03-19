@@ -1,7 +1,7 @@
 import React from 'react';
 import '../styles/GeneralStyles.css';
 
-const TwitterHero = () => {
+const SocialFeedHero = () => {
     const token = localStorage.getItem("accessToken");
     const isLoggedIn = !!token;
 
@@ -20,4 +20,4 @@ const TwitterHero = () => {
     );
 }
 
-export default TwitterHero;
+export default SocialFeedHero;

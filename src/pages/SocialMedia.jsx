@@ -1,11 +1,11 @@
 import React from 'react';
-import TwitterHero from '../components/TwitterHero';
+import SocialFeedHero from '../components/SocialFeedHero';
 import SocialFeed from '../components/SocialFeed';
 
 const SocialMedia = () => {
     return (
         <>
-            <TwitterHero />
+            <SocialFeedHero />
             <SocialFeed username="nasa" channelId="UCufR1rRBiuQ_3Sq8wDLqZ6Q" />
         </>
     );
