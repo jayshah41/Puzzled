@@ -216,6 +216,16 @@ class Command(BaseCommand):
                 "section": "content",
                 "text_value": "The MakCorp platform provides our users with access to 6 key data modules with over 600 data points to provide our clients with the ability to make better informed investment decisions. As an example, using projects data, users can seamlessly filter based upon key indicators like commodity type, geographic location or project stage to identify potential investment or client oppotunities."
             },
+            {
+                "component": "Products",
+                "section": "heading",
+                "text_value": "MakCorp is more than a platform"
+            },
+            {
+                "component": "Products",
+                "section": "content",
+                "text_value": "MakCorp offers unparalleled access to immediate and essential information for the resources sector. Our offering provides our clients with the tools they need to see data, the way they want to. MakCorp prides itself on using interactive technology to help visualize key metrics to improve investment decisions."
+            }
         ]
 
         for data in content_data:
