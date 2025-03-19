@@ -354,169 +354,283 @@ const Financials = () => {
     fetchFinancials();
   }, [fetchFinancials]);
 
-  // clear a specific filter
-  const clearFilter = (filterName) => {
-    switch(filterName) {
-      case 'ASX Code': setAsxCode(""); break;
-      case 'Ann Type': setAnnType(""); break;
-      case 'Period': setPeriod(""); break;
-      case 'Net Operating Cash Flow': setNetOperating(""); break;
-      case 'Exploration Spend': setExploration(""); break;
-      case 'Development Production Spend': setDevelopmentSpend(""); break;
-      case 'Staff Costs': setStaffCost(""); break;
-      case 'Admin Costs': setAdminCost(""); break;
-      case 'Other Costs': setOtherCost(""); break;
-      case 'Net Cash Invest': setNetInvest(""); break;
-      case 'CashFlow Total': setCashflowTotal(""); break;
-      case 'Bank Balance': setBankBalance(""); break;
-      case 'Debt': setDebt(""); break;
-      case 'Market Cap': setMarketCap(""); break;
-      case 'Forecast Net Operating': setForecastNetOp(""); break;
-      default: break;
-    }
-  };
+const [filterTags, setFilterTags] = useState([]);
 
-  // generate current filter tags based on active filters
-  const generateFilterTags = () => {
-    const tags = [];
-    
-    if (asxCode) tags.push({ label: 'ASX Code', value: asxCode, onRemove: () => clearFilter('ASX Code') });
-    if (annType) tags.push({ label: 'Ann Type', value: annType, onRemove: () => clearFilter('Ann Type') });
-    if (period) tags.push({ label: 'Period', value: period, onRemove: () => clearFilter('Period') });
-    if (netOperating) tags.push({ label: 'Net Operating Cash Flow', value: netOperating, onRemove: () => clearFilter('Net Operating Cash Flow') });
-    if (exploration) tags.push({ label: 'Exploration Spend', value: exploration, onRemove: () => clearFilter('Exploration Spend') });
-    if (developmentSpend) tags.push({ label: 'Development Production Spend', value: developmentSpend, onRemove: () => clearFilter('Development Production Spend') });
-    if (staffCost) tags.push({ label: 'Staff Costs', value: staffCost, onRemove: () => clearFilter('Staff Costs') });
-    if (adminCost) tags.push({ label: 'Admin Costs', value: adminCost, onRemove: () => clearFilter('Admin Costs') });
-    if (otherCost) tags.push({ label: 'Other Costs', value: otherCost, onRemove: () => clearFilter('Other Costs') });
-    if (netInvest) tags.push({ label: 'Net Cash Invest', value: netInvest, onRemove: () => clearFilter('Net Cash Invest') });
-    if (cashflowTotal) tags.push({ label: 'CashFlow Total', value: cashflowTotal, onRemove: () => clearFilter('CashFlow Total') });
-    if (bankBalance) tags.push({ label: 'Bank Balance', value: bankBalance, onRemove: () => clearFilter('Bank Balance') });
-    if (debt) tags.push({ label: 'Debt', value: debt, onRemove: () => clearFilter('Debt') });
-    if (marketCap) tags.push({ label: 'Market Cap', value: marketCap, onRemove: () => clearFilter('Market Cap') });
-    if (forecastNetOp) tags.push({ label: 'Forecast Net Operating', value: forecastNetOp, onRemove: () => clearFilter('Forecast Net Operating') });
-    
-    return tags.length > 0 ? tags : [
-      { label: 'No Filters Applied', value: 'Click to add filters', onRemove: () => {} }
-    ];
-  };
+// get unique values for filter options from api data
+const getUniqueValues = (key) => {
+  if (!financials || financials.length === 0) return [];
+  
+  const uniqueValues = [...new Set(financials.map(item => item[key]))].filter(Boolean);
+  return uniqueValues.map(value => ({ label: value, value: value }));
+};
 
-    // get unique values for filter options from api data
-    const getUniqueValues = (key) => {
-      if (!financials || financials.length === 0) return [];
-      
-      const uniqueValues = [...new Set(financials.map(item => item[key]))].filter(Boolean);
-      return uniqueValues.map(value => ({ label: value, value: value }));
-    };
-    
-  // generate filter options using api data
-  const generateFilterOptions = () => [
-    {
-      label: 'ASX Code',
-      value: asxCode,
-      onChange: (e) => setAsxCode(e.target.value),
-      options: [
-        { label: 'Any', value: '' }, ...getUniqueValues('asx_code')]
+const allFilterOptions = [
+  {
+    label: 'ASX Code',
+    value: 'Default',
+    onChange: (value) => {
+      setFilterTags(prevTags => 
+        prevTags.map(tag => 
+          tag.label === 'ASX Code' ? {...tag, value} : tag
+        )
+      );
+      if(value !== "Default"){handleAddFilter({label: 'ASX Code', value})};
     },
-    {
-      label: 'Ann Type',
-      value: annType,
-      onChange: (e) => setAnnType(e.target.value),
-      options: [
-        { label: 'Any', value: '' }, ...getUniqueValues('ann_type')]
+    options: [
+      { label: 'Any', value: '' }, ...getUniqueValues('asx_code')
+    ]
+  },
+  {
+    label: 'Ann Type',
+    value: 'Default',
+    onChange: (value) => {
+      setFilterTags(prevTags => 
+        prevTags.map(tag => 
+          tag.label === 'Ann Type' ? {...tag, value} : tag
+        )
+      );
+      if(value !== "Default"){handleAddFilter({label: 'Ann Type', value})};
     },
-    {
-      label: 'Period',
-      value: period,
-      onChange: (e) => setPeriod(e.target.value),
-      options: [
-        { label: 'Any', value: '' }, ...getUniqueValues('period')]
+    options: [
+      { label: 'Any', value: '' }, ...getUniqueValues('ann_type')
+    ]
+  },
+  {
+    label: 'Period',
+    value: 'Default',
+    onChange: (value) => {
+      setFilterTags(prevTags => 
+        prevTags.map(tag => 
+          tag.label === 'Period' ? {...tag, value} : tag
+        )
+      );
+      if(value !== "Default"){handleAddFilter({label: 'Period', value})};
     },
-    {
-      label: 'Net Operating Cash Flow',
-      value: netOperating,
-      onChange: (e) => setNetOperating(e.target.value),
-      options: [
-        { label: 'Any', value: '' },...getUniqueValues('net_operating')]
+    options: [
+      { label: 'Any', value: '' }, ...getUniqueValues('period')
+    ]
+  },
+  {
+    label: 'Net Operating Cash Flow',
+    value: 'Default',
+    onChange: (value) => {
+      setFilterTags(prevTags => 
+        prevTags.map(tag => 
+          tag.label === 'Net Operating Cash Flow' ? {...tag, value} : tag
+        )
+      );
+      if(value !== "Default"){handleAddFilter({label: 'Net Operating Cash Flow', value})};
     },
-    {
-      label: 'Exploration Spend',
-      value: exploration,
-      onChange: (e) => setExploration(e.target.value),
-      options: [
-        { label: 'Any', value: '' },...getUniqueValues('exploration')]
+    options: [
+      { label: 'Any', value: '' }, ...getUniqueValues('net_operating')
+    ]
+  },
+  {
+    label: 'Exploration Spend',
+    value: 'Default',
+    onChange: (value) => {
+      setFilterTags(prevTags => 
+        prevTags.map(tag => 
+          tag.label === 'Exploration Spend' ? {...tag, value} : tag
+        )
+      );
+      if(value !== "Default"){handleAddFilter({label: 'Exploration Spend', value})};
     },
-    {
-      label: 'Development Production Spend',
-      value: developmentSpend,
-      onChange: (e) => setDevelopmentSpend(e.target.value),
-      options: [
-        { label: 'Any', value: '' },...getUniqueValues('development')]
+    options: [
+      { label: 'Any', value: '' }, ...getUniqueValues('exploration')
+    ]
+  },
+  {
+    label: 'Development Production Spend',
+    value: 'Default',
+    onChange: (value) => {
+      setFilterTags(prevTags => 
+        prevTags.map(tag => 
+          tag.label === 'Development Production Spend' ? {...tag, value} : tag
+        )
+      );
+      if(value !== "Default"){handleAddFilter({label: 'Development Production Spend', value})};
     },
-    {
-      label: 'Staff Costs',
-      value: staffCost,
-      onChange: (e) => setStaffCost(e.target.value),
-      options: [
-        { label: 'Any', value: '' },...getUniqueValues('staff_costs')]
+    options: [
+      { label: 'Any', value: '' }, ...getUniqueValues('development')
+    ]
+  },
+  {
+    label: 'Staff Costs',
+    value: 'Default',
+    onChange: (value) => {
+      setFilterTags(prevTags => 
+        prevTags.map(tag => 
+          tag.label === 'Staff Costs' ? {...tag, value} : tag
+        )
+      );
+      if(value !== "Default"){handleAddFilter({label: 'Staff Costs', value})};
     },
-    {
-      label: 'Admin Costs',
-      value: adminCost,
-      onChange: (e) => setAdminCost(e.target.value),
-      options: [
-        { label: 'Any', value: '' },...getUniqueValues('admin_costs')]
+    options: [
+      { label: 'Any', value: '' }, ...getUniqueValues('staff_costs')
+    ]
+  },
+  {
+    label: 'Admin Costs',
+    value: 'Default',
+    onChange: (value) => {
+      setFilterTags(prevTags => 
+        prevTags.map(tag => 
+          tag.label === 'Admin Costs' ? {...tag, value} : tag
+        )
+      );
+      if(value !== "Default"){handleAddFilter({label: 'Admin Costs', value})};
     },
-    {
-      label: 'Other Costs',
-      value: otherCost,
-      onChange: (e) => setOtherCost(e.target.value),
-      options: [
-        { label: 'Any', value: '' },...getUniqueValues('other_costs')]
+    options: [
+      { label: 'Any', value: '' }, ...getUniqueValues('admin_costs')
+    ]
+  },
+  {
+    label: 'Other Costs',
+    value: 'Default',
+    onChange: (value) => {
+      setFilterTags(prevTags => 
+        prevTags.map(tag => 
+          tag.label === 'Other Costs' ? {...tag, value} : tag
+        )
+      );
+      if(value !== "Default"){handleAddFilter({label: 'Other Costs', value})};
     },
-    {
-      label: 'Net Cash Invest',
-      value: netInvest,
-      onChange: (e) => setNetInvest(e.target.value),
-      options: [
-        { label: 'Any', value: '' },...getUniqueValues('net_cash_invest')]
+    options: [
+      { label: 'Any', value: '' }, ...getUniqueValues('other_costs')
+    ]
+  },
+  {
+    label: 'Net Cash Invest',
+    value: 'Default',
+    onChange: (value) => {
+      setFilterTags(prevTags => 
+        prevTags.map(tag => 
+          tag.label === 'Net Cash Invest' ? {...tag, value} : tag
+        )
+      );
+      if(value !== "Default"){handleAddFilter({label: 'Net Cash Invest', value})};
     },
-    {
-      label: 'Cash Flow Total',
-      value: cashflowTotal,
-      onChange: (e) => setCashflowTotal(e.target.value),
-      options: [
-        { label: 'Any', value: '' },...getUniqueValues('cash_flow')]
+    options: [
+      { label: 'Any', value: '' }, ...getUniqueValues('net_cash_invest')
+    ]
+  },
+  {
+    label: 'Cash Flow Total',
+    value: 'Default',
+    onChange: (value) => {
+      setFilterTags(prevTags => 
+        prevTags.map(tag => 
+          tag.label === 'Cash Flow Total' ? {...tag, value} : tag
+        )
+      );
+      if(value !== "Default"){handleAddFilter({label: 'Cash Flow Total', value})};
     },
-    {
-      label: 'Bank Balance',
-      value: bankBalance,
-      onChange: (e) => setBankBalance(e.target.value),
-      options: [
-        { label: 'Any', value: '' },...getUniqueValues('bank_balance')]
+    options: [
+      { label: 'Any', value: '' }, ...getUniqueValues('cash_flow')
+    ]
+  },
+  {
+    label: 'Bank Balance',
+    value: 'Default',
+    onChange: (value) => {
+      setFilterTags(prevTags => 
+        prevTags.map(tag => 
+          tag.label === 'Bank Balance' ? {...tag, value} : tag
+        )
+      );
+      if(value !== "Default"){handleAddFilter({label: 'Bank Balance', value})};
     },
-    {
-      label: 'Debt',
-      value: debt,
-      onChange: (e) => setDebt(e.target.value),
-      options: [
-        { label: 'Any', value: '' },...getUniqueValues('debt')]
+    options: [
+      { label: 'Any', value: '' }, ...getUniqueValues('bank_balance')
+    ]
+  },
+  {
+    label: 'Debt',
+    value: 'Default',
+    onChange: (value) => {
+      setFilterTags(prevTags => 
+        prevTags.map(tag => 
+          tag.label === 'Debt' ? {...tag, value} : tag
+        )
+      );
+      if(value !== "Default"){handleAddFilter({label: 'Debt', value})};
     },
-    {
-      label: 'Market Cap',
-      value: marketCap,
-      onChange: (e) => setMarketCap(e.target.value),
-      options: [
-        { label: 'Any', value: '' },...getUniqueValues('market_cap')]
+    options: [
+      { label: 'Any', value: '' }, ...getUniqueValues('debt')
+    ]
+  },
+  {
+    label: 'Market Cap',
+    value: 'Default',
+    onChange: (value) => {
+      setFilterTags(prevTags => 
+        prevTags.map(tag => 
+          tag.label === 'Market Cap' ? {...tag, value} : tag
+        )
+      );
+      if(value !== "Default"){handleAddFilter({label: 'Market Cap', value})};
     },
-    {
-      label: 'Forecast Net Operating',
-      value: forecastNetOp,
-      onChange: (e) => setForecastNetOp(e.target.value),
-      options: [
-        { label: 'Any', value: '' },...getUniqueValues('forecast')]
+    options: [
+      { label: 'Any', value: '' }, ...getUniqueValues('market_cap')
+    ]
+  },
+  {
+    label: 'Forecast Net Operating',
+    value: 'Default',
+    onChange: (value) => {
+      setFilterTags(prevTags => 
+        prevTags.map(tag => 
+          tag.label === 'Forecast Net Operating' ? {...tag, value} : tag
+        )
+      );
+      if(value !== "Default"){handleAddFilter({label: 'Forecast Net Operating', value})};
+    },
+    options: [
+      { label: 'Any', value: '' }, ...getUniqueValues('forecast')
+    ]
+  },
+];
+
+const [filterOptions, setFilterOptions] = useState(() => {
+  const currentTagLabels = filterTags.map(tag => tag.label);
+  return allFilterOptions.filter(option => !currentTagLabels.includes(option.label));
+});
+
+const handleAddFilter = (filter) => {
+  setFilterTags(prevTags => {
+    const exists = prevTags.some(tag => tag.label === filter.label);
+    if (exists) {
+      return prevTags.map(tag => 
+        tag.label === filter.label ? { ...tag, value: filter.value } : tag
+      );
     }
+    return [...prevTags, {
+      ...filter,
+      onRemove: () => handleRemoveFilter(filter.label)
+    }];
+  });
+  
+  setFilterOptions(prevOptions => 
+    prevOptions.filter(option => option.label !== filter.label)
+  );
+};
+
+const handleRemoveFilter = (filterLabel) => {
+  setFilterTags(prevTags => prevTags.filter(tag => tag.label !== filterLabel));
+  
+  const removedOption = allFilterOptions.find(opt => opt.label === filterLabel);
+  if (removedOption) {
+    setFilterOptions(prevOptions => [...prevOptions, removedOption]);
+  }
+};
+
+// generate current filter tags based on active filters -- ??
+const generateFilterTags = () => {
+  return filterTags.length > 0 ? filterTags : [
+    { label: 'No Filters Applied', value: 'Click to add filters', onRemove: () => {} }
   ];
+};
   
   // generate metric cards using api data
   const generateMetricCards = () => [
@@ -585,12 +699,15 @@ const Financials = () => {
       ) : (
         <GraphPage
           title="Financial Dashboard"
-          filterTags={generateFilterTags()}
-          filterOptions={generateFilterOptions()}
+          filterTags={generateFilterTags()} // Or just filterTags if you want to use the raw state
+          filterOptions={filterOptions}
+          allFilterOptions={allFilterOptions}
           metricCards={generateMetricCards()}
           chartData={generateChartData()}
           tableColumns={tableColumns}
           tableData={tableData}
+          handleAddFilter={handleAddFilter}
+          handleRemoveFilter={handleRemoveFilter}
         />
       )}
     </div>
