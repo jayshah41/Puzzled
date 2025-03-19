@@ -3,7 +3,7 @@ from rest_framework.routers import DefaultRouter
 from .views import (
     CompanyViewSet, FinancialViewSet, MarketDataViewSet, 
     MarketTrendsViewSet, DirectorsViewSet, ShareholdersViewSet, 
-    CapitalRaisesViewSet, ProjectsViewSet
+    CapitalRaisesViewSet, ProjectsViewSet, get_tweets
 )
 
 router = DefaultRouter()
@@ -18,4 +18,5 @@ router.register(r'projects', ProjectsViewSet)
 
 urlpatterns = [
     path('', include(router.urls)), 
+    path("tweets/<str:username>/", get_tweets, name="get_tweets"),
 ]

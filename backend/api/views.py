@@ -2,6 +2,9 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from .models import MarketTrends
 from django.db.models import Avg
+import requests
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
 
 
 from rest_framework import viewsets
@@ -58,3 +61,17 @@ class CapitalRaisesViewSet(viewsets.ModelViewSet):
 class ProjectsViewSet(viewsets.ModelViewSet):
     queryset = Projects.objects.all()
     serializer_class = ProjectsSerializer
+
+@csrf_exempt
+def get_tweets(request, username):
+    try:
+        url = f"https://nitter.privacydev.net/{username}/rss"
+        headers = {"User-Agent": "Mozilla/5.0"} 
+        response = requests.get(url, headers=headers)
+
+        if response.status_code == 200:
+            return JsonResponse({"rss": response.text})
+        else:
+            return JsonResponse({"error": "Failed to fetch tweets"}, status=500)
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)
