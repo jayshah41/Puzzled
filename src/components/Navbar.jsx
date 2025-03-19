@@ -74,6 +74,7 @@ const Navbar = () => {
               )}
             </div>
             <Link to="/news">News</Link>
+            <Link to="/social-media">Steve</Link>
           </>
         ) : null}
 
