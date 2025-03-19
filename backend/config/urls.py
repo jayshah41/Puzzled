@@ -29,5 +29,5 @@ urlpatterns = [
     path('delete-account/', DeleteAccountView.as_view(), name='delete-account'),
     path('update-tier/', UpdateTierView.as_view(), name='update-tier'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-    path('api/', include('api.urls')),
+    path('data/', include('api.urls')),
 ]
