@@ -3,36 +3,51 @@ import '../../styles/GeneralStyles.css';
 import GraphPage from '../../components/GraphPage.jsx';
 
 const Directors = () => {
-  const [filterTags] = useState([
-    { label: 'ASX', value: 'Any', onRemove: () => console.log('Remove ASX filter') },
-    { label: 'Priotiy Commodity', value: 'Any', onRemove: () => console.log('Remove priority commodity filter') },
-    { label: 'Company', value: 'Any', onRemove: () => console.log('Remove company filter') },
-    { label: 'Contact', value: 'Any', onRemove: () => console.log('Remove contact filter') },
-    { label: 'Qualifications', value: 'Any', onRemove: () => console.log('Remove qualifications filter') },
-    { label: 'Base Renumeration', value: '0', onRemove: () => console.log('Remove base renumeration filter') },
-    { label: 'Total Renumeration', value: '0', onRemove: () => console.log('Remove total renumeration filter') },
-    { label: 'Job Title', value: '0', onRemove: () => console.log('Remove job title filter') },
-    { label: 'Project Location Country', value: 'Any', onRemove: () => console.log('Remove project location country filter') },
-    { label: 'Project Area', value: 'Any', onRemove: () => console.log('Remove project area filter') },
-    { label: 'Project Stage', value: 'Any', onRemove: () => console.log('Remove project stage filter') },
+  const [filterTags, setFilterTags] = useState([
+    { label: 'ASX', value: 'Default', onRemove: () => console.log('Remove ASX filter') },
+    { label: 'Priority Commodity', value: 'Default', onRemove: () => console.log('Remove priority commodity filter') },
+    { label: 'Company', value: 'Default', onRemove: () => console.log('Remove company filter') },
+    { label: 'Contact', value: 'Default', onRemove: () => console.log('Remove contact filter') },
+    { label: 'Qualifications', value: 'Default', onRemove: () => console.log('Remove qualifications filter') },
+    { label: 'Base Renumeration', value: 'Default', onRemove: () => console.log('Remove base renumeration filter') },
+    { label: 'Total Renumeration', value: 'Default', onRemove: () => console.log('Remove total renumeration filter') },
+    { label: 'Job Title', value: 'Default', onRemove: () => console.log('Remove job title filter') },
+    { label: 'Project Location Country', value: 'Default', onRemove: () => console.log('Remove project location country filter') },
+    { label: 'Project Area', value: 'Default', onRemove: () => console.log('Remove project area filter') },
+    { label: 'Project Stage', value: 'Default', onRemove: () => console.log('Remove project stage filter') },
 ]);
   
 //filters
-  const [filterOptions] = useState([
+  const allFilterOptions = [
     {
       label: 'ASX',
-      value: 'Any',
-      onChange: () => console.log('ASX Changed'),
-      options: [
-        { label: 'TAT', value: 'TAT' },
-        { label: 'GCM', value: 'GCM' },
-        { label: 'GMN', value: 'GMN' }
-      ]
+      value: 'Default',
+      onChange: (value) => {
+          setFilterTags(prevTags => 
+            prevTags.map(tag => 
+              tag.label === 'ASX' ? {...tag, value} : tag
+            )
+          );
+          if(value != "Default"){handleAddFilter({label: 'ASX', value})};
+        },
+    options: [
+      {label: 'Default', value: 'Default'},
+      { label: 'TAT', value: 'TAT' },
+      { label: 'GCM', value: 'GCM' },
+      { label: 'GMN', value: 'GMN' }
+    ]
     },
     {
       label: 'Company',
-      value: 'Any',
-      onChange: () => console.log('Company Changed'),
+      value: 'Default',
+      onChange: (value) => {
+        setFilterTags(prevTags => 
+          prevTags.map(tag => 
+            tag.label === 'ASX' ? {...tag, value} : tag
+          )
+        );
+        if(value != "Default"){handleAddFilter({label: 'Company', value})};
+      },
       options: [
         { label: 'TAT', value: 'TAT' },
         { label: 'GCM', value: 'GCM' },
@@ -41,8 +56,15 @@ const Directors = () => {
     },
     {
       label: 'Priority Commodity',
-      value: 'Any',
-      onChange: () => console.log('Priority commodity changed'),
+      value: 'Default',
+      onChange: (value) => {
+        setFilterTags(prevTags => 
+          prevTags.map(tag => 
+            tag.label === 'ASX' ? {...tag, value} : tag
+          )
+        );
+        if(value != "Default"){handleAddFilter({label: 'Priority Commodity', value})};
+      },
       options: [
         { label: 'Gold', value: 'Gold' },
         { label: 'Copper', value: 'Copper' },
@@ -51,8 +73,15 @@ const Directors = () => {
     },
     {
       label: 'Contact',
-      value: 'Any',
-      onChange: () => console.log('Contact changed'),
+      value: 'Default',
+      onChange: (value) => {
+        setFilterTags(prevTags => 
+          prevTags.map(tag => 
+            tag.label === 'ASX' ? {...tag, value} : tag
+          )
+        );
+        if(value != "Default"){handleAddFilter({label: 'Contact', value})};
+      },
       options: [
         { label: 'Australia', value: 'Australia' },
         { label: 'Canada', value: 'Canada' },
@@ -61,8 +90,15 @@ const Directors = () => {
     },
     {
         label: 'Base Renumeration',
-        value: 'Any',
-        onChange: () => console.log('Base renumeration changed'),
+        value: 'Default',
+        onChange: (value) => {
+          setFilterTags(prevTags => 
+            prevTags.map(tag => 
+              tag.label === 'ASX' ? {...tag, value} : tag
+            )
+          );
+          if(value != "Default"){handleAddFilter({label: 'Base Renumeration', value})};
+        },
         options: [
           { label: 'Australia', value: 'Australia' },
           { label: 'Canada', value: 'Canada' },
@@ -71,8 +107,15 @@ const Directors = () => {
       },
       {
         label: 'Total Renumeration',
-        value: 'Any',
-        onChange: () => console.log('Total renumeration changed'),
+        value: 'Default',
+        onChange: (value) => {
+          setFilterTags(prevTags => 
+            prevTags.map(tag => 
+              tag.label === 'ASX' ? {...tag, value} : tag
+            )
+          );
+          if(value != "Default"){handleAddFilter({label: 'Total Renumeration', value})};
+        },
         options: [
           { label: 'Australia', value: 'Australia' },
           { label: 'Canada', value: 'Canada' },
@@ -81,8 +124,15 @@ const Directors = () => {
       },
       {
         label: 'Job Title',
-        value: 'Any',
-        onChange: () => console.log('Job title changed'),
+        value: 'Default',
+        onChange: (value) => {
+          setFilterTags(prevTags => 
+            prevTags.map(tag => 
+              tag.label === 'ASX' ? {...tag, value} : tag
+            )
+          );
+          if(value != "Default"){handleAddFilter({label: 'Job Title', value})};
+        },
         options: [
           { label: 'Australia', value: 'Australia' },
           { label: 'Canada', value: 'Canada' },
@@ -91,8 +141,15 @@ const Directors = () => {
       },
       {
         label: 'Project Location Country',
-        value: 'Any',
-        onChange: () => console.log('Project Location Country changed'),
+        value: 'Default',
+        onChange: (value) => {
+          setFilterTags(prevTags => 
+            prevTags.map(tag => 
+              tag.label === 'ASX' ? {...tag, value} : tag
+            )
+          );
+          if(value != "Default"){handleAddFilter({label: 'Project Location Country', value})};
+        },
         options: [
           { label: 'Australia', value: 'Australia' },
           { label: 'Canada', value: 'Canada' },
@@ -101,8 +158,15 @@ const Directors = () => {
       },
       {
           label: 'Project Area',
-          value: 'Any',
-          onChange: () => console.log('Project area changed'),
+          value: 'Default',
+          onChange: (value) => {
+            setFilterTags(prevTags => 
+              prevTags.map(tag => 
+                tag.label === 'ASX' ? {...tag, value} : tag
+              )
+            );
+            if(value != "Default"){handleAddFilter({label: 'Project Area', value})};
+          },
           options: [
             { label: 'Australia', value: 'Australia' },
             { label: 'Canada', value: 'Canada' },
@@ -111,16 +175,52 @@ const Directors = () => {
         },
         {
           label: 'Project Stage',
-          value: 'Any',
-          onChange: () => console.log('Project stage changed'),
+          value: 'Default',
+          onChange: (value) => {
+            setFilterTags(prevTags => 
+              prevTags.map(tag => 
+                tag.label === 'ASX' ? {...tag, value} : tag
+              )
+            );
+            if(value != "Default"){handleAddFilter({label: 'Project Stage', value})};
+          },
           options: [
             { label: 'Australia', value: 'Australia' },
             { label: 'Canada', value: 'Canada' },
             { label: 'Brazil', value: 'Brazil' }
           ]
         },
+  ];
 
-  ]);
+  const [filterOptions, setFilterOptions] = useState(() => {
+    const currentTagLabels = filterTags.map(tag => tag.label);
+    return allFilterOptions.filter(option => !currentTagLabels.includes(option.label));
+});
+
+
+  const handleRemoveFilter = (filterLabel) => {
+    const removedFilter = filterTags.find(tag => tag.label === filterLabel);
+    setFilterTags(prevTags => prevTags.filter(tag => tag.label !== filterLabel));
+    
+    if (removedFilter) {
+      setFilterOptions(prevOptions => [...prevOptions, 
+        allFilterOptions.find(opt => opt.label === filterLabel)
+      ]);
+    }
+  };
+  
+  const handleAddFilter = (filter) => {
+    setFilterTags(prevTags => {
+        const exists = prevTags.some(tag => tag.label === filter.label);
+        if (exists) {
+            return prevTags.map(tag => 
+                tag.label === filter.label ? { ...tag, value: filter.value } : tag
+            );
+        }
+        return [...prevTags, filter];
+    });
+  };
+
   
   //stats
   const [metricCards] = useState([
@@ -280,34 +380,16 @@ const Directors = () => {
       title="Directors"
       filterTags={filterTags}
       filterOptions={filterOptions}
+      allFilterOptions={allFilterOptions}
       metricCards={metricCards}
       chartData={chartData}
       tableColumns={tableColumns}
       tableData={tableData}
+      handleAddFilter={handleAddFilter}
+      handleRemoveFilter={handleRemoveFilter}
       secondTableColumns={secondTableColumns}
       secondTableData={secondTableData}
     />
-     <div className="table-container">
-        <h2>Total Renumeration by Project Stage</h2>
-        <table className="data-table">
-          <thead>
-            <tr>
-              {secondTableColumns.map((col) => (
-                <th key={col.key}>{col.header}</th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {secondTableData.map((row, index) => (
-              <tr key={index}>
-                {secondTableColumns.map((col) => (
-                  <td key={col.key}>{row[col.key]}</td>
-                ))}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
     </div>
   );
 };

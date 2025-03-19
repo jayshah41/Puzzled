@@ -108,49 +108,107 @@ import GraphPage from '../../components/GraphPage.jsx';
 
 const CompanyDetails = () => {
   // Sample data for financial dashboard
-  const [filterTags] = useState([
-    { label: 'ASX Code', value: 'Any', onRemove: () => console.log('Remove asx filter') },
-    { label: 'MarketCap', value: 'Any', onRemove: () => console.log('Remove ann filter') }, 
-    { label: 'Priority Commodities', value: 'Any', onRemove: () => console.log('Remove quarter filter') },
-    { label: 'Project Area', value: 'Any', onRemove: () => console.log('Remove quarter filter') }
+  const [filterTags, setFilterTags] = useState([
+    { label: 'ASX Code', value: 'Default', onRemove: () => console.log('Remove asx filter') },
+    { label: 'MarketCap', value: 'Default', onRemove: () => console.log('Remove ann filter') }, 
+    { label: 'Priority Commodities', value: 'Default', onRemove: () => console.log('Remove quarter filter') },
+    { label: 'Project Area', value: 'Default', onRemove: () => console.log('Remove quarter filter') }
   ]);
   
-  const [filterOptions] = useState([
+  const allFilterOptions = [
     {
       label: 'ASX Code',
-      value: 'Any',
-      onChange: () => console.log('ASX Code changed'),
+      value: 'Default',
+      onChange: (value) => {
+        setFilterTags(prevTags => 
+          prevTags.map(tag => 
+            tag.label === 'ASX' ? {...tag, value} : tag
+          )
+        );
+        if(value != "Default"){handleAddFilter({label: 'ASX', value})};
+      },
       options: [
         { label: '', value: '' }
       ]
     },
     {
       label: 'MarketCap',
-      value: 'Any',
-      onChange: () => console.log('Ann Type changed'),
+      value: 'Default',
+      onChange: (value) => {
+        setFilterTags(prevTags => 
+          prevTags.map(tag => 
+            tag.label === 'MarketCap' ? {...tag, value} : tag
+          )
+        );
+        if(value != "Default"){handleAddFilter({label: 'MarketCap', value})};
+      },
       options: [
         { label: '', value: '' }
       ]
     },
     {
       label: 'Priority Commodities',
-      value: 'Any',
-      onChange: () => console.log('Entity changed'),
+      value: 'Default',
+      onChange: (value) => {
+        setFilterTags(prevTags => 
+          prevTags.map(tag => 
+            tag.label === 'Priority Commodities' ? {...tag, value} : tag
+          )
+        );
+        if(value != "Default"){handleAddFilter({label: 'Priority Commodities', value})};
+      },
       options: [
         { label: '', value: '' }
       ]
     },
     {
       label: 'Project Area',
-      value: 'Any',
-      onChange: () => console.log('Project Area changed'),
+      value: 'Default',
+      onChange: (value) => {
+        setFilterTags(prevTags => 
+          prevTags.map(tag => 
+            tag.label === 'Project Area' ? {...tag, value} : tag
+          )
+        );
+        if(value != "Default"){handleAddFilter({label: 'Project Area', value})};
+      },
       options: [
         { label: 'Kimberly Region', value: 'Kimberly Region' },
         { label: 'Lachian Fold Region', value: 'Lachian Fold Region' },
         { label: 'Southern Cross Region', value: 'Southern Cross Region' }
       ]
     }
-  ]);
+  ];
+
+  const [filterOptions, setFilterOptions] = useState(() => {
+    const currentTagLabels = filterTags.map(tag => tag.label);
+    return allFilterOptions.filter(option => !currentTagLabels.includes(option.label));
+});
+
+
+  const handleRemoveFilter = (filterLabel) => {
+    const removedFilter = filterTags.find(tag => tag.label === filterLabel);
+    setFilterTags(prevTags => prevTags.filter(tag => tag.label !== filterLabel));
+    
+    if (removedFilter) {
+      setFilterOptions(prevOptions => [...prevOptions, 
+        allFilterOptions.find(opt => opt.label === filterLabel)
+      ]);
+    }
+  };
+  
+  const handleAddFilter = (filter) => {
+    setFilterTags(prevTags => {
+        const exists = prevTags.some(tag => tag.label === filter.label);
+        if (exists) {
+            return prevTags.map(tag => 
+                tag.label === filter.label ? { ...tag, value: filter.value } : tag
+            );
+        }
+        return [...prevTags, filter];
+    });
+    };
+
   
   const [metricCards] = useState([
     {
@@ -246,10 +304,13 @@ const CompanyDetails = () => {
       title="Company Details"
       filterTags={filterTags}
       filterOptions={filterOptions}
+      allFilterOptions={allFilterOptions}
       metricCards={metricCards}
       chartData={chartData}
       tableColumns={tableColumns}
       tableData={tableData}
+      handleAddFilter={handleAddFilter}
+      handleRemoveFilter={handleRemoveFilter}
     />
     </div>
   );

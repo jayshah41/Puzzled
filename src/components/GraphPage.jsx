@@ -31,7 +31,7 @@ const GraphPage = ({
 
   const removeAllFilters = () => {
     const tagsCopy = [...filterTags];
-    tagsCopy.forEach(tag => {
+    allFilterOptions.forEach(tag => {
     handleRemoveFilter(tag.label);
     });
   };

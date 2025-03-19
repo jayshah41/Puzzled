@@ -28,12 +28,12 @@ const MarketTrends = () => {
             );
             if(value != "Default"){handleAddFilter({label: 'ASX', value})};
           },
-      options: [
-        {label: 'Default', value: 'Default'},
-        { label: 'TAT', value: 'TAT' },
-        { label: 'GCM', value: 'GCM' },
-        { label: 'GMN', value: 'GMN' }
-      ]
+        options: [
+            {label: 'Default', value: 'Default'},
+            { label: 'TAT', value: 'TAT' },
+            { label: 'GCM', value: 'GCM' },
+            { label: 'GMN', value: 'GMN' }
+        ]
     },
     {
       label: 'Priority Commodity',
@@ -199,7 +199,7 @@ const MarketTrends = () => {
     }
   ];
 
-  const copyFilterOptions = Array.from(allFilterOptions);
+  //const copyFilterOptions = Array.from(allFilterOptions);
 
   const [filterOptions, setFilterOptions] = useState(() => {
     const currentTagLabels = filterTags.map(tag => tag.label);
@@ -323,7 +323,7 @@ const MarketTrends = () => {
       title="Market Trends"
       filterTags={filterTags}
       filterOptions={filterOptions}
-      allFilterOptions={copyFilterOptions}
+      allFilterOptions={allFilterOptions}
       metricCards={metricCards}
       chartData={chartData}
       tableColumns={tableColumns}

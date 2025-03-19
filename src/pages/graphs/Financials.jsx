@@ -167,46 +167,15 @@ const Financials = () => {
   const [chartData] = useState([
     {
       title: 'Total Quarterly Exploration Spend',
-      type: "bar", // Specify chart type
-      data: {
-        labels: ["Q1", "Q2", "Q3", "Q4"],
-        datasets: [
-          {
-            label: "Exploration Spend",
-            data: [12000, 15000, 18000, 21000],
-            backgroundColor: "#5271b9",
-          },
-        ],
-      },
+      color: 'blue'
     },
     {
-      title: 'QTR Project Spend By Priority Commodity By Period', 
-      type: "bar",
-      data: {
-        labels: ["Gold", "Silver", "Copper", "Lithium"],
-        datasets: [
-          {
-            label: "Project Spend",
-            data: [5000, 8000, 12000, 15000],
-            backgroundColor: "#dc3545",
-          },
-        ],
-      },
+      title: 'QTR Project Spend By Priority Commodity By Period',
+      color: 'red'
     },
     {
       title: 'QTR Top 10 ASX Code By Bank Balance By Period',
-      type: "bar",
-      options: { indexAxis: "y", responsive: true },
-      data: {
-        labels: ["ASX1", "ASX2", "ASX3", "ASX4"],
-        datasets: [
-          {
-            label: "Bank Balance",
-            data: [250000, 300000, 150000, 200000],
-            backgroundColor: "#28a745",
-          },
-        ],
-      },
+      color: 'green'
     }
   ]);
   

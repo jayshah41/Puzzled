@@ -4,21 +4,28 @@ import GraphPage from '../../components/GraphPage.jsx';
 
 const Shareholders = () => {
   // Sample data for financial dashboard
-  const [filterTags] = useState([
-    { label: 'ASX Code', value: 'Any', onRemove: () => console.log('Remove asx filter') },
-    { label: 'Ann Type', value: 'Any', onRemove: () => console.log('Remove ann filter') }, 
-    { label: 'Entity', value: 'Any', onRemove: () => console.log('Remove quarter filter') },
-    { label: 'Value', value: 'Any', onRemove: () => console.log('Remove quarter filter') }, 
-    { label: 'Priority Commodities', value: 'Q1', onRemove: () => console.log('Remove quarter filter') }, 
-    { label: 'Project Area', value: 'Q1', onRemove: () => console.log('Remove quarter filter') }, 
-    { label: 'Transaction Type', value: 'Q1', onRemove: () => console.log('Remove quarter filter') }
+  const [filterTags, setFilterTags] = useState([
+    { label: 'ASX', value: 'Default', onRemove: () => console.log('Remove asx filter') },
+    { label: 'Ann Type', value: 'Default', onRemove: () => console.log('Remove ann filter') }, 
+    { label: 'Entity', value: 'Default', onRemove: () => console.log('Remove quarter filter') },
+    { label: 'Value', value: 'Default', onRemove: () => console.log('Remove quarter filter') }, 
+    { label: 'Priority Commodities', value: 'Default', onRemove: () => console.log('Remove quarter filter') }, 
+    { label: 'Project Area', value: 'Default', onRemove: () => console.log('Remove quarter filter') }, 
+    { label: 'Transaction Type', value: 'Default', onRemove: () => console.log('Remove quarter filter') }
   ]);
   
-  const [filterOptions] = useState([
+  const allFilterOptions = [
     {
-      label: 'ASX Code',
-      value: 'Any',
-      onChange: () => console.log('ASX Code changed'),
+      label: 'ASX',
+      value: 'Default',
+      onChange: (value) => {
+        setFilterTags(prevTags => 
+          prevTags.map(tag => 
+            tag.label === 'ASX' ? {...tag, value} : tag
+          )
+        );
+        if(value != "Default"){handleAddFilter({label: 'ASX', value})};
+      },
       options: [
         { label: 'RLT', value: 'RLT' },
         { label: 'MIN', value: 'MIN' },
@@ -27,8 +34,15 @@ const Shareholders = () => {
     },
     {
       label: 'Ann Type',
-      value: 'Any',
-      onChange: () => console.log('Ann Type changed'),
+      value: 'Default',
+      onChange: (value) => {
+        setFilterTags(prevTags => 
+          prevTags.map(tag => 
+            tag.label === 'Ann Type' ? {...tag, value} : tag
+          )
+        );
+        if(value != "Default"){handleAddFilter({label: 'Ann Type', value})};
+      },
       options: [
         { label: 'DirectorNew', value: 'DirectorNew' },
         { label: 'DailyNew', value: 'DailyNew' },
@@ -37,8 +51,15 @@ const Shareholders = () => {
     },
     {
       label: 'Entity',
-      value: 'Any',
-      onChange: () => console.log('Entity changed'),
+      value: 'Default',
+      onChange: (value) => {
+        setFilterTags(prevTags => 
+          prevTags.map(tag => 
+            tag.label === 'Entity' ? {...tag, value} : tag
+          )
+        );
+        if(value != "Default"){handleAddFilter({label: 'Entity', value})};
+      },
       options: [
         { label: 'Mr Luigi Mattecucci', value: 'Mr Luigi Mattecucci' },
         { label: 'Mr Stefano Marani', value: 'Mr Stefano Marani' },
@@ -47,16 +68,30 @@ const Shareholders = () => {
     },
     {
       label: 'Value',
-      value: 'Any',
-      onChange: () => console.log('Value changed'),
+      value: 'Default',
+      onChange: (value) => {
+        setFilterTags(prevTags => 
+          prevTags.map(tag => 
+            tag.label === 'Value' ? {...tag, value} : tag
+          )
+        );
+        if(value != "Default"){handleAddFilter({label: 'Value', value})};
+      },
       options: [
         { label: '', value: '' }
       ]
     },
     {
       label: 'Priority Commodities',
-      value: 'Any',
-      onChange: () => console.log('Priority Commodities changed'),
+      value: 'Default',
+      onChange: (value) => {
+        setFilterTags(prevTags => 
+          prevTags.map(tag => 
+            tag.label === 'Priority Commodities' ? {...tag, value} : tag
+          )
+        );
+        if(value != "Default"){handleAddFilter({label: 'Priority Commodities', value})};
+      },
       options: [
         { label: 'Gold', value: 'Gold' },
         { label: 'Lithium', value: 'Lithium' },
@@ -65,8 +100,15 @@ const Shareholders = () => {
     },
     {
       label: 'Project Area',
-      value: 'Any',
-      onChange: () => console.log('Project Area changed'),
+      value: 'Default',
+      onChange: (value) => {
+        setFilterTags(prevTags => 
+          prevTags.map(tag => 
+            tag.label === 'Project Area' ? {...tag, value} : tag
+          )
+        );
+        if(value != "Default"){handleAddFilter({label: 'Project Area', value})};
+      },
       options: [
         { label: 'Kimberly Region', value: 'Kimberly Region' },
         { label: 'Lachian Fold Region', value: 'Lachian Fold Region' },
@@ -75,13 +117,51 @@ const Shareholders = () => {
     },
     {
       label: 'Transaction Type',
-      value: 'Any',
-      onChange: () => console.log('Transaction Type changed'),
+      value: 'Default',
+      onChange: (value) => {
+        setFilterTags(prevTags => 
+          prevTags.map(tag => 
+            tag.label === 'Transaction Type' ? {...tag, value} : tag
+          )
+        );
+        if(value != "Default"){handleAddFilter({label: 'Transcation Type', value})};
+      },
       options: [
         { label: '', value: '' }
       ]
     }
-  ]);
+  ];
+
+  const [filterOptions, setFilterOptions] = useState(() => {
+    const currentTagLabels = filterTags.map(tag => tag.label);
+    return allFilterOptions.filter(option => !currentTagLabels.includes(option.label));
+});
+
+
+  const handleRemoveFilter = (filterLabel) => {
+    const removedFilter = filterTags.find(tag => tag.label === filterLabel);
+    setFilterTags(prevTags => prevTags.filter(tag => tag.label !== filterLabel));
+    
+    if (removedFilter) {
+      setFilterOptions(prevOptions => [...prevOptions, 
+        allFilterOptions.find(opt => opt.label === filterLabel)
+      ]);
+    }
+  };
+  
+  const handleAddFilter = (filter) => {
+    setFilterTags(prevTags => {
+        const exists = prevTags.some(tag => tag.label === filter.label);
+        if (exists) {
+            return prevTags.map(tag => 
+                tag.label === filter.label ? { ...tag, value: filter.value } : tag
+            );
+        }
+        return [...prevTags, filter];
+    });
+  };
+
+
   
   const [metricCards] = useState([
     {
@@ -151,7 +231,6 @@ const Shareholders = () => {
     { ann: 'Director New', asx: 'RLT', entity: 'Mr Luigi Mattecucci'},
     { ann: 'Daily New', asx: 'MIN', entity: 'Mr Stefano Marani'},
     { ann: 'Director Old', asx: 'IGO', entity: 'Mr Luke Atkins'}
-    // Add more rows as needed
   ]);
 
   return (
@@ -160,10 +239,13 @@ const Shareholders = () => {
       title="Shareholders"
       filterTags={filterTags}
       filterOptions={filterOptions}
+      allFilterOptions={allFilterOptions}
       metricCards={metricCards}
       chartData={chartData}
       tableColumns={tableColumns}
       tableData={tableData}
+      handleAddFilter={handleAddFilter}
+      handleRemoveFilter={handleRemoveFilter}
     />
     </div>
   );

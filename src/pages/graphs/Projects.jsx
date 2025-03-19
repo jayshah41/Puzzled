@@ -3,26 +3,33 @@ import '../../styles/GeneralStyles.css';
 import GraphPage from '../../components/GraphPage.jsx';
 
 const Projects = () => {
-  const [filterTags] = useState([
-    { label: 'ASX', value: 'Any', onRemove: () => console.log('Remove ASX filter') },
-    { label: 'Company Name', value: 'Any', onRemove: () => console.log('Remove company name filter') },
-    { label: 'Priotiy Commodity', value: 'Any', onRemove: () => console.log('Remove priority commodity filter') },
-    { label: 'Project Location Country', value: 'Any', onRemove: () => console.log('Remove project location country filter') },
-    { label: 'Project Location Continent', value: 'Any', onRemove: () => console.log('Remove project location continent filter') },
-    { label: 'Project Location State', value: 'Any', onRemove: () => console.log('Remove project location state filter') },
-    { label: 'Project Location City', value: 'Any', onRemove: () => console.log('Remove project location city filter') },
-    { label: 'Project Stage', value: 'Any', onRemove: () => console.log('Remove project stage filter') },
-    { label: 'Industry Type', value: 'Any', onRemove: () => console.log('Remove industry type filter') },
-    { label: 'Market Cap', value: '0', onRemove: () => console.log('Remove market cap filter') },
-    { label: 'Commodity Total Resource', value: '0', onRemove: () => console.log('Remove commodity total resource filter') },
-    { label: 'Net Project Value', value: '0', onRemove: () => console.log('Remove net project value filter') },
+  const [filterTags, setFilterTags] = useState([
+    { label: 'ASX', value: 'Default', onRemove: () => console.log('Remove ASX filter') },
+    { label: 'Company Name', value: 'Default', onRemove: () => console.log('Remove company name filter') },
+    { label: 'Priority Commodity', value: 'Default', onRemove: () => console.log('Remove priority commodity filter') },
+    { label: 'Project Location Country', value: 'Default', onRemove: () => console.log('Remove project location country filter') },
+    { label: 'Project Location Continent', value: 'Default', onRemove: () => console.log('Remove project location continent filter') },
+    { label: 'Project Location State', value: 'Default', onRemove: () => console.log('Remove project location state filter') },
+    { label: 'Project Location City', value: 'Default', onRemove: () => console.log('Remove project location city filter') },
+    { label: 'Project Stage', value: 'Default', onRemove: () => console.log('Remove project stage filter') },
+    { label: 'Industry Type', value: 'Default', onRemove: () => console.log('Remove industry type filter') },
+    { label: 'Market Cap', value: 'Default', onRemove: () => console.log('Remove market cap filter') },
+    { label: 'Commodity Total Resource', value: 'Default', onRemove: () => console.log('Remove commodity total resource filter') },
+    { label: 'Net Project Value', value: 'Default', onRemove: () => console.log('Remove net project value filter') },
 ]);
   
-  const [filterOptions] = useState([
+  const allFilterOptions = [
     {
       label: 'ASX',
-      value: 'Any',
-      onChange: () => console.log('ASX Changed'),
+      value: 'Default',
+      onChange: (value) => {
+        setFilterTags(prevTags => 
+          prevTags.map(tag => 
+            tag.label === 'ASX' ? {...tag, value} : tag
+          )
+        );
+        if(value != "Default"){handleAddFilter({label: 'ASX', value})};
+      },      
       options: [
         { label: 'TAT', value: 'TAT' },
         { label: 'GCM', value: 'GCM' },
@@ -31,8 +38,15 @@ const Projects = () => {
     },
     {
       label: 'Company Name',
-      value: 'Any',
-      onChange: () => console.log('Company name changed'),
+      value: 'Default',
+      onChange: (value) => {
+        setFilterTags(prevTags => 
+          prevTags.map(tag => 
+            tag.label === 'Company Name' ? {...tag, value} : tag
+          )
+        );
+        if(value != "Default"){handleAddFilter({label: 'Company Name', value})};
+      },      
       options: [
         { label: 'Gold', value: 'Gold' },
         { label: 'Copper', value: 'Copper' },
@@ -41,8 +55,15 @@ const Projects = () => {
     },
     {
       label: 'Priority Commodity',
-      value: 'Any',
-      onChange: () => console.log('Priority commodity changed'),
+      value: 'Default',
+      onChange: (value) => {
+        setFilterTags(prevTags => 
+          prevTags.map(tag => 
+            tag.label === 'Priority Commodity' ? {...tag, value} : tag
+          )
+        );
+        if(value != "Default"){handleAddFilter({label: 'Priority Commodity', value})};
+      },      
       options: [
         { label: 'Australia', value: 'Australia' },
         { label: 'Canada', value: 'Canada' },
@@ -51,8 +72,15 @@ const Projects = () => {
     },
     {
       label: 'Project Location Country',
-      value: 'Any',
-      onChange: () => console.log('Project location country changed'),
+      value: 'Default',
+      onChange: (value) => {
+        setFilterTags(prevTags => 
+          prevTags.map(tag => 
+            tag.label === 'Project Location Country' ? {...tag, value} : tag
+          )
+        );
+        if(value != "Default"){handleAddFilter({label: 'Project Location Country', value})};
+      },     
       options: [
         { label: 'Australia', value: 'Australia' },
         { label: 'Canada', value: 'Canada' },
@@ -61,8 +89,15 @@ const Projects = () => {
     },
     {
       label: 'Project Location Continent',
-      value: 'Any',
-      onChange: () => console.log('Project location continent changed'),
+      value: 'Default',
+      onChange: (value) => {
+        setFilterTags(prevTags => 
+          prevTags.map(tag => 
+            tag.label === 'Project Location Continent' ? {...tag, value} : tag
+          )
+        );
+        if(value != "Default"){handleAddFilter({label: 'Project Location Continent', value})};
+      }, 
       options: [
         { label: 'Australia', value: 'Australia' },
         { label: 'Canada', value: 'Canada' },
@@ -71,8 +106,15 @@ const Projects = () => {
     },
     {
       label: 'Project Location State',
-      value: 'Any',
-      onChange: () => console.log('Project location state changed'),
+      value: 'Default',
+      onChange: (value) => {
+        setFilterTags(prevTags => 
+          prevTags.map(tag => 
+            tag.label === 'Project Location State' ? {...tag, value} : tag
+          )
+        );
+        if(value != "Default"){handleAddFilter({label: 'Project Location State', value})};
+      },           
       options: [
         { label: 'Australia', value: 'Australia' },
         { label: 'Canada', value: 'Canada' },
@@ -81,8 +123,15 @@ const Projects = () => {
     },
     {
       label: 'Project Location City',
-      value: 'Any',
-      onChange: () => console.log('Project location city changed'),
+      value: 'Default',
+      onChange: (value) => {
+        setFilterTags(prevTags => 
+          prevTags.map(tag => 
+            tag.label === 'Project Location City' ? {...tag, value} : tag
+          )
+        );
+        if(value != "Default"){handleAddFilter({label: 'Project Location City', value})};
+      },     
       options: [
         { label: 'Australia', value: 'Australia' },
         { label: 'Canada', value: 'Canada' },
@@ -91,8 +140,15 @@ const Projects = () => {
     },
     {
       label: 'Project Stage',
-      value: 'Any',
-      onChange: () => console.log('Project stage changed'),
+      value: 'Default',
+      onChange: (value) => {
+        setFilterTags(prevTags => 
+          prevTags.map(tag => 
+            tag.label === 'Project Stage' ? {...tag, value} : tag
+          )
+        );
+        if(value != "Default"){handleAddFilter({label: 'Project Stage', value})};
+      },     
       options: [
         { label: 'Australia', value: 'Australia' },
         { label: 'Canada', value: 'Canada' },
@@ -101,8 +157,15 @@ const Projects = () => {
     },
     {
       label: 'Industry Type',
-      value: 'Any',
-      onChange: () => console.log('Industry type changed'),
+      value: 'Default',
+      onChange: (value) => {
+        setFilterTags(prevTags => 
+          prevTags.map(tag => 
+            tag.label === 'Industry Type' ? {...tag, value} : tag
+          )
+        );
+        if(value != "Default"){handleAddFilter({label: 'Industry Type', value})};
+      },     
       options: [
         { label: 'Australia', value: 'Australia' },
         { label: 'Canada', value: 'Canada' },
@@ -111,8 +174,15 @@ const Projects = () => {
     },
     {
       label: 'Market Cap',
-      value: 'Any',
-      onChange: () => console.log('Market cap changed'),
+      value: 'Default',
+      onChange: (value) => {
+        setFilterTags(prevTags => 
+          prevTags.map(tag => 
+            tag.label === 'Market Cap' ? {...tag, value} : tag
+          )
+        );
+        if(value != "Default"){handleAddFilter({label: 'Market Cap', value})};
+      },     
       options: [
         { label: 'Australia', value: 'Australia' },
         { label: 'Canada', value: 'Canada' },
@@ -121,8 +191,15 @@ const Projects = () => {
     },
     {
       label: 'Commodity Total Resource',
-      value: 'Any',
-      onChange: () => console.log('Commodity total resource changed'),
+      value: 'Default',
+      onChange: (value) => {
+        setFilterTags(prevTags => 
+          prevTags.map(tag => 
+            tag.label === 'Commodity Total Resource' ? {...tag, value} : tag
+          )
+        );
+        if(value != "Default"){handleAddFilter({label: 'Commodity Total Resource', value})};
+      },     
       options: [
         { label: 'Australia', value: 'Australia' },
         { label: 'Canada', value: 'Canada' },
@@ -131,15 +208,54 @@ const Projects = () => {
     },
     {
       label: 'Net Project Value',
-      value: 'Any',
-      onChange: () => console.log('Net project value changed'),
+      value: 'Default',
+      onChange: (value) => {
+        setFilterTags(prevTags => 
+          prevTags.map(tag => 
+            tag.label === 'Net Project Value' ? {...tag, value} : tag
+          )
+        );
+        if(value != "Default"){handleAddFilter({label: 'Net Project Value', value})};
+      },     
       options: [
         { label: 'Australia', value: 'Australia' },
         { label: 'Canada', value: 'Canada' },
         { label: 'Brazil', value: 'Brazil' }
       ]
     },
-  ]);
+  ];
+
+  const [filterOptions, setFilterOptions] = useState(() => {
+    const currentTagLabels = filterTags.map(tag => tag.label);
+    return allFilterOptions.filter(option => !currentTagLabels.includes(option.label));
+});
+
+
+  const handleRemoveFilter = (filterLabel) => {
+    const removedFilter = filterTags.find(tag => tag.label === filterLabel);
+    setFilterTags(prevTags => prevTags.filter(tag => tag.label !== filterLabel));
+    
+    if (removedFilter) {
+      setFilterOptions(prevOptions => [...prevOptions, 
+        allFilterOptions.find(opt => opt.label === filterLabel)
+      ]);
+    }
+  };
+  
+  const handleAddFilter = (filter) => {
+    setFilterTags(prevTags => {
+        const exists = prevTags.some(tag => tag.label === filter.label);
+        if (exists) {
+            return prevTags.map(tag => 
+                tag.label === filter.label ? { ...tag, value: filter.value } : tag
+            );
+        }
+        return [...prevTags, filter];
+    });
+
+    };
+
+  
   //stats
   const [metricCards] = useState([
     {
@@ -249,10 +365,13 @@ const Projects = () => {
       title="Projects"
       filterTags={filterTags}
       filterOptions={filterOptions}
+      allFilterOptions={allFilterOptions}
       metricCards={metricCards}
       chartData={chartData}
       tableColumns={tableColumns}
       tableData={tableData}
+      handleAddFilter={handleAddFilter}
+      handleRemoveFilter={handleRemoveFilter}
     />
     </div>
   );
