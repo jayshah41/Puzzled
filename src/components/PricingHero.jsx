@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import useSaveContent from '../hooks/useSaveContent';
 import pricingHeaderImage from '../assets/pricing-header-image.png';
 import '../styles/GeneralStyles.css';
 
@@ -7,6 +8,8 @@ const PricingHero = () => {
   const token = localStorage.getItem("accessToken");
   const isLoggedIn = !!token;
 
+  const saveContent = useSaveContent();
+  
   const [isEditing, setIsEditing] = useState(false);
 
   const [heading, setHeading] = useState("MakCorp Platform through Affordable Subscriptions");
@@ -28,28 +31,12 @@ const PricingHero = () => {
     }, []);
 
   
-  const saveContent = () => {
+  const handleSave = () => {
     const contentData = [
       { component: 'Pricing', section: 'heading', text_value: heading },
       { component: 'Pricing', section: 'content', text_value: content },
     ];
-
-    contentData.forEach(item => {
-      fetch('/api/editable-content/update/', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(item),
-      })
-        .then(response => response.json())
-        .then(data => {
-          console.log('Content saved successfully:', data);
-        })
-        .catch(error => {
-          console.error('There was an error saving the content', error);
-        });
-    });
+    saveContent(contentData);
   };
 
   return (
@@ -58,7 +45,7 @@ const PricingHero = () => {
         {isAdminUser ?
           <button onClick={() => {
           if (isEditing) {
-            saveContent();
+            handleSave();
           }
           setIsEditing(!isEditing);
         }}
