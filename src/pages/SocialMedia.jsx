@@ -1,14 +1,14 @@
 import React from 'react';
 import TwitterHero from '../components/TwitterHero';
-import TwitterScraper from '../components/TwitterScraper';
+import SocialFeed from '../components/SocialFeed';
 
-const TwitterPage = () => {
+const SocialMedia = () => {
     return (
         <>
             <TwitterHero />
-            <TwitterScraper username="nasa" />
+            <SocialFeed username="nasa" channelId="UCufR1rRBiuQ_3Sq8wDLqZ6Q" />
         </>
     );
 };
 
-export default TwitterPage;
+export default SocialMedia;
