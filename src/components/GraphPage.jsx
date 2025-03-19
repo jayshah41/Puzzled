@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import { Bar, Line, Pie, Doughnut, Radar, Scatter, Bubble } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, PointElement, LineElement, ArcElement, RadialLinearScale } from 'chart.js';
 import '../styles/Graphs.css';
@@ -28,21 +28,22 @@ const GraphPage = ({
   handleRemoveFilter, 
   handleAddFilter
 }) => {
+  const [currentPage, setCurrentPage] = useState(1);
+  const rowsPerPage = 10;
+  const totalPages = Math.ceil(tableData.length / rowsPerPage);
 
-  const removeAllFilters = () => {
-    const tagsCopy = [...filterTags];
-    allFilterOptions.forEach(tag => {
-    handleRemoveFilter(tag.label);
-    });
+  const handlePageChange = (newPage) => {
+    if (newPage >= 1 && newPage <= totalPages) {
+      setCurrentPage(newPage);
+    }
   };
-
 
   return (
     <div className="dashboard-container">
       <h2 className="dashboard-title">{title} Dashboard</h2>
       
       <div className="filter-tags">
-      {filterTags.map((tag, index) => (
+        {filterTags.map((tag, index) => (
           <div key={index} className="filter-tag">
             <span>{tag.label}: {tag.value}</span>
             <button className="close-btn" onClick={() => handleRemoveFilter(tag.label)} style={{color:'black'}}>×</button>
@@ -73,9 +74,9 @@ const GraphPage = ({
             <span className="no-filters-message">No more filters available</span>
           )}
         </div>
-        </div>
-      
-        <div className="filter-controls">
+      </div>
+
+      <div className="filter-controls">
         <div className="filter-section">
           <h3>Filters</h3>
           <div className="filter-options">
@@ -103,11 +104,12 @@ const GraphPage = ({
           </div>
           <div className="filter-actions">
             <button className="button apply-btn">Apply changes</button>
-            <button className="button clear-btn" style={{ color: 'black'}} onClick={removeAllFilters}>Clear form</button>
+            <button className="button clear-btn" style={{ color: 'black'}} onClick={() => filterTags.forEach(tag => handleRemoveFilter(tag.label))}>
+              Clear filters
+            </button>
           </div>
         </div>
         
-        {/* Metrics Section */}
         <div className="metrics-section">
           {metricCards.map((metric, index) => (
             <div key={index} className="metric-card">
@@ -123,7 +125,6 @@ const GraphPage = ({
         </div>
       </div>
       
-      {/* Charts Section */}
       <div className="charts-section">
         {chartData.map((chart, index) => (
           <div key={index} className="chart-container">
@@ -138,15 +139,30 @@ const GraphPage = ({
           </div>
         ))}
       </div>
-      
-      {/* Data Table Section */}
+
       <div className="table-section">
         <h3>{tableData.length} Records</h3>
+
         <div className="pagination">
-          <span>1-50 of {tableData.length}</span>
-          <button className="page-btn">←</button>
-          <button className="page-btn">→</button>
+          <span>
+            {`${(currentPage - 1) * rowsPerPage + 1}-${Math.min(currentPage * rowsPerPage, tableData.length)} of ${tableData.length}`}
+          </span>
+          <button 
+            className="page-btn" 
+            disabled={currentPage === 1} 
+            onClick={() => handlePageChange(currentPage - 1)}
+          >
+            ←
+          </button>
+          <button 
+            className="page-btn" 
+            disabled={currentPage === totalPages} 
+            onClick={() => handlePageChange(currentPage + 1)}
+          >
+            →
+          </button>
         </div>
+
         <table className="data-table">
           <thead>
             <tr>
@@ -156,14 +172,16 @@ const GraphPage = ({
             </tr>
           </thead>
           <tbody>
-            {tableData.slice(0, 10).map((row, rowIndex) => (
-              <tr key={rowIndex}>
-                {tableColumns.map((column, colIndex) => (
-                  <td key={colIndex} className="table-cell">
-                    {row[column.key]}
-                  </td>
-                ))}
-              </tr>
+            {tableData
+              .slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage)
+              .map((row, rowIndex) => (
+                <tr key={rowIndex}>
+                  {tableColumns.map((column, colIndex) => (
+                    <td key={colIndex} className="table-cell">
+                      {row[column.key]}
+                    </td>
+                  ))}
+                </tr>
             ))}
           </tbody>
         </table>
