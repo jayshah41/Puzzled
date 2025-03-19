@@ -3,33 +3,47 @@ import '../../styles/GeneralStyles.css';
 import GraphPage from '../../components/GraphPage.jsx';
 
 const CapitalRaises = () => {
-  const [filterTags] = useState([
-    { label: 'ASX', value: 'Any', onRemove: () => console.log('Remove ASX filter') },
-    { label: 'Raise Amount', value: '0', onRemove: () => console.log('Remove raise amount filter') },
-    { label: 'Priority Commodities', value: 'Any', onRemove: () => console.log('Remove priority commodities filter') },
-    { label: 'Project Location Area', value: 'Any', onRemove: () => console.log('Remove project location area filter') },
-    { label: 'Project Location State', value: 'Any', onRemove: () => console.log('Remove project location state filter') },
-    { label: 'Lead Manager for CR', value: 'Any', onRemove: () => console.log('Remove lead manager for CR filter') },
-    { label: 'CR Type', value: 'Any', onRemove: () => console.log('Remove CR type filter') },
+  const [filterTags, setFilterTags] = useState([
+    { label: 'ASX', value: 'Default', onRemove: () => console.log('Remove ASX filter') },
+    { label: 'Raise Amount', value: 'Default', onRemove: () => console.log('Remove raise amount filter') },
+    { label: 'Priority Commodities', value: 'Default', onRemove: () => console.log('Remove priority commodities filter') },
+    { label: 'Project Location Area', value: 'Default', onRemove: () => console.log('Remove project location area filter') },
+    { label: 'Project Location State', value: 'Default', onRemove: () => console.log('Remove project location state filter') },
+    { label: 'Lead Manager for CR', value: 'Default', onRemove: () => console.log('Remove lead manager for CR filter') },
+    { label: 'CR Type', value: 'Default', onRemove: () => console.log('Remove CR type filter') },
    
 ]);
   
-  const [filterOptions] = useState([
+  const allFilterOptions = [
     {
       label: 'ASX',
-      value: 'Any',
-      onChange: () => console.log('ASX Changed'),
-      options: [
-        { label: 'TAT', value: 'TAT' },
-        { label: 'GCM', value: 'GCM' },
-        { label: 'GMN', value: 'GMN' }
-      ]
-    },
+      value: 'Default',
+      onChange: (value) => {
+          setFilterTags(prevTags => 
+            prevTags.map(tag => 
+              tag.label === 'ASX' ? {...tag, value} : tag
+            )
+          );
+          if(value != "Default"){handleAddFilter({label: 'ASX', value})};
+        },
+    options: [
+      {label: 'Default', value: 'Default'},
+      { label: 'TAT', value: 'TAT' },
+      { label: 'GCM', value: 'GCM' },
+      { label: 'GMN', value: 'GMN' }
+    ]
+  },
     {
       label: 'Raise Amount',
-      value: '0',
-      onChange: () => console.log('Raise amount changed'),
-      options: [
+      value: 'Default',
+      onChange: (value) => {
+        setFilterTags(prevTags => 
+          prevTags.map(tag => 
+            tag.label === 'Raise Amount' ? {...tag, value} : tag
+          )
+        );
+        if(value != "Default"){handleAddFilter({label: 'Raise Amount', value})};
+      },      options: [
         { label: 'Gold', value: 'Gold' },
         { label: 'Copper', value: 'Copper' },
         { label: 'Lithium', value: 'Lithium' },
@@ -37,9 +51,15 @@ const CapitalRaises = () => {
     },
     {
       label: 'Priority Commodities',
-      value: 'Any',
-      onChange: () => console.log('Priority commodities changed'),
-      options: [
+      value: 'Default',
+      onChange: (value) => {
+        setFilterTags(prevTags => 
+          prevTags.map(tag => 
+            tag.label === 'Priority Commodities' ? {...tag, value} : tag
+          )
+        );
+        if(value != "Default"){handleAddFilter({label: 'Priority Commodities', value})};
+      },      options: [
         { label: 'Australia', value: 'Australia' },
         { label: 'Canada', value: 'Canada' },
         { label: 'Brazil', value: 'Brazil' }
@@ -47,9 +67,15 @@ const CapitalRaises = () => {
     },
     {
         label: 'Project Location Area',
-        value: 'Any',
-        onChange: () => console.log('Project location area changed'),
-        options: [
+        value: 'Default',
+        onChange: (value) => {
+          setFilterTags(prevTags => 
+            prevTags.map(tag => 
+              tag.label === 'Project Location Area' ? {...tag, value} : tag
+            )
+          );
+          if(value != "Default"){handleAddFilter({label: 'Project Location Area', value})};
+        },        options: [
           { label: 'Australia', value: 'Australia' },
           { label: 'Canada', value: 'Canada' },
           { label: 'Brazil', value: 'Brazil' }
@@ -57,9 +83,15 @@ const CapitalRaises = () => {
       },
       {
         label: 'Project Location State',
-        value: 'Any',
-        onChange: () => console.log('Project location state changed'),
-        options: [
+        value: 'Default',
+        onChange: (value) => {
+          setFilterTags(prevTags => 
+            prevTags.map(tag => 
+              tag.label === 'Project Location State' ? {...tag, value} : tag
+            )
+          );
+          if(value != "Default"){handleAddFilter({label: 'Project Locatoin State', value})};
+        },        options: [
           { label: 'Australia', value: 'Australia' },
           { label: 'Canada', value: 'Canada' },
           { label: 'Brazil', value: 'Brazil' }
@@ -67,9 +99,15 @@ const CapitalRaises = () => {
       },
       {
         label: 'Lead Manager for CR',
-        value: 'Any',
-        onChange: () => console.log('Lead manager for CR changed'),
-        options: [
+        value: 'Default',
+        onChange: (value) => {
+          setFilterTags(prevTags => 
+            prevTags.map(tag => 
+              tag.label === 'Lead Manager for CR' ? {...tag, value} : tag
+            )
+          );
+          if(value != "Default"){handleAddFilter({label: 'Lead Manager for CR', value})};
+        },        options: [
           { label: 'Australia', value: 'Australia' },
           { label: 'Canada', value: 'Canada' },
           { label: 'Brazil', value: 'Brazil' }
@@ -77,16 +115,51 @@ const CapitalRaises = () => {
       },
       {
         label: 'CR Type',
-        value: 'Any',
-        onChange: () => console.log('CR type changed'),
-        options: [
+        value: 'Default',
+        onChange: (value) => {
+          setFilterTags(prevTags => 
+            prevTags.map(tag => 
+              tag.label === 'CR Type' ? {...tag, value} : tag
+            )
+          );
+          if(value != "Default"){handleAddFilter({label: 'CR Type', value})};
+        },        options: [
           { label: 'Australia', value: 'Australia' },
           { label: 'Canada', value: 'Canada' },
           { label: 'Brazil', value: 'Brazil' }
         ]
       },
-  ]);
+  ];
   
+  const [filterOptions, setFilterOptions] = useState(() => {
+    const currentTagLabels = filterTags.map(tag => tag.label);
+    return allFilterOptions.filter(option => !currentTagLabels.includes(option.label));
+});
+
+
+  const handleRemoveFilter = (filterLabel) => {
+    const removedFilter = filterTags.find(tag => tag.label === filterLabel);
+    setFilterTags(prevTags => prevTags.filter(tag => tag.label !== filterLabel));
+    
+    if (removedFilter) {
+      setFilterOptions(prevOptions => [...prevOptions, 
+        allFilterOptions.find(opt => opt.label === filterLabel)
+      ]);
+    }
+  };
+  
+  const handleAddFilter = (filter) => {
+    setFilterTags(prevTags => {
+        const exists = prevTags.some(tag => tag.label === filter.label);
+        if (exists) {
+            return prevTags.map(tag => 
+                tag.label === filter.label ? { ...tag, value: filter.value } : tag
+            );
+        }
+        return [...prevTags, filter];
+    });
+  };
+
   //stats
   const [metricCards] = useState([
     {
@@ -114,6 +187,7 @@ const CapitalRaises = () => {
     },
 
   ]);
+
 
   //charts
   const [chartData] = useState([
@@ -233,10 +307,13 @@ const CapitalRaises = () => {
       title="Capital Raises"
       filterTags={filterTags}
       filterOptions={filterOptions}
+      allFilterOptions={allFilterOptions}
       metricCards={metricCards}
       chartData={chartData}
       tableColumns={tableColumns}
       tableData={tableData}
+      handleAddFilter={handleAddFilter}
+      handleRemoveFilter={handleRemoveFilter}
     />
     </div>
   );

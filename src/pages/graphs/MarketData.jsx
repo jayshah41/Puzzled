@@ -4,66 +4,153 @@ import GraphPage from '../../components/GraphPage.jsx';
 
 const MarketData = () => {
   // Sample data for financial dashboard
-  const [filterTags] = useState([
-    { label: 'ASX Code', value: 'Any', onRemove: () => console.log('Remove asx filter') },
-    { label: 'Changed', value: 'Any', onRemove: () => console.log('Remove ann filter') }, 
-    { label: 'Market Cap', value: 'Any', onRemove: () => console.log('Remove quarter filter') },
-    { label: 'Debt', value: 'Any', onRemove: () => console.log('Remove quarter filter') }, 
-    { label: 'Bank Balance', value: 'Q1', onRemove: () => console.log('Remove quarter filter') }, 
-    { label: 'Enterprise Value', value: 'Q1', onRemove: () => console.log('Remove quarter filter') }, 
-    { label: 'EV Resource Per Ounce Ton', value: 'Q1', onRemove: () => console.log('Remove quarter filter') }
+  const [filterTags, setFilterTags] = useState([
+    { label: 'ASX Code', value: 'Default', onRemove: () => console.log('Remove asx filter') },
+    { label: 'Changed', value: 'Default', onRemove: () => console.log('Remove ann filter') }, 
+    { label: 'Market Cap', value: 'Default', onRemove: () => console.log('Remove quarter filter') },
+    { label: 'Debt', value: 'Default', onRemove: () => console.log('Remove quarter filter') }, 
+    { label: 'Bank Balance', value: 'Default', onRemove: () => console.log('Remove quarter filter') }, 
+    { label: 'Enterprise Value', value: 'Default', onRemove: () => console.log('Remove quarter filter') }, 
+    { label: 'EV Resource Per Ounce Ton', value: 'Default', onRemove: () => console.log('Remove quarter filter') }
   ]);
   
-  const [filterOptions] = useState([
+  const allFilterOptions = [
     {
       label: 'ASX Code',
-      value: 'Any',
-      onChange: () => console.log('ASX Code changed'),
+      value: 'Default',
+      onChange: (value) => {
+        setFilterTags(prevTags => 
+          prevTags.map(tag => 
+            tag.label === 'ASX' ? {...tag, value} : tag
+          )
+        );
+        if(value != "Default"){handleAddFilter({label: 'ASX', value})};
+      },
       options: [
         { label: '', value: '' }
       ]
     },
     {
       label: 'Changed',
-      value: 'Any',
-      onChange: () => console.log('Ann Type changed'),
+      value: 'Default',
+      onChange: (value) => {
+        setFilterTags(prevTags => 
+          prevTags.map(tag => 
+            tag.label === 'Changed' ? {...tag, value} : tag
+          )
+        );
+        if(value != "Default"){handleAddFilter({label: 'Changed', value})};
+      },
       options: [
         { label: '', value: '' }
       ]
     },
     {
       label: 'Market Cap',
-      value: 'Any',
-      onChange: () => console.log('Entity changed'),
+      value: 'Default',
+      onChange: (value) => {
+        setFilterTags(prevTags => 
+          prevTags.map(tag => 
+            tag.label === 'Market Cap' ? {...tag, value} : tag
+          )
+        );
+        if(value != "Default"){handleAddFilter({label: 'Market Cap', value})};
+      },
       options: [
         { label: '', value: '' }
       ]
     },
     {
+      label: 'Debt',
+      value: 'Default',
+      onChange: (value) => {
+        setFilterTags(prevTags => 
+          prevTags.map(tag => 
+            tag.label === 'Debt' ? {...tag, value} : tag
+          )
+        );
+        if(value != "Default"){handleAddFilter({label: 'Debt', value})};
+      },
+      options: [
+        { label: '', value: '' }
+      ]
+    },
+
+    {
       label: 'Bank Balance',
-      value: 'Any',
-      onChange: () => console.log('Value changed'),
+      value: 'Default',
+      onChange: (value) => {
+        setFilterTags(prevTags => 
+          prevTags.map(tag => 
+            tag.label === 'Bank Balance' ? {...tag, value} : tag
+          )
+        );
+        if(value != "Default"){handleAddFilter({label: 'Bank Balance', value})};
+      },
       options: [
         { label: '', value: '' }
       ]
     },
     {
       label: 'Enterprise Value',
-      value: 'Any',
-      onChange: () => console.log('Value changed'),
+      value: 'Default',
+      onChange: (value) => {
+        setFilterTags(prevTags => 
+          prevTags.map(tag => 
+            tag.label === 'Enterprise Value' ? {...tag, value} : tag
+          )
+        );
+        if(value != "Default"){handleAddFilter({label: 'Enterprise Value', value})};
+      },
       options: [
         { label: '', value: '' }
       ]
     },
     {
       label: 'EV Resource Per Ounce Ton',
-      value: 'Any',
-      onChange: () => console.log('Priority Commodities changed'),
+      value: 'Default',
+      onChange: (value) => {
+        setFilterTags(prevTags => 
+          prevTags.map(tag => 
+            tag.label === 'EV Resource Per Ounce Ton' ? {...tag, value} : tag
+          )
+        );
+        if(value != "Default"){handleAddFilter({label: 'EV Resource Per Ounce Ton', value})};
+      },
       options: [
         { label: '', value: '' }
       ]
     }
-  ]);
+  ];
+
+  const [filterOptions, setFilterOptions] = useState(() => {
+    const currentTagLabels = filterTags.map(tag => tag.label);
+    return allFilterOptions.filter(option => !currentTagLabels.includes(option.label));
+});
+
+
+  const handleRemoveFilter = (filterLabel) => {
+    const removedFilter = filterTags.find(tag => tag.label === filterLabel);
+    setFilterTags(prevTags => prevTags.filter(tag => tag.label !== filterLabel));
+    
+    if (removedFilter) {
+      setFilterOptions(prevOptions => [...prevOptions, 
+        allFilterOptions.find(opt => opt.label === filterLabel)
+      ]);
+    }
+  };
+  
+  const handleAddFilter = (filter) => {
+    setFilterTags(prevTags => {
+        const exists = prevTags.some(tag => tag.label === filter.label);
+        if (exists) {
+            return prevTags.map(tag => 
+                tag.label === filter.label ? { ...tag, value: filter.value } : tag
+            );
+        }
+        return [...prevTags, filter];
+    });
+  };
   
   const [metricCards] = useState([
     {
@@ -184,10 +271,13 @@ const MarketData = () => {
       title="Market Data"
       filterTags={filterTags}
       filterOptions={filterOptions}
+      allFilterOptions={allFilterOptions}
       metricCards={metricCards}
       chartData={chartData}
       tableColumns={tableColumns}
       tableData={tableData}
+      handleAddFilter={handleAddFilter}
+      handleRemoveFilter={handleRemoveFilter}
     />
     </div>
   );

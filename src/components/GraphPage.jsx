@@ -29,32 +29,23 @@ const GraphPage = ({
   handleAddFilter
 }) => {
 
-  const isDefaultValue = (filter) => {
-    const filterOption = allFilterOptions.find(opt => opt.label === filter.label);
-    return filter.value === "Default"
+  const removeAllFilters = () => {
+    const tagsCopy = [...filterTags];
+    allFilterOptions.forEach(tag => {
+    handleRemoveFilter(tag.label);
+    });
   };
 
-  const visibleFilterTags = filterTags.filter(tag => !isDefaultValue(tag));
-
-  const handleRemoveFilterAndReset = (filterLabel) => {
-    const filterOption = allFilterOptions.find(opt => opt.label === filterLabel);
-    
-    if (filterOption) {
-      filterOption.onChange("Any");
-    }
-    
-    handleRemoveFilter(filterLabel);
-  };
 
   return (
     <div className="dashboard-container">
       <h2 className="dashboard-title">{title} Dashboard</h2>
       
       <div className="filter-tags">
-        {filterTags.map((tag, index) => (
+      {filterTags.map((tag, index) => (
           <div key={index} className="filter-tag">
             <span>{tag.label}: {tag.value}</span>
-            <button className="close-btn" onClick={() => handleRemoveFilterAndReset(tag.label)} style={{color:'black'}}>×</button>
+            <button className="close-btn" onClick={() => handleRemoveFilter(tag.label)} style={{color:'black'}}>×</button>
           </div>
         ))}
         <div className="filter-add-container">
@@ -112,7 +103,7 @@ const GraphPage = ({
           </div>
           <div className="filter-actions">
             <button className="button apply-btn">Apply changes</button>
-            <button className="button clear-btn" style={{ color: 'black'}}>Clear form</button>
+            <button className="button clear-btn" style={{ color: 'black'}} onClick={removeAllFilters}>Clear form</button>
           </div>
         </div>
         
