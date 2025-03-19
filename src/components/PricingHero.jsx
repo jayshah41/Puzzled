@@ -1,16 +1,90 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import pricingHeaderImage from '../assets/pricing-header-image.png';
 import '../styles/GeneralStyles.css';
 
 const PricingHero = () => {
+  const isAdminUser = localStorage.getItem("user_tier_level") == 2;
   const token = localStorage.getItem("accessToken");
   const isLoggedIn = !!token;
+
+  const [isEditing, setIsEditing] = useState(false);
+
+  const [heading, setHeading] = useState("MakCorp Platform through Affordable Subscriptions");
+  const [content, setContent] = useState("The MakCorp platform provides our users with access to 6 key data modules with over 600 data points to provide our clients with the ability to make better informed investment decisions. As an example, using projects data, users can seamlessly filter based upon key indicators like commodity type, geographic location or project stage to identify potential investment or client oppotunities.");
+
+  useEffect(() => {
+      fetch('/api/editable-content/?component=Pricing')
+        .then(response => response.json())
+        .then(data => {
+          const headingValue = data.find(item => item.section === 'heading');
+          const contentValue = data.find(item => item.section === 'content');
+  
+          if (headingValue) setHeading(headingValue.text_value);
+          if (contentValue) setContent(contentValue.text_value);
+        })
+        .catch(error => {
+          console.error("There was an error fetching the editable content", error);
+        });
+    }, []);
+
+  
+  const saveContent = () => {
+    const contentData = [
+      { component: 'Pricing', section: 'heading', text_value: heading },
+      { component: 'Pricing', section: 'content', text_value: content },
+    ];
+
+    contentData.forEach(item => {
+      fetch('/api/editable-content/update/', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(item),
+      })
+        .then(response => response.json())
+        .then(data => {
+          console.log('Content saved successfully:', data);
+        })
+        .catch(error => {
+          console.error('There was an error saving the content', error);
+        });
+    });
+  };
+
   return (
     <div className="two-card-container standard-padding">
         <div>
-        <h1>MakCorp Platform through Affordable Subscriptions</h1>
-        <p>The MakCorp platform provides our users with access to 6 key data modules with over 600 data points to provide our clients with the ability to make better informed investment decisions.
-        As an example, using projects data, users can seamlessly filter based upon key indicators like commodity type, geographic location or project stage to identify potential investment or client oppotunities.</p>
+        {isAdminUser ?
+          <button onClick={() => {
+          if (isEditing) {
+            saveContent();
+          }
+          setIsEditing(!isEditing);
+        }}
+        style={{ marginBottom: '1rem' }}>
+          {isEditing ? 'Stop Editing' : 'Edit'}</button>
+        : null}
+        {isEditing ? (
+          <input
+            type="text"
+            value={heading}
+            onChange={(e) => setHeading(e.target.value)}
+            className="auth-input"
+          />
+        ) : (
+          <h1>{heading}</h1>
+        )}
+        {isEditing ? (
+          <textarea
+            type="text"
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+            className="auth-input"
+          />
+        ) : (
+          <p>{content}</p>
+        )}
         {!isLoggedIn ?
         <button className="defulatButton">Start now</button>
         : null}
