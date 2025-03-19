@@ -235,6 +235,7 @@ const AccountManager = () => {
         initial={{ scale: 0.8 }}
         animate={{ scale: 1 }}
         exit={{ scale: 0.8 }}
+        style={{ maxHeight: '80vh', overflowY: 'auto' }} // Add these styles
       >
         <h1>Account Manager</h1>
         {error && <p className="error-message">{error}</p>}

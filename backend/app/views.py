@@ -16,6 +16,43 @@ class RegisterView(generics.CreateAPIView):
     serializer_class = UserSerializer
     permission_classes = [AllowAny]
 
+    def create(self, request, *args, **kwargs):
+        data = request.data  # Get the data from the request.
+        
+        # Manually handle user creation (you could rely on the serializer, but let's handle it step-by-step)
+        email = data.get('email')
+        username = data.get('username')
+        password = data.get('password')
+        first_name = data.get('first_name', '')
+        last_name = data.get('last_name', '')
+        phone_number = data.get('phone_number', '')
+        
+        # Check if necessary fields are provided
+        if not email or not username or not password:
+            return Response({"error": "Email, username, and password are required fields."}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Check if the email already exists
+        if User.objects.filter(email=email).exists():
+            return Response({"error": "Email is already taken."}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Check if the username already exists
+        if User.objects.filter(username=username).exists():
+            return Response({"error": "Username is already taken."}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Create the user using the validated data
+        user = User.objects.create_user(
+            email=email,
+            username=username,
+            password=password,
+            first_name=first_name,
+            last_name=last_name,
+            phone_number=phone_number,
+        )
+        
+        # Now return the response with the user's data
+        serializer = UserSerializer(user)  # Serialize the user
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
 # User Login View (JWT)
 class LoginView(generics.GenericAPIView):
     permission_classes = [AllowAny]

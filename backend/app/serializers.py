@@ -11,11 +11,17 @@ class UserSerializer(serializers.ModelSerializer):
         extra_kwargs = {'password': {'write_only': True}}
     
     def create(self, validated_data):
-        password = validated_data.pop('password', None)
-        instance = self.Meta.model(**validated_data)
-        if password is not None:
-            instance.set_password(password)
+        password = validated_data.pop('password', None)  # Extract password
+
+        if not password:
+            raise serializers.ValidationError({"password": "Password is required."})
+
+        instance = self.Meta.model(**validated_data)  # Create user instance
+
+        if password:
+            instance.set_password(password)  # Hash the password properly
         instance.save()
+
         return instance
         
     def update(self, instance, validated_data):
