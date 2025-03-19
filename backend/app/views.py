@@ -6,6 +6,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
 from django.contrib.auth import get_user_model
 from .serializers import UserSerializer
+from django.contrib.auth.hashers import check_password
 
 User = get_user_model()
 
@@ -33,11 +34,68 @@ class LoginView(generics.GenericAPIView):
             })
         return Response({"error": "Invalid Credentials"}, status=status.HTTP_401_UNAUTHORIZED)
 
-# Get User Profile (Only Authenticated Users)
+
 class ProfileView(generics.RetrieveAPIView):
     serializer_class = UserSerializer
     permission_classes = [IsAuthenticated]
 
     def get_object(self):
-        return self.request.user  # Returns the logged-in user's data
+        return self.request.user  
+    
+    def retrieve(self, request, *args, **kwargs):
+        user = self.get_object()
+        serializer = self.get_serializer(user)
+        return Response(serializer.data)
 
+class UpdateProfileView(generics.UpdateAPIView):
+    serializer_class = UserSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self):
+        return self.request.user
+        
+    def patch(self, request, *args, **kwargs):
+        user = self.get_object()
+        data = request.data
+        
+        # Handle password change
+        if 'old_password' in data and 'new_password' in data:
+            if not check_password(data['old_password'], user.password):
+                return Response({"error": "Invalid old password"}, status=status.HTTP_400_BAD_REQUEST)
+            user.set_password(data['new_password'])
+            user.save()
+            return Response({"message": "Password updated successfully"}, status=status.HTTP_200_OK)
+            
+        # Handle other profile updates
+        serializer = self.get_serializer(user, data=data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+class DeleteAccountView(generics.GenericAPIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        user = request.user
+        password = request.data.get('password')
+
+        if not check_password(password, user.password):
+            return Response({"error": "Invalid password"}, status=status.HTTP_401_UNAUTHORIZED)
+
+        user.delete()
+        return Response({"message": "Account deleted successfully"}, status=status.HTTP_200_OK)
+    
+class UpdateTierView(generics.GenericAPIView):
+    permission_classes = [IsAuthenticated]
+
+    def patch(self, request):
+        user = request.user
+        tier_level = request.data.get('tier_level')
+
+        if tier_level not in [0, 1, 2]: 
+            return Response({"error": "Invalid tier level"}, status=status.HTTP_400_BAD_REQUEST)
+
+        user.tier_level = tier_level
+        user.save()
+        return Response({"message": "Tier level updated successfully"}, status=status.HTTP_200_OK)
