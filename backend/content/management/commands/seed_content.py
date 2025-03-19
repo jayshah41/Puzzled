@@ -225,6 +225,71 @@ class Command(BaseCommand):
                 "component": "Products",
                 "section": "content",
                 "text_value": "MakCorp offers unparalleled access to immediate and essential information for the resources sector. Our offering provides our clients with the tools they need to see data, the way they want to. MakCorp prides itself on using interactive technology to help visualize key metrics to improve investment decisions."
+            },
+            {
+                "component": "ContactUs",
+                "section": "heading",
+                "text_value": "Ready to sign up?"
+            },
+            {
+                "component": "ContactUs",
+                "section": "content",
+                "text_value": "MakCorp offers unparalleled access to immediate and essential information for the resources sector. Our offering provides our clients with the tools they need to see data, the way they want to. MakCorp prides itself on using interactive technology to help visualize key metrics to improve investment decisions."
+            },
+            {
+                "component": "ContactUs",
+                "section": "firstName",
+                "text_value": "First Name"
+            },
+            {
+                "component": "ContactUs",
+                "section": "lastName",
+                "text_value": "Last Name"
+            },
+            {
+                "component": "ContactUs",
+                "section": "phoneNumber",
+                "text_value": "Phone Number"
+            },
+            {
+                "component": "ContactUs",
+                "section": "email",
+                "text_value": "Email"
+            },
+            {
+                "component": "ContactUs",
+                "section": "state",
+                "text_value": "State"
+            },
+            {
+                "component": "ContactUs",
+                "section": "country",
+                "text_value": "Country"
+            },
+            {
+                "component": "ContactUs",
+                "section": "referredBy",
+                "text_value": "Referred By"
+            },
+            {
+                "component": "ContactUs",
+                "section": "commodityType1",
+                "text_value": "Commodity Type 1"
+            },
+            {
+                "component": "ContactUs",
+                "section": "commodityType2",
+                "text_value": "Commodity Type 2"
+            },
+            {
+                "component": "ContactUs",
+                "section": "commodityType3",
+                "text_value": "Commodity Type 3"
+            },
+            {
+                "component": "ContactUs",
+                "section": "investmentCriteria",
+                "text_value": "Investment Criteria"
             }
         ]
 
