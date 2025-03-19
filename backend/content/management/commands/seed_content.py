@@ -205,7 +205,17 @@ class Command(BaseCommand):
                 "component": "Contact",
                 "section": "email4",
                 "text_value": "emmanuel@makcorp.com.au"
-            }
+            },
+            {
+                "component": "Pricing",
+                "section": "heading",
+                "text_value": "MakCorp Platform through Affordable Subscriptions"
+            },
+            {
+                "component": "Pricing",
+                "section": "content",
+                "text_value": "The MakCorp platform provides our users with access to 6 key data modules with over 600 data points to provide our clients with the ability to make better informed investment decisions. As an example, using projects data, users can seamlessly filter based upon key indicators like commodity type, geographic location or project stage to identify potential investment or client oppotunities."
+            },
         ]
 
         for data in content_data:
