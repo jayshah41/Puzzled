@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import useSaveContent from '../hooks/useSaveContent';
 import filterVideo from '../assets/videos/1 Filter Visually on Charts.mp4';
 import ProductsFeaturesCard from './ProductsFeaturesCard';
 import excludeDataVideo from '../assets/videos/2 Exclude Data using a legend.mp4';
@@ -10,7 +11,8 @@ import '../styles/ProductsFeatures.css';
 import '../styles/GeneralStyles.css';
 
 const ProductsFeatures = () => {
-
+  const isAdminUser = localStorage.getItem("user_tier_level") == 2;
+  const saveContent = useSaveContent();
   const [isEditing, setIsEditing] = useState(false);
 
   const [title1, setTitle1] = useState("Visual Filtering");
@@ -26,18 +28,84 @@ const ProductsFeatures = () => {
   const [title6, setTitle6] = useState("Drop Down Selection");
   const [content6, setContent6] = useState("The dashboards allow users to select data from drop down points, such as ASX Codes, Commodity, High and Low Share price, and see the data filtered in real time.#Key prompts have been added throughout the platform for ease of use, so our clients can quickly pick up a dashboard and filter on key information they are looking for.");
 
-    return (
-      <div className="products-features-card standard-padding">
-        <div className="products-features-wrapper">
-          <ProductsFeaturesCard video={filterVideo} title={title1} content={content1} reverse={false} isEditing={isEditing} />
-          <ProductsFeaturesCard video={excludeDataVideo} title={title2} content={content2} reverse={true} isEditing={isEditing} />
-          <ProductsFeaturesCard video={queryVideo} title={title3} content={content3} reverse={false} isEditing={isEditing} />
-          <ProductsFeaturesCard video={mouseOverVideo} title={title4} content={content4} reverse={true} isEditing={isEditing} />
-          <ProductsFeaturesCard video={analysisVideo} title={title5} content={content5} reverse={false} isEditing={isEditing} />
-          <ProductsFeaturesCard video={dataBasedFilteringVideo} title={title6} content={content6} reverse={true} isEditing={isEditing} />
-        </div>
-      </div>
-    );
+  useEffect(() => {
+    fetch('/api/editable-content/?component=Pricing')
+      .then(response => response.json())
+      .then(data => {
+        const title1Value = data.find(item => item.section === 'title1');
+        const content1Value = data.find(item => item.section === 'content1');
+        const title2Value = data.find(item => item.section === 'title2');
+        const content2Value = data.find(item => item.section === 'content2');
+        const title3Value = data.find(item => item.section === 'title3');
+        const content3Value = data.find(item => item.section === 'content3');
+        const title4Value = data.find(item => item.section === 'title4');
+        const content4Value = data.find(item => item.section === 'content4');
+        const title5Value = data.find(item => item.section === 'title5');
+        const content5Value = data.find(item => item.section === 'content5');
+        const title6Value = data.find(item => item.section === 'title6');
+        const content6Value = data.find(item => item.section === 'content6');
+
+        if (title1Value) setTitle1(title1Value.text_value);
+        if (content1Value) setContent1(content1Value.text_value);
+        if (title2Value) setTitle2(title2Value.text_value);
+        if (content2Value) setContent2(content2Value.text_value);
+        if (title3Value) setTitle3(title3Value.text_value);
+        if (content3Value) setContent3(content3Value.text_value);
+        if (title4Value) setTitle4(title4Value.text_value);
+        if (content4Value) setContent4(content4Value.text_value);
+        if (title5Value) setTitle5(title5Value.text_value);
+        if (content5Value) setContent5(content5Value.text_value);
+        if (title6Value) setTitle6(title6Value.text_value);
+        if (content6Value) setContent6(content6Value.text_value);
+      })
+      .catch(error => {
+        console.error("There was an error fetching the editable content", error);
+      });
+  }, []);
+
+
+  const handleSave = (index, title, content) => {
+    const contentData = [
+      { component: 'Products', section: `title1`, text_value: title1 },
+      { component: 'Products', section: 'content1', text_value: content1 },
+      { component: 'Products', section: 'title2', text_value: title2 },
+      { component: 'Products', section: 'content2', text_value: content2 },
+      { component: 'Products', section: 'title3', text_value: title3 },
+      { component: 'Products', section: 'content3', text_value: content3 },
+      { component: 'Products', section: 'title4', text_value: title4 },
+      { component: 'Products', section: 'content4', text_value: content4 },
+      { component: 'Products', section: 'title5', text_value: title5 },
+      { component: 'Products', section: 'content5', text_value: content5 },
+      { component: 'Products', section: 'title6', text_value: title6 },
+      { component: 'Products', section: 'content6', text_value: content6 }
+    ];
+    saveContent(contentData);
   };
-  
+
+
+
+  return (
+    <div className="products-features-card standard-padding">
+      {isAdminUser ?
+        <button onClick={() => {
+        if (isEditing) {
+          handleSave();
+        }
+        setIsEditing(!isEditing);
+      }}
+      style={{ marginBottom: '1rem' }}>
+        {isEditing ? 'Stop Editing' : 'Edit'}</button>
+      : null}
+      <div className="products-features-wrapper">
+        <ProductsFeaturesCard video={filterVideo} title={title1} content={content1} reverse={false} isEditing={isEditing} />
+        <ProductsFeaturesCard video={excludeDataVideo} title={title2} content={content2} reverse={true} isEditing={isEditing} />
+        <ProductsFeaturesCard video={queryVideo} title={title3} content={content3} reverse={false} isEditing={isEditing} />
+        <ProductsFeaturesCard video={mouseOverVideo} title={title4} content={content4} reverse={true} isEditing={isEditing} />
+        <ProductsFeaturesCard video={analysisVideo} title={title5} content={content5} reverse={false} isEditing={isEditing} />
+        <ProductsFeaturesCard video={dataBasedFilteringVideo} title={title6} content={content6} reverse={true} isEditing={isEditing} />
+      </div>
+    </div>
+  );
+};
+
   export default ProductsFeatures;
