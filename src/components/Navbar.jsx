@@ -8,6 +8,7 @@ import Login from './Login';
 
 const Navbar = () => {
   const navigate = useNavigate();
+  const hasGraphAccess = localStorage.getItem("user_tier_level") >= 1;
   
   const [showingLogin, setShowingLogin] = useState(false);
   const [showingSignup, setShowingSignup] = useState(false);
@@ -51,8 +52,8 @@ const Navbar = () => {
         <Link to="/products">Products</Link>
         <Link to="/contact-us">Contact us</Link>
 
-        {isLoggedIn ? (
-          <>
+
+          {hasGraphAccess ? 
             <div className="dropdown">
               <button 
                 className="dropbtn" 
@@ -73,10 +74,13 @@ const Navbar = () => {
                 </div>
               )}
             </div>
-            <Link to="/news">News</Link>
-            <Link to="/social-media">Steve</Link>
-          </>
-        ) : null}
+            : null}
+            {isLoggedIn ?
+            <>
+              <Link to="/news">News</Link>
+              <Link to="/social-media">Steve</Link>
+            </>
+            : null}
 
         <div>
           {!isLoggedIn ? (
