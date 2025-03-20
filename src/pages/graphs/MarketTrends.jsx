@@ -139,7 +139,7 @@ const fetchMarketTrends = useCallback(async () => {
         }
     
     // calculate metric values 
-    const asxCodeCount = data.length;
+    const asx = data.length;
     const dailyAvgPriceChange = data.reduce((sum, item) => sum + (((item.new_price - item.previous_price) / item.previous_price) * 100 || 0), 0) / (data.length || 1);
     const weeklyAvgPriceChange = data.reduce((sum, item) => sum + (parseFloat(item.week_price_change) || 0), 0) / (data.length || 1);
     const monthlyAvgPriceChange = data.reduce((sum, item) => sum + (parseFloat(item.month_price_change) || 0), 0) / (data.length || 1);
@@ -383,6 +383,27 @@ const fetchMarketTrends = useCallback(async () => {
   }, [fetchMarketTrends]);
 
 
+  const clearFilter = (filterName) => {
+    switch(filterName) {
+      case 'ASX Code': setAsxCode(""); break;
+      case 'Ann Type': setAnnType(""); break;
+      case 'Period': setPeriod(""); break;
+      case 'Net Operating Cash Flow': setNetOperating(""); break;
+      case 'Exploration Spend': setExploration(""); break;
+      case 'Development Production Spend': setDevelopmentSpend(""); break;
+      case 'Staff Costs': setStaffCost(""); break;
+      case 'Admin Costs': setAdminCost(""); break;
+      case 'Other Costs': setOtherCost(""); break;
+      case 'Net Cash Invest': setNetInvest(""); break;
+      case 'CashFlow Total': setCashflowTotal(""); break;
+      case 'Bank Balance': setBankBalance(""); break;
+      case 'Debt': setDebt(""); break;
+      case 'Market Cap': setMarketCap(""); break;
+      case 'Forecast Net Operating': setForecastNetOp(""); break;
+      default: break;
+    }
+  };
+
   const [filterTags, setFilterTags] = useState([
     { label: 'ASX', value: 'Default', onRemove: () => console.log('Remove asx filter') },
     { label: 'Priority Commodity', value: 'Default', onRemove: () => console.log('Remove priority commodity filter') },
@@ -610,11 +631,6 @@ const fetchMarketTrends = useCallback(async () => {
         return [...prevTags, filter];
     });
 
-    /*
-    setFilterOptions(prevOptions => 
-        prevOptions.filter(opt => opt.label !== filter.label)
-    );
-    */
     };
 
 

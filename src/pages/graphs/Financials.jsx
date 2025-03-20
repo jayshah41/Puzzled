@@ -39,29 +39,17 @@ const Financials = () => {
   // chart data states 
   const [qtrTotalExploration, setQtrTotalExploration] = useState({
     labels: [], 
-    datasets: [{
-      label: "Exploration Spend", 
-      data: [], 
-      backgroundColor: "#5241b9",
-    }]
+    datasets: [{data: []}]
   });
 
   const [qtrProjectSpend, setQtrProjectSpend] = useState({
     labels: [], 
-    datasets: [{
-      label: "Project Spend", 
-      data: [], 
-      backgroundColor: "#dc3545",
-    }]
+    datasets: [{data: []}]
   });
 
   const [qtrBankBalance, setQtrBankBalance] = useState({
     labels: [], 
-    datasets: [{
-      label: "Bank Balance", 
-      data: [], 
-      backgroundColor: "#28a745",
-    }]
+    datasets: [{data: []}]
   });
 
   // table data state
@@ -610,11 +598,8 @@ const handleAddFilter = (filter) => {
       onRemove: () => handleRemoveFilter(filter.label)
     }];
   });
-  
-  setFilterOptions(prevOptions => 
-    prevOptions.filter(option => option.label !== filter.label)
-  );
 };
+
 
 const handleRemoveFilter = (filterLabel) => {
   setFilterTags(prevTags => prevTags.filter(tag => tag.label !== filterLabel));
