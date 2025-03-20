@@ -365,7 +365,7 @@ const allFilterOptions = [
       if(value !== "Default"){handleAddFilter({label: 'ASX Code', value})};
     },
     options: [
-      { label: 'Any', value: '' }, ...getUniqueValues('asx_code')
+      { label: '', value: '' }, ...getUniqueValues('asx_code')
     ]
   },
   {
@@ -380,7 +380,7 @@ const allFilterOptions = [
       if(value !== "Default"){handleAddFilter({label: 'Ann Type', value})};
     },
     options: [
-      { label: 'Any', value: '' }, ...getUniqueValues('ann_type')
+      { label: '', value: '' }, ...getUniqueValues('ann_type')
     ]
   },
   {
@@ -395,7 +395,7 @@ const allFilterOptions = [
       if(value !== "Default"){handleAddFilter({label: 'Period', value})};
     },
     options: [
-      { label: 'Any', value: '' }, ...getUniqueValues('period')
+      { label: '', value: '' }, ...getUniqueValues('period')
     ]
   },
   {
@@ -410,7 +410,7 @@ const allFilterOptions = [
       if(value !== "Default"){handleAddFilter({label: 'Net Operating Cash Flow', value})};
     },
     options: [
-      { label: 'Any', value: '' }, ...getUniqueValues('net_operating')
+      { label: '', value: '' }, ...getUniqueValues('net_operating')
     ]
   },
   {
@@ -425,7 +425,7 @@ const allFilterOptions = [
       if(value !== "Default"){handleAddFilter({label: 'Exploration Spend', value})};
     },
     options: [
-      { label: 'Any', value: '' }, ...getUniqueValues('exploration')
+      { label: '', value: '' }, ...getUniqueValues('exploration')
     ]
   },
   {
@@ -440,7 +440,7 @@ const allFilterOptions = [
       if(value !== "Default"){handleAddFilter({label: 'Development Production Spend', value})};
     },
     options: [
-      { label: 'Any', value: '' }, ...getUniqueValues('development')
+      { label: '', value: '' }, ...getUniqueValues('development')
     ]
   },
   {
@@ -455,7 +455,7 @@ const allFilterOptions = [
       if(value !== "Default"){handleAddFilter({label: 'Staff Costs', value})};
     },
     options: [
-      { label: 'Any', value: '' }, ...getUniqueValues('staff_costs')
+      { label: '', value: '' }, ...getUniqueValues('staff_costs')
     ]
   },
   {
@@ -470,7 +470,7 @@ const allFilterOptions = [
       if(value !== "Default"){handleAddFilter({label: 'Admin Costs', value})};
     },
     options: [
-      { label: 'Any', value: '' }, ...getUniqueValues('admin_costs')
+      { label: '', value: '' }, ...getUniqueValues('admin_costs')
     ]
   },
   {
@@ -485,7 +485,7 @@ const allFilterOptions = [
       if(value !== "Default"){handleAddFilter({label: 'Other Costs', value})};
     },
     options: [
-      { label: 'Any', value: '' }, ...getUniqueValues('other_costs')
+      { label: '', value: '' }, ...getUniqueValues('other_costs')
     ]
   },
   {
@@ -500,7 +500,7 @@ const allFilterOptions = [
       if(value !== "Default"){handleAddFilter({label: 'Net Cash Invest', value})};
     },
     options: [
-      { label: 'Any', value: '' }, ...getUniqueValues('net_cash_invest')
+      { label: '', value: '' }, ...getUniqueValues('net_cash_invest')
     ]
   },
   {
@@ -515,7 +515,7 @@ const allFilterOptions = [
       if(value !== "Default"){handleAddFilter({label: 'Cash Flow Total', value})};
     },
     options: [
-      { label: 'Any', value: '' }, ...getUniqueValues('cash_flow')
+      { label: '', value: '' }, ...getUniqueValues('cash_flow')
     ]
   },
   {
@@ -530,7 +530,7 @@ const allFilterOptions = [
       if(value !== "Default"){handleAddFilter({label: 'Bank Balance', value})};
     },
     options: [
-      { label: 'Any', value: '' }, ...getUniqueValues('bank_balance')
+      { label: '', value: '' }, ...getUniqueValues('bank_balance')
     ]
   },
   {
@@ -545,7 +545,7 @@ const allFilterOptions = [
       if(value !== "Default"){handleAddFilter({label: 'Debt', value})};
     },
     options: [
-      { label: 'Any', value: '' }, ...getUniqueValues('debt')
+      { label: '', value: '' }, ...getUniqueValues('debt')
     ]
   },
   {
@@ -560,7 +560,7 @@ const allFilterOptions = [
       if(value !== "Default"){handleAddFilter({label: 'Market Cap', value})};
     },
     options: [
-      { label: 'Any', value: '' }, ...getUniqueValues('market_cap')
+      { label: '', value: '' }, ...getUniqueValues('market_cap')
     ]
   },
   {
@@ -575,7 +575,7 @@ const allFilterOptions = [
       if(value !== "Default"){handleAddFilter({label: 'Forecast Net Operating', value})};
     },
     options: [
-      { label: 'Any', value: '' }, ...getUniqueValues('forecast')
+      { label: '', value: '' }, ...getUniqueValues('forecast')
     ]
   },
 ];
