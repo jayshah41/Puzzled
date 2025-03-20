@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import '../styles/ProductsFeatures.css';
 import ProductsFeaturesCard from './ProductsFeaturesCard';
+import useSaveContent from '../hooks/useSaveContent';
+import '../styles/ProductsFeatures.css';
 import filterVideo from '../assets/videos/1 Filter Visually on Charts.mp4';
 import excludeDataVideo from '../assets/videos/2 Exclude Data using a legend.mp4';
 import queryVideo from '../assets/videos/3 Query on any field.mp4';
@@ -10,6 +11,7 @@ import dataBasedFilteringVideo from '../assets/videos/6 Data based filtering.mp4
 
 const ProductsFeatures = () => {
   const isAdminUser = localStorage.getItem("user_tier_level") == 2;
+  const saveContent = useSaveContent();
 
   const [isEditing, setIsEditing] = useState(false);
   const [features, setFeatures] = useState([]);
@@ -34,30 +36,12 @@ const ProductsFeatures = () => {
       });
   }, []);
 
-  const saveContent = () => {
-    features.forEach((feature, index) => {
-      const contentData = [
-        { component: 'Products', section: `title${index + 1}`, text_value: feature.title },
-        { component: 'Products', section: `content${index + 1}`, text_value: feature.content },
-      ];
-
-      contentData.forEach(item => {
-        fetch('/api/editable-content/update/', {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(item),
-        })
-          .then(response => response.json())
-          .then(data => {
-            console.log('Content saved successfully:', data);
-          })
-          .catch(error => {
-            console.error('There was an error saving the content', error);
-          });
-      });
-    });
+  const handleSave = () => {
+    const contentData = features.flatMap((feature, index) => [
+      { component: 'Products', section: `title${index + 1}`, text_value: feature.title },
+      { component: 'Products', section: `content${index + 1}`, text_value: feature.content },
+    ]);
+    saveContent(contentData);
   };
 
   return (
@@ -66,7 +50,7 @@ const ProductsFeatures = () => {
         <button
           onClick={() => {
             if (isEditing) {
-              saveContent();
+              handleSave();
             }
             setIsEditing(!isEditing);
           }}

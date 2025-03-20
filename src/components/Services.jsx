@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import '../styles/GeneralStyles.css';
+import useSaveContent from '../hooks/useSaveContent';
 import ServicesCardContainer from './ServicesCardContainer';
 import Socials from './Socials';
+import '../styles/GeneralStyles.css';
 
 const Services = () => {
   const isAdminUser = localStorage.getItem("user_tier_level") == 2;
+  const saveContent = useSaveContent();
 
   const [isEditing, setIsEditing] = useState(false);
   const [heading, setHeading] = useState("");
@@ -28,29 +30,13 @@ const Services = () => {
       });
   }, []);
 
-  const saveContent = () => {
-    const content = [
+  const handleSave = () => {
+    const contentData = [
       { component: 'Services', section: 'heading', text_value: heading },
       { component: 'Services', section: 'paragraphOne', text_value: paragraphOne },
       { component: 'Services', section: 'paragraphTwo', text_value: paragraphTwo },
     ];
-
-    content.forEach(item => {
-      fetch('/api/editable-content/update/', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(item),
-      })
-        .then(response => response.json())
-        .then(data => {
-          console.log('Content saved successfully:', data);
-        })
-        .catch(error => {
-          console.error('There was an error saving the content', error);
-        });
-    });
+    saveContent(contentData);
   };
 
   return (
@@ -59,7 +45,7 @@ const Services = () => {
       <button
       onClick={() => {
         if (isEditing) {
-          saveContent();
+          handleSave();
         }
         setIsEditing(!isEditing);
       }}

@@ -27,26 +27,30 @@ const ProductsFeaturesCard = ({ index, video, title, content, setValues, isEditi
     )
   ));
 
-  return (
-    <div className="products-features-container">
-      <div className="text-content">
-        <div>
-          {isEditing ? (
-            <input
-              type="text"
-              value={title}
-              onChange={(e) => handleChange('title', e.target.value)}
-              className="auth-input"
-            />
-          ) : (
-            <h2 className="header-title">
-              <strong>{title}</strong>
-            </h2>
-          )}
+  const reverse = index % 2 === 1;
 
-          <div className="space-y-4">{contentToShow}</div>
+  return (
+    <div className={`products-features-container ${reverse ? 'reverse' : ''}`}>
+      {!reverse ? (
+        <div className="text-content">
+          <div>
+            {isEditing ? (
+              <input
+                type="text"
+                value={title}
+                onChange={(e) => handleChange('title', e.target.value)}
+                className="auth-input"
+              />
+            ) : (
+              <h2 className="header-title">
+                <strong>{title}</strong>
+              </h2>
+            )}
+
+            <div className="space-y-4">{contentToShow}</div>
+          </div>
         </div>
-      </div>
+      ) : null}
 
       <div className="video-content">
         <video
@@ -60,6 +64,27 @@ const ProductsFeaturesCard = ({ index, video, title, content, setValues, isEditi
           Your browser does not support the video tag.
         </video>
       </div>
+
+      {reverse ? (
+        <div className="text-content">
+          <div>
+            {isEditing ? (
+              <input
+                type="text"
+                value={title}
+                onChange={(e) => handleChange('title', e.target.value)}
+                className="auth-input"
+              />
+            ) : (
+              <h2 className="header-title">
+                <strong>{title}</strong>
+              </h2>
+            )}
+
+            <div className="space-y-4">{contentToShow}</div>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 };
