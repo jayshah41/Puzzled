@@ -262,7 +262,6 @@ const MarketData = () => {
     {changed: '18-02-2025', asx: 'RLT',  marketcap: '135,004,180'},
     {changed: '18-02-2025', asx: 'MIN',  marketcap: '135,004,180'},
     {changed: '18-02-2025', asx: 'IGO', marketcap: '135,004,180'}
-    // Add more rows as needed
   ]);
 
   return (

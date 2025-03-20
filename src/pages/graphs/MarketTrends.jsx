@@ -1,8 +1,388 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import '../../styles/GeneralStyles.css';
 import GraphPage from '../../components/GraphPage.jsx';
+import axios from 'axios';
+import Projects from './Projects';
 
 const MarketTrends = () => {
+
+    // states for api data
+    const [marketTrends, setMarketTrends] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState("");
+
+    // states for filters
+    const [asxCode, setAsxCode] = useState("");
+    const [priorityCommodity, setPriorityCommodity] = useState("");
+    const [projectLocationCountry, setProjectLocationCountry] = useState("");
+    const [projectArea, setProjectArea] = useState("");
+    const [projectStage, setProjectStage] = useState("");
+    const [price, setPrice] = useState("");
+    const [marketCap, setMarketCap] = useState("");
+    const [bankBalance, setBankBalance] = useState("");
+    const [projectSpending, setProjectSpending] = useState("");
+    const [totalShares, setTotalShares] = useState("");
+
+    // metric card states
+    const [metricSummaries, setMetricSummaries] = useState({
+    asx: 0, 
+    dailyAvgPriceChange: 0, 
+    weeklyAvgPriceChange: 0, 
+    monthlyAvgPriceChange: 0, 
+    yearlyAvgPriceChange: 0, 
+    dailyRelVolChange: 0, 
+    avgWeeklyRelVolChange: 0, 
+    avgMonthlyRelChange: 0, 
+    avgYearlyRelVolChange: 0
+
+  });
+
+  // chart data states 
+  const [topTenCommodityVolChange, setCommodityVolChangeData] = useState({
+    labels: [], 
+    datasets: [{ data:[] }]
+  });
+
+  const [topTenCommodityPriceChange, setDailyTopCommodities] = useState({
+    labels: [], 
+    datasets: [{ data: [] }]
+  });
+
+  const [topTenCommodityTradeValue, setDailyTopCommoditiesByTradeValue] = useState({
+    labels: [], 
+    datasets: [{ data: [] }]
+  });
+//end of charts
+
+ // table data state
+ const [tableData, setTableData] = useState([]);
+
+// fetch data from api
+const fetchMarketTrends = useCallback(async () => {
+    // retrieves authentication token 
+    const token = localStorage.getItem("accessToken");
+
+    // handles missing tokens
+    if (!token) {
+      setError("Authentication error: No token found.");
+      setLoading(false);
+      return;
+    }
+
+    try {
+      setLoading(true);
+      
+      // building parameters from filter states
+      const params = {
+        asx: asxCode || undefined,
+        priorityCommodity: priorityCommodity || undefined,
+        projectLocationCountry: projectLocationCountry || undefined,
+        projectArea: projectArea || undefined,
+        projectStage: projectStage|| undefined,
+        price: price || undefined,
+        marketCap: marketCap || undefined,
+        bankBalance: bankBalance || undefined,
+        projectSpending: projectSpending || undefined,
+        totalShares: totalShares || undefined,
+      };
+      
+      // remove undefined keys
+      Object.keys(params).forEach(key => 
+        params[key] === undefined && delete params[key]
+      );
+      
+      // sending api requests
+      const response = await axios.get("http://127.0.0.1:8000/data/market-trends/", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json"
+        },
+        params: params
+      });
+
+      console.log("API Response:", response.data);
+      
+      // handling different api formats - does removing anything break anything here?
+      if (Array.isArray(response.data)) {
+        setMarketTrends(response.data);
+        processMarketTrends(response.data);
+      } else if (response.data && typeof response.data === 'object') {
+        const dataArray = [response.data];
+        setMarketTrends(dataArray);
+        processMarketTrends(dataArray);
+      } else {
+        setMarketTrends([]);
+        resetData();
+      }
+      
+      // handles errors
+      setError("");
+    } catch (error) {
+        console.error("Error fetching market trends:", error.response?.data || error);
+        setError("Failed to fetch market trends data: " + (error.response?.data?.detail || error.message));
+        resetData();
+    } finally {
+        setLoading(false);
+    }
+    // recreates fetchMarketTrends if a filter changes
+    }, [
+        asxCode, priorityCommodity, projectLocationCountry, 
+        projectArea, projectStage, price, marketCap, bankBalance, 
+        projectSpending, totalShares
+    ]);
+
+   // process market trends data for metrics and charts 
+    const processMarketTrends = (data) => {
+        if (!data || data.length === 0) {
+        resetData();
+        return;
+        }
+    
+    // calculate metric values 
+    const asxCodeCount = data.length;
+    const dailyAvgPriceChange = data.reduce((sum, item) => sum + (((item.new_price - item.previous_price) / item.previous_price) * 100 || 0), 0) / (data.length || 1);
+    const weeklyAvgPriceChange = data.reduce((sum, item) => sum + (parseFloat(item.week_price_change) || 0), 0) / (data.length || 1);
+    const monthlyAvgPriceChange = data.reduce((sum, item) => sum + (parseFloat(item.month_price_change) || 0), 0) / (data.length || 1);
+    const yearlyAvgPriceChange = data.reduce((sum, item) => sum + (parseFloat(item.year_price_change) || 0), 0) / (data.length || 1);
+    const dailyRelativeVolumeChange = data.reduce((sum, item) => sum + (parseFloat(item.trade_value) || 0), 0) / (data.length || 1);
+    const avgWeeklyRelVolChange = dailyRelativeVolumeChange * 5;
+    const avgMonthlyRelChange = dailyRelativeVolumeChange * 20;
+    const avgYearlyRelVolChange = dailyRelativeVolumeChange * 252;
+
+    setMetricSummaries({
+        asx: data.length, 
+      dailyAvgPriceChange: formatCurrency(dailyAvgPriceChange),
+      weeklyAvgPriceChange: formatCurrency(weeklyAvgPriceChange),
+      monthlyAvgPriceChange: formatCurrency(monthlyAvgPriceChange),
+      yearlyAvgPriceChange: formatCurrency(yearlyAvgPriceChange),
+      avgWeeklyRelVolChange: formatCurrency(avgWeeklyRelVolChange),
+      avgMonthlyRelChange: formatCurrency(avgMonthlyRelChange),
+      avgYearlyRelVolChange: formatCurrency(avgYearlyRelVolChange)
+    });
+
+    // process data for charts 
+    processCommodityVolChangeChart(data);
+    processCommoditiesPriceChangeChart(data);
+    processCommodityTradeValueChart(data);
+
+    // process table data 
+    setTableData(data.map(item => ({
+      asx: item.asx_code || '',
+      id: formatCurrency(item.id || 0, 0), 
+      marketCap: formatCurrency(item.market_cap || 0, 0), 
+      tradeValue: formatCurrency(item.trade_value || 0, 0), 
+      totalShares: formatCurrency(item.total_shares || 0, 0), 
+      newPrice: formatCurrency(item.new_price || 0, 0), 
+      previousPrice: formatCurrency(item.previous_price || 0, 0), 
+      weekPriceChange: formatCurrency(item.week_price_change || 0, 0), 
+      monthPriceChange: formatCurrency(item.month_price_change || 0, 0), 
+      yearPriceChange: formatCurrency(item.year_price_change || 0, 0), 
+    })));
+  };
+
+  const formatCurrency = (value, decimals = 2) => {
+    if (isNaN(value)) return 'A$0.00';
+    return '$' + Number(value).toLocaleString('en-AU', {
+      minimumFractionDigits: decimals,
+      maximumFractionDigits: decimals
+    });
+  };
+
+//CHART
+  const processCommodityVolChangeChart = (data) => {
+    const commodityVolumeMap = {};
+    
+    data.forEach(item => {
+      const commodity = item.commodity || "Unknown";
+      const volumeChange = parseFloat(item.volume_change) || 0;
+      
+      if (!commodityVolumeMap[commodity]) {
+        commodityVolumeMap[commodity] = 0;
+      }
+      commodityVolumeMap[commodity] += volumeChange;
+    });
+    
+    const commoditiesArray = Object.keys(commodityVolumeMap).map(commodity => ({
+      commodity: commodity,
+      volumeChange: commodityVolumeMap[commodity]
+    }));
+    
+    const topCommodities = commoditiesArray
+      .sort((a, b) => b.volumeChange - a.volumeChange)
+      .slice(0, 10);
+    
+    const commodityLabels = topCommodities.map(item => item.commodity);
+    const volumeValues = topCommodities.map(item => Math.abs(item.volumeChange)); // Use absolute values for pie chart
+    
+    const backgroundColors = [
+      "#5271b9", "#4c9be8", "#6a5acd", "#3cb371", "#20b2aa",
+      "#4682b4", "#5f9ea0", "#6495ed", "#7b68ee", "#4169e1"
+    ];
+    
+    setTopTenCommodityVolChange({
+      labels: commodityLabels,
+      datasets: [{
+        data: volumeValues,
+        backgroundColor: backgroundColors,
+        borderWidth: 1
+      }]
+    });
+  };
+
+  const processCommoditiesPriceChangeChart = (data) => {
+    const randomDate = "2025-01-08"; //yymmdd
+    
+    const dateData = data.filter(item => {
+      return item.activity_date_per_day === randomDate;
+    });
+    
+    const commodityPriceMap = {};
+    const commodityCounts = {};
+    
+    dateData.forEach(item => {
+      const commodity = item.commodity || "Unknown";
+      const priceChange = parseFloat(item.week_price_change) || 0;
+      
+      if (!commodityPriceMap[commodity]) {
+        commodityPriceMap[commodity] = 0;
+        commodityCounts[commodity] = 0;
+      }
+      
+      commodityPriceMap[commodity] += priceChange;
+      commodityCounts[commodity]++;
+    });
+    
+    const commoditiesArray = Object.keys(commodityPriceMap).map(commodity => ({
+      commodity: commodity,
+      avgPriceChange: commodityPriceMap[commodity] / commodityCounts[commodity],
+      totalPriceChange: commodityPriceMap[commodity]
+    }));
+    
+    const topCommodities = commoditiesArray
+      .sort((a, b) => Math.abs(b.totalPriceChange) - Math.abs(a.totalPriceChange))
+      .slice(0, 10);
+    
+    const commodityLabels = topCommodities.map(item => item.commodity);
+    const priceChangeValues = topCommodities.map(item => item.totalPriceChange);
+    
+    const backgroundColors = priceChangeValues.map(val => 
+      val >= 0 ? "rgba(75, 192, 75, 0.7)" : "rgba(255, 99, 132, 0.7)"
+    );
+    
+    setDailyTopCommodities({
+      labels: commodityLabels,
+      datasets: [{
+        label: "Price Change (%)",
+        data: priceChangeValues,
+        backgroundColor: backgroundColors,
+        borderColor: priceChangeValues.map(val => 
+          val >= 0 ? "rgb(75, 192, 75)" : "rgb(255, 99, 132)"
+        ),
+        borderWidth: 1
+      }]
+    });
+  };
+  
+  const processCommodityTradeValueChart = (data) => {
+    const randomDate = "2025-01-8"; //yyyymmdd
+    
+    const dateData = data.filter(item => {
+      return item.activity_date_per_day === randomDate;
+    });
+    
+    const commodityTradeMap = {};
+    
+    dateData.forEach(item => {
+      if (item.commodity && item.trade_value) {
+        const commodity = item.commodity;
+        const tradeValue = parseFloat(item.trade_value) || 0;
+        
+        if (!commodityTradeMap[commodity]) {
+          commodityTradeMap[commodity] = 0;
+        }
+        
+        commodityTradeMap[commodity] += tradeValue;
+      }
+    });
+    
+    const commoditiesArray = Object.keys(commodityTradeMap).map(commodity => ({
+      commodity: commodity,
+      tradeValue: commodityTradeMap[commodity]
+    }));
+    
+    const topCommodities = commoditiesArray
+      .sort((a, b) => b.tradeValue - a.tradeValue)
+      .slice(0, 10);
+    
+    const commodityLabels = topCommodities.map(item => item.commodity);
+    const tradeValues = topCommodities.map(item => item.tradeValue);
+    
+    const backgroundColors = [
+      "#4361EE", "#4361EE", "#4895EF", "#4CC9F0", "#4EA8DE", 
+      "#56CFE1", "#72EFDD", "#80FFDB", "#90E0EF", "#B5E48C"
+    ];
+    
+    setDailyTopCommoditiesByTradeValue({
+      labels: commodityLabels,
+      datasets: [{
+        label: "Trade Value ($)",
+        data: tradeValues,
+        backgroundColor: backgroundColors,
+        borderColor: backgroundColors.map(color => color),
+        borderWidth: 1
+      }]
+    });
+  };
+  //END OF CHARTS
+
+  // reset data if api call fails
+  const resetData = () => {
+    setMetricSummaries({
+      asx: '0',
+      dailyAvgPriceChange: '0',
+      weeklyAvgPriceChange: '0',
+      monthlyAvgPriceChange: '0',
+      yearlyAvgPriceChange: '0', 
+      dailyRelVolChange: '0', 
+      avgWeeklyRelVolChange: '0', 
+      avgMonthlyRelChange: '0', 
+      avgYearlyRelVolChange: '0'
+    });
+    
+    setTopTenCommodityVolChange({
+      labels: ['No Data'],
+      datasets: [{
+        label: "Commodity by Volume Change",
+        data: [0],
+      }]
+    });
+    
+    setTopTenCommodityPriceChange({
+      labels: ['No Data'],
+      datasets: [{
+        label: "Commodity by Price Change",
+        data: [0],
+      }]
+    });
+    
+    setTopTenCommodityTradeValue({
+      labels: ['No Data'],
+      datasets: [{
+        label: "Commodity by Trade Value",
+        data: [0],
+      }]
+    });
+    
+    setTableData([]);
+  };
+
+  // fetching market trends data
+  useEffect(() => {
+    console.log("Fetching market trends...");
+    fetchMarketTrends();
+  }, [fetchMarketTrends]);
+
+
   const [filterTags, setFilterTags] = useState([
     { label: 'ASX', value: 'Default', onRemove: () => console.log('Remove asx filter') },
     { label: 'Priority Commodity', value: 'Default', onRemove: () => console.log('Remove priority commodity filter') },
@@ -15,6 +395,7 @@ const MarketTrends = () => {
     { label: 'Project Spending', value: 'Default', onRemove: () => console.log('Remove project spending filter') },
     { label: 'Total Shares', value: 'Default', onRemove: () => console.log('Remove total shares filter') },
   ]);
+
 
   const allFilterOptions = [
     {
@@ -199,7 +580,7 @@ const MarketTrends = () => {
     }
   ];
 
-  //const copyFilterOptions = Array.from(allFilterOptions);
+
 
   const [filterOptions, setFilterOptions] = useState(() => {
     const currentTagLabels = filterTags.map(tag => tag.label);
@@ -237,85 +618,76 @@ const MarketTrends = () => {
     };
 
 
-  const [metricCards] = useState([
+  const generateMetricCards = () => [
     {
       title: 'ASX Code Count',
-      value: '$2,345,678',
-      trend: 'positive',
-      description: 'YoY: +15%'
+      value: metricSummaries.asx,
     },
     {
       title: 'Daily Average Price Change %',
-      value: '$1,456,789',
-      trend: 'negative',
-      description: 'YoY: +8%'
+      value: metricSummaries.dailyAvgPriceChange
     },
     {
       title: 'Weekly Average Price Change %',
-      value: '$888,889',
-      trend: 'positive',
-      description: 'YoY: +27%'
+      value: metricSummaries.weeklyAvgPriceChange
     },
     {
       title: 'Monthly Average Price Change %',
-      value: '37.9%',
-      trend: 'positive'
+      value: metricSummaries.monthlyAvgPriceChange
     },
     {
         title: 'Yearly Average Price Change %',
-        value: '37.9%',
-        trend: 'positive'
+        value: metricSummaries.yearlyAvgPriceChange
     },
     {
         title: 'Daily Relative Volume Change %',
-        value: '37.9%',
-        trend: 'positive'
+        value: metricSummaries.dailyRelVolChange
     },
     {
         title: 'Average Weekly Relative Volume Change %',
-        value: '37.9%',
-        trend: 'positive'
+        value: metricSummaries.avgWeeklyRelVolChange
     },
     {
         title: 'Average Monthly Relative Change %',
-        value: '37.9%',
-        trend: 'positive'
+        value: metricSummaries.avgMonthlyRelChange
     },
     {
         title: 'Average Yearly Relative Volume Change %',
-        value: '37.9%',
-        trend: 'positive'
+        value: metricSummaries.avgYearlyRelVolChange
     },
-  ]);
-  
-  const [chartData] = useState([
+  ];
+
+  const generateChartData = () => [
     {
-      title: 'Daily Top 10 Commodity by Volume Change (Market Trends)',
-      color: 'blue'
-    },
-    {
-      title: 'Daily Top 10 Commodity by Price Change (Market Trends)',
-      color: 'red'
+      title: 'Daily Top 10 Commodity by Volume Change',
+      type: "pie", 
+      data: topTenCommodityVolChange
     },
     {
-      title: 'Tier 2 Top 10 Commodity by Trade Value (Market Trends',
-      color: 'green'
+      title: 'Daily Top 10 Commodity by Price Change', 
+      type: "pie",
+      data: topTenCommodityPriceChange
+    },
+    {
+      title: 'Tier 2 Top 10 Commodity by Trade Value',
+      type: "pie",
+      data: topTenCommodityTradeValue
     }
-  ]);
+  ];
   
   const [tableColumns] = useState([
-    { header: 'ASX', key: 'month' },
-    { header: 'Daily % Price Change', key: 'revenue' },
-    { header: 'Last Week Price Change', key: 'expenses' },
-    { header: 'Last Month Price Change', key: 'profit' },
-    { header: 'Last Year Price Change', key: 'margin' }
+    { header: 'id', key: 'month' },
+    { header: 'marketCap', key: 'market_cap' },
+    { header: 'tradeValue', key: 'trade_value' },
+    { header: 'totalShares', key: 'total_shares' },
+    { header: 'newPrice', key: 'new_price' }, 
+    { header: 'previousPrice', key: 'previous_price' }, 
+    { header: 'weekPriceChange', key: 'week_price_change' }, 
+    { header: 'monthPriceChange', key: 'month_price_change' }, 
+    { header: 'yearPriceChange', key: 'year_price_change'}, 
+    { header: 'asxCode', key: 'asx' }
   ]);
   
-  const [tableData] = useState([
-    { month: 'January', revenue: '$789,123', expenses: '$456,789', profit: '$332,334', margin: '42.1%' },
-    { month: 'February', revenue: '$812,345', expenses: '$478,912', profit: '$333,433', margin: '41.0%' },
-    { month: 'March', revenue: '$765,432', expenses: '$521,098', profit: '$244,334', margin: '31.9%' }
-  ]);
 
   return (
     <div className="standard-padding">
@@ -324,8 +696,8 @@ const MarketTrends = () => {
       filterTags={filterTags}
       filterOptions={filterOptions}
       allFilterOptions={allFilterOptions}
-      metricCards={metricCards}
-      chartData={chartData}
+      metricCards={generateMetricCards}
+      chartData={generateChartData}
       tableColumns={tableColumns}
       tableData={tableData}
       handleRemoveFilter={handleRemoveFilter}
@@ -333,6 +705,6 @@ const MarketTrends = () => {
     />
     </div>
   );
-};
+  };
 
 export default MarketTrends;
