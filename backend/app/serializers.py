@@ -1,7 +1,7 @@
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
-User = get_user_model()  # Dynamically retrieve the custom User model
+User = get_user_model() 
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -11,15 +11,14 @@ class UserSerializer(serializers.ModelSerializer):
         extra_kwargs = {'password': {'write_only': True}}
     
     def create(self, validated_data):
-        password = validated_data.pop('password', None)  # Extract password
+        password = validated_data.pop('password', None)  
 
         if not password:
             raise serializers.ValidationError({"password": "Password is required."})
 
-        instance = self.Meta.model(**validated_data)  # Create user instance
-
+        instance = self.Meta.model(**validated_data)  
         if password:
-            instance.set_password(password)  # Hash the password properly
+            instance.set_password(password)  
         instance.save()
 
         return instance
