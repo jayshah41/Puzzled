@@ -290,6 +290,66 @@ class Command(BaseCommand):
                 "component": "ContactUs",
                 "section": "investmentCriteria",
                 "text_value": "Investment Criteria"
+            },
+            {
+                "component": "Products",
+                "section": "title1",
+                "text_value": "Visual Filtering"
+            },
+            {
+                "component": "Products",
+                "section": "content1",
+                "text_value": "Clicking on data changes everything you look at. As soon as you click through a piece of data, it filters the entire dashboard instantly and saves your filter at the top of the dashboard.#Remove any filters with a click. Each dashboard gives the user a full view of data, the user has the ability to filter the information simply by clicking data.#Any field within the dashboard can be filtered!"
+            },
+            {
+                "component": "Products",
+                "section": "title2",
+                "text_value": "Exclude Data"
+            },
+            {
+                "component": "Products",
+                "section": "content2",
+                "text_value": "Any data that complicates the dashboard or dominates metrics can be removed by selecting the record type and deselecting it, which will update all of the models within the dashboard instantly.#Users can filter through data to find key information with ease. Examples may be filtering out regions or areas where projects exist that may present risks for investment, or removing commodities that are not important to the user."
+            },
+            {
+                "component": "Products",
+                "section": "title3",
+                "text_value": "Field Level Filtering"
+            },
+            {
+                "component": "Products",
+                "section": "content3",
+                "text_value": "Our platform comes with the ability to use a search bar to filter out data based upon any field within our database. Typing in a letter, like A would prompt the user for any of the fields in the database like \"ASX Code\" where the user can then select as specific ASX Code.#The applications for this are extremely powerful, like \"Bank Balance is greater than 10,000,000\", \"Project Status = Exploration\". As the users learn their key data points, any field can be queried at any time!"
+            },
+            {
+                "component": "Products",
+                "section": "title4",
+                "text_value": "Mouse Over Details"
+            },
+            {
+                "component": "Products",
+                "section": "content4",
+                "text_value": "No matter where you are within the platform, there is mouseover text to help you understand the metrics and data being displayed. It may be something like a time period and the mouse over could indicate the share price for a range of companies, or it may be a pie chart showing project spend by a commodity type and the mouse over will show the company code and the spend amount.#Each element to the dashboard can provide more information just by hovering your mouse."
+            },
+            {
+                "component": "Products",
+                "section": "title5",
+                "text_value": "Time Based Analysis"
+            },
+            {
+                "component": "Products",
+                "section": "content5",
+                "text_value": "Drag and drop a time based chart to see the entire dashboard remodel itself based upon the new time period. It is as simple as going to a chart, dragging the time period and seeing everything update in real time.#It may be to better understand capital raises during a period, project spend over time or the change in market cap for a group of companies. This is a highly effective way of cutting through data quickly, to provide more timely and accurate information."
+            },
+            {
+                "component": "Products",
+                "section": "title6",
+                "text_value": "Drop Down Selection"
+            },
+            {
+                "component": "Products",
+                "section": "content6",
+                "text_value": "The dashboards allow users to select data from drop down points, such as ASX Codes, Commodity, High and Low Share price, and see the data filtered in real time.#Key prompts have been added throughout the platform for ease of use, so our clients can quickly pick up a dashboard and filter on key information they are looking for."
             }
         ]
 
