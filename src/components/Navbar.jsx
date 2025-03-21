@@ -28,11 +28,11 @@ const Navbar = () => {
         const fetchedTabs = data
           .filter(item => item.section.startsWith('tab'))
           .map((item) => JSON.parse(item.text_value))
-          .filter(tab => tab.accessLevel <= userTierLevel); // Filter tabs by access level
+          .filter(tab => tab.accessLevel <= userTierLevel);
         const fetchedGraphLinks = data
           .filter(item => item.section.startsWith('graph'))
           .map((item) => JSON.parse(item.text_value))
-          .filter(graph => graph.accessLevel <= userTierLevel); // Filter graphs by access level
+          .filter(graph => graph.accessLevel <= userTierLevel);
         setTabs(fetchedTabs);
         setGraphLinks(fetchedGraphLinks);
       })
@@ -75,8 +75,19 @@ const Navbar = () => {
 
   const links = tabs.map((tab, index) => (
     isEditing ? (
-      <div key={index}>
-        <Link to={tab.link}>{tab.text}</Link>
+      <div key={index} style={{ display: 'flex', alignItems: 'center', flexDirection: 'column' }}>
+        <input
+          type="text"
+          value={tab.text}
+          onChange={(e) =>
+            setTabs((prevTabs) =>
+              prevTabs.map((t, i) =>
+                i === index ? { ...t, text: e.target.value } : t
+              )
+            )
+          }
+          style={{ width: '7vw' }}
+        />
         <button onClick={() => toggleTabVisibility(index)}>
           {tab.showing ? '-' : '+'}
         </button>
@@ -92,11 +103,23 @@ const Navbar = () => {
 
   const graphLinksUI = graphLinks.map((graph, index) => (
     isEditing ? (
-      <div key={index} style={{ display: 'flex', alignItems: 'center' }}>
-        <span>{graph.text}</span>
+      <div key={index} style={{ display: 'flex', alignItems: 'center', marginBottom: '8px' }}>
+        <input
+          type="text"
+          value={graph.text}
+          onChange={(e) =>
+            setGraphLinks((prevGraphLinks) =>
+              prevGraphLinks.map((g, i) =>
+                i === index ? { ...g, text: e.target.value } : g
+              )
+            )
+          }
+          style={{ marginRight: '8px' }}
+        />
         <button
           onClick={() => toggleGraphVisibility(index)}
-          style={{ marginLeft: '8px' }}>
+          style={{ marginLeft: '8px' }}
+        >
           {graph.showing ? '-' : '+'}
         </button>
       </div>
@@ -136,6 +159,20 @@ const Navbar = () => {
     navigate('/account');
   };
 
+  const contentIsValid = (tabs, graphLinks) => {
+    for (const tab of tabs) {
+      if (!tab.text.trim() || !tab.link.trim()) {
+        return false;
+      }
+    }
+    for (const graph of graphLinks) {
+      if (!graph.text.trim() || !graph.link.trim()) {
+        return false;
+      }
+    }
+    return true;
+  };
+
   return (
     <nav className="navbar sticky">
       <div className="navbar-container">
@@ -153,9 +190,15 @@ const Navbar = () => {
           <button
             onClick={() => {
               if (isEditing) {
-                handleSave();
+                if (contentIsValid(tabs, graphLinks)) {
+                  handleSave();
+                  setIsEditing(false);
+                } else {
+                  alert('Please ensure all fields are filled out before saving.');
+                }
+              } else {
+                setIsEditing(true);
               }
-              setIsEditing(!isEditing);
             }}
           >
             {isEditing ? 'Stop Editing' : 'Edit'}
