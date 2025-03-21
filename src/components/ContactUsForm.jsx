@@ -44,6 +44,10 @@ const ContactUsForm = () => {
     "Uranium", "Vanadium", "Zinc"
   ];
 
+  const commodityOptionElements = commodityOptions.map((option, index) => (
+    <option key={index} value={option}>{option}</option>
+  ));
+
   const investmentCriteriaOptions = [
     "People (Board & Senior Management SH, Remuneration, Exp, Qual)",
     "Project Potention (Project state, grades, location etc)",
@@ -52,6 +56,10 @@ const ContactUsForm = () => {
     "Share price performance (Short & long term potential, passion, lifestyle etc)",
     "Other (Please provide detail)"
   ];
+
+  const investmentCriteriaElements = investmentCriteriaOptions.map((option, index) => (
+    <option key={index} value={option}>{option}</option>
+  ));
 
   useEffect(() => {
     fetch('/api/editable-content/?component=ContactUs')
@@ -332,9 +340,7 @@ const ContactUsForm = () => {
               disabled={isEditing}
             >
               <option value="">Select a commodity</option>
-              {commodityOptions.map((option, index) => (
-                <option key={index} value={option}>{option}</option>
-              ))}
+              {commodityOptionElements}
             </select>
           </div>
 
@@ -360,9 +366,7 @@ const ContactUsForm = () => {
               disabled={isEditing}
             >
               <option value="">Select a commodity</option>
-              {commodityOptions.map((option, index) => (
-                <option key={index} value={option}>{option}</option>
-              ))}
+              {commodityOptionElements}
             </select>
           </div>
 
@@ -388,9 +392,7 @@ const ContactUsForm = () => {
               disabled={isEditing}
             >
               <option value="">Select a commodity</option>
-              {commodityOptions.map((option, index) => (
-                <option key={index} value={option}>{option}</option>
-              ))}
+              {commodityOptionElements}
             </select>
           </div>
 
@@ -416,9 +418,7 @@ const ContactUsForm = () => {
               disabled={isEditing}
             >
               <option value="">Select investment criteria</option>
-              {investmentCriteriaOptions.map((option, index) => (
-                <option key={index} value={option}>{option}</option>
-              ))}
+              {investmentCriteriaElements}
             </select>
           </div>
 
