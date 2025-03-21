@@ -39,15 +39,25 @@ const PricingHero = () => {
     saveContent(contentData);
   };
 
+  const contentIsValid = () => {
+    return heading.trim() && content.trim();
+  };
+
   return (
     <div className="two-card-container standard-padding">
         <div>
         {isAdminUser ?
           <button onClick={() => {
-          if (isEditing) {
-            handleSave();
-          }
-          setIsEditing(!isEditing);
+            if (isEditing) {
+              if (contentIsValid()) {
+                handleSave();
+                setIsEditing(!isEditing);
+              } else {
+                alert("Empty values are invalid")
+              }
+            } else {
+              setIsEditing(!isEditing);
+            }
         }}
         style={{ marginBottom: '1rem' }}>
           {isEditing ? 'Stop Editing' : 'Edit'}</button>

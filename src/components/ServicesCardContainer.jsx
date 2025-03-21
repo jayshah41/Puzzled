@@ -40,7 +40,21 @@ const ServicesCardContainer = ({ isEditing }) => {
       });
   };
 
+  const contentIsValid = (values) => {
+    for (const value of values) {
+      if (!value.title.trim() || !value.content.trim()) {
+        return false;
+      }
+    }
+    return true;
+  };
+
   const saveContent = () => {
+    if (!contentIsValid(values)) {
+      alert('Please ensure all titles and content fields are filled out before saving. Empty fields will not be saved.');
+      return;
+    }
+
     const savePromises = values.map((value, index) => {
       return Promise.all([
         fetch('/api/editable-content/update/', {
