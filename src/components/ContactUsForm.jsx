@@ -152,7 +152,7 @@ const ContactUsForm = () => {
                   name="firstName"
                   value={labels.firstName}
                   onChange={handleLabelChange}
-                  className="auth-input"
+                  className="auth-input editable-field"
                 />
               ) : (
                 labels.firstName
@@ -177,7 +177,7 @@ const ContactUsForm = () => {
                   name="lastName"
                   value={labels.lastName}
                   onChange={handleLabelChange}
-                  className="auth-input"
+                  className="auth-input editable-field"
                 />
               ) : (
                 labels.lastName
@@ -202,7 +202,7 @@ const ContactUsForm = () => {
                   name="phoneNumber"
                   value={labels.phoneNumber}
                   onChange={handleLabelChange}
-                  className="auth-input"
+                  className="auth-input editable-field"
                 />
               ) : (
                 labels.phoneNumber
@@ -227,7 +227,7 @@ const ContactUsForm = () => {
                   name="email"
                   value={labels.email}
                   onChange={handleLabelChange}
-                  className="auth-input"
+                  className="auth-input editable-field"
                 />
               ) : (
                 labels.email
@@ -252,7 +252,7 @@ const ContactUsForm = () => {
                   name="state"
                   value={labels.state}
                   onChange={handleLabelChange}
-                  className="auth-input"
+                  className="auth-input editable-field"
                 />
               ) : (
                 labels.state
@@ -276,7 +276,7 @@ const ContactUsForm = () => {
                   name="country"
                   value={labels.country}
                   onChange={handleLabelChange}
-                  className="auth-input"
+                  className="auth-input editable-field"
                 />
               ) : (
                 labels.country
@@ -302,7 +302,7 @@ const ContactUsForm = () => {
                   name="referredBy"
                   value={labels.referredBy}
                   onChange={handleLabelChange}
-                  className="auth-input"
+                  className="auth-input editable-field"
                 />
               ) : (
                 labels.referredBy
@@ -326,7 +326,7 @@ const ContactUsForm = () => {
                   name="commodityType1"
                   value={labels.commodityType1}
                   onChange={handleLabelChange}
-                  className="auth-input"
+                  className="auth-input editable-field"
                 />
               ) : (
                 labels.commodityType1
@@ -352,7 +352,7 @@ const ContactUsForm = () => {
                   name="commodityType2"
                   value={labels.commodityType2}
                   onChange={handleLabelChange}
-                  className="auth-input"
+                  className="auth-input editable-field"
                 />
               ) : (
                 labels.commodityType2
@@ -378,7 +378,7 @@ const ContactUsForm = () => {
                   name="commodityType3"
                   value={labels.commodityType3}
                   onChange={handleLabelChange}
-                  className="auth-input"
+                  className="auth-input editable-field"
                 />
               ) : (
                 labels.commodityType3
@@ -404,7 +404,7 @@ const ContactUsForm = () => {
                   name="investmentCriteria"
                   value={labels.investmentCriteria}
                   onChange={handleLabelChange}
-                  className="auth-input"
+                  className="auth-input editable-field"
                 />
               ) : (
                 labels.investmentCriteria
