@@ -107,6 +107,20 @@ const ContactUsForm = () => {
       <h1 className="contact-form-header">Contact us form</h1>
       <p className="contact-form-subheader">Help us by letting us know what type of investor you are by answering the following questions.</p>
       
+      {isAdminUser && (
+        <button
+          onClick={() => {
+            if (isEditing) {
+              handleSave();
+            }
+            setIsEditing(!isEditing);
+          }}
+          style={{ marginBottom: '1rem' }}
+        >
+          {isEditing ? 'Stop Editing' : 'Edit'}
+        </button>
+      )}
+      
       <div className="form-group message-group">
         <label htmlFor="message">
           {isEditing ? (
@@ -130,20 +144,6 @@ const ContactUsForm = () => {
           className="message-textarea"
         />
       </div>
-
-      {isAdminUser && (
-        <button
-          onClick={() => {
-            if (isEditing) {
-              handleSave();
-            }
-            setIsEditing(!isEditing);
-          }}
-          style={{ marginBottom: '1rem' }}
-        >
-          {isEditing ? 'Stop Editing' : 'Edit Labels'}
-        </button>
-      )}
 
       <form onSubmit={handleSubmit} className="contact-form-container">
         <div className="contact-form-column">
