@@ -9,8 +9,8 @@ const AccountManager = () => {
 
   const handleLogout = () => {
     localStorage.removeItem("accessToken");
-    localStorage.removeItem("user_tier_level");
     navigate("/");
+    localStorage.setItem("user_tier_level", "-1");
     window.dispatchEvent(new Event('storage'));
   };
 
