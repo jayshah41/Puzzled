@@ -2,22 +2,14 @@ import React from 'react';
 import '../styles/GeneralStyles.css';
 
 const SocialFeedHero = () => {
-    const token = localStorage.getItem("accessToken");
-    const isLoggedIn = !!token;
-
     return (
-        <div className="two-card-container standard-padding">
-            <div>
-                <h1>Stay Updated with Live Tweets</h1>
-                <p>Get real-time updates from your favorite Twitter accounts, directly on our platform. Never miss an important tweet again.</p>
-                {!isLoggedIn ? 
-                    <button className="defaultButton">Start Tracking</button> 
-                    : null
-                }
-            </div>
-            
+        <div className="social-feed-hero">
+            <h1>Stay Informed with Live Social Updates</h1>
+            <p>
+                Get real-time updates from a trusted source like MakCorp on Twitter and YouTube. 
+            </p>
         </div>
     );
-}
+};
 
 export default SocialFeedHero;
