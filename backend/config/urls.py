@@ -18,9 +18,7 @@ from django.contrib import admin
 from django.urls import path, include
 from app.views import RegisterView, LoginView, ProfileView
 from rest_framework_simplejwt.views import TokenRefreshView
-from content.views import EditableContentView
-from content.views import EditableContentUpdateView
-
+from content.views import EditableContentView, EditableContentUpdateView, NewsCardViewSet
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -31,4 +29,10 @@ urlpatterns = [
     path('data/', include('api.urls')),
     path('editable-content/', EditableContentView.as_view(), name='editable-content'),
     path('editable-content/update/', EditableContentUpdateView.as_view(), name='editable-content-update'),
+    path('api/news-cards/update-order/', NewsCardViewSet.as_view({'patch': 'update_order'}), name='newscard-update-order'),
+    path('api/news-cards/<int:pk>/', NewsCardViewSet.as_view({'get': 'retrieve', 'put': 'update', 'patch': 'partial_update', 'delete': 'destroy'}), name='newscard-detail'),
+    path('api/news-cards/', NewsCardViewSet.as_view({'get': 'list', 'post': 'create'}), name='newscard-list'),
+    path('news-cards/update-order/', NewsCardViewSet.as_view({'patch': 'update_order'}), name='newscard-direct-update-order'),
+    path('news-cards/<int:pk>/', NewsCardViewSet.as_view({'get': 'retrieve', 'put': 'update', 'patch': 'partial_update', 'delete': 'destroy'}), name='newscard-direct-detail'),
+    path('news-cards/', NewsCardViewSet.as_view({'get': 'list', 'post': 'create'}), name='newscard-direct-list'),
 ]
