@@ -7,8 +7,9 @@ import profileIcon from '../assets/profileIcon.png';
 import '../styles/Navbar.css';
 
 const Navbar = () => {
-  const isAdminUser = localStorage.getItem("user_tier_level") == 2;
-  const hasGraphAccess = localStorage.getItem("user_tier_level") >= 1;
+  const userTierLevel = parseInt(localStorage.getItem("user_tier_level"), 10) || 0;
+  const isAdminUser = userTierLevel === 2;
+  const hasGraphAccess = userTierLevel >= 1;
   const navigate = useNavigate();
   const saveContent = useSaveContent();
 
@@ -24,15 +25,21 @@ const Navbar = () => {
     fetch('/api/editable-content/?component=Navbar')
       .then((response) => response.json())
       .then((data) => {
-        const fetchedTabs = data.filter(item => item.section.startsWith('tab')).map((item) => JSON.parse(item.text_value));
-        const fetchedGraphLinks = data.filter(item => item.section.startsWith('graph')).map((item) => JSON.parse(item.text_value));
+        const fetchedTabs = data
+          .filter(item => item.section.startsWith('tab'))
+          .map((item) => JSON.parse(item.text_value))
+          .filter(tab => tab.accessLevel <= userTierLevel); // Filter tabs by access level
+        const fetchedGraphLinks = data
+          .filter(item => item.section.startsWith('graph'))
+          .map((item) => JSON.parse(item.text_value))
+          .filter(graph => graph.accessLevel <= userTierLevel); // Filter graphs by access level
         setTabs(fetchedTabs);
         setGraphLinks(fetchedGraphLinks);
       })
       .catch((error) => {
         console.error('Error fetching content:', error);
       });
-  }, []);
+  }, [userTierLevel]);
 
   const handleSave = () => {
     const tabContentData = tabs.map((tab, index) => ({
