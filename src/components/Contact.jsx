@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import ContactCard from './ContactCard';
+import useSaveContent from '../hooks/useSaveContent';
 import '../styles/GeneralStyles.css';
 import steveRosewell from '../assets/MeetTheTeam/steve-rosewell.png';
 import emmanuelHeyndrickx from '../assets/MeetTheTeam/emmanuel-heyndrickx.png';
@@ -8,7 +9,7 @@ import robertWilliamson from '../assets/MeetTheTeam/robert-williamson.png';
 
 const Contact = () => {
   const isAdminUser = localStorage.getItem("user_tier_level") == 2;
-
+  const saveContent = useSaveContent();
 
   const [isEditing, setIsEditing] = useState(false);
   const [title, setTitle] = useState("Meet Our Team");
@@ -64,122 +65,18 @@ const Contact = () => {
       });
   }, []);
 
-  const saveContent = () => {
-    fetch('/api/editable-content/update/', {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        component: 'Contact',
-        section: 'title',
-        text_value: title
-      }),
-    })
-      .then(response => response.json())
-      .then(data => {
-        console.log('Title saved successfully:', data);
-      })
-      .catch(error => {
-        console.error('There was an error saving the title', error);
-      });
-
-    fetch('/api/editable-content/update/', {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        component: 'Contact',
-        section: 'introText',
-        text_value: introText
-      }),
-    })
-      .then(response => response.json())
-      .then(data => {
-        console.log('Intro text saved successfully:', data);
-      })
-      .catch(error => {
-        console.error('There was an error saving the intro text', error);
-      });
-
-    contacts.forEach((contact, index) => {
-      fetch('/api/editable-content/update/', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          component: 'Contact',
-          section: `name${index + 1}`,
-          text_value: contact.name
-        }),
-      })
-        .then(response => response.json())
-        .then(data => {
-          console.log(`Name ${index + 1} saved successfully:`, data);
-        })
-        .catch(error => {
-          console.error(`There was an error saving the name ${index + 1}`, error);
-        });
-
-      fetch('/api/editable-content/update/', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          component: 'Contact',
-          section: `role${index + 1}`,
-          text_value: contact.role
-        }),
-      })
-        .then(response => response.json())
-        .then(data => {
-          console.log(`Role ${index + 1} saved successfully:`, data);
-        })
-        .catch(error => {
-          console.error(`There was an error saving the role ${index + 1}`, error);
-        });
-
-      fetch('/api/editable-content/update/', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          component: 'Contact',
-          section: `phone${index + 1}`,
-          text_value: contact.phone
-        }),
-      })
-        .then(response => response.json())
-        .then(data => {
-          console.log(`Phone ${index + 1} saved successfully:`, data);
-        })
-        .catch(error => {
-          console.error(`There was an error saving the phone ${index + 1}`, error);
-        });
-
-      fetch('/api/editable-content/update/', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          component: 'Contact',
-          section: `email${index + 1}`,
-          text_value: contact.email
-        }),
-      })
-        .then(response => response.json())
-        .then(data => {
-          console.log(`Email ${index + 1} saved successfully:`, data);
-        })
-        .catch(error => {
-          console.error(`There was an error saving the email ${index + 1}`, error);
-        });
-    });
+  const handleSave = () => {
+    const contentData = [
+      { component: 'Contact', section: 'title', text_value: title },
+      { component: 'Contact', section: 'introText', text_value: introText },
+      ...contacts.flatMap((contact, index) => [
+        { component: 'Contact', section: `name${index + 1}`, text_value: contact.name },
+        { component: 'Contact', section: `role${index + 1}`, text_value: contact.role },
+        { component: 'Contact', section: `phone${index + 1}`, text_value: contact.phone },
+        { component: 'Contact', section: `email${index + 1}`, text_value: contact.email }
+      ])
+    ];
+    saveContent(contentData);
   };
 
   return (
@@ -188,7 +85,7 @@ const Contact = () => {
         {isAdminUser ?
           <button onClick={() => {
               if (isEditing) {
-                saveContent();
+                handleSave();
               }
               setIsEditing(!isEditing);
             }}

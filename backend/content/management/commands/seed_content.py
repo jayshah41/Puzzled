@@ -207,6 +207,151 @@ class Command(BaseCommand):
                 "text_value": "emmanuel@makcorp.com.au"
             },
             {
+                "component": "Pricing",
+                "section": "heading",
+                "text_value": "MakCorp Platform through Affordable Subscriptions"
+            },
+            {
+                "component": "Pricing",
+                "section": "content",
+                "text_value": "The MakCorp platform provides our users with access to 6 key data modules with over 600 data points to provide our clients with the ability to make better informed investment decisions. As an example, using projects data, users can seamlessly filter based upon key indicators like commodity type, geographic location or project stage to identify potential investment or client oppotunities."
+            },
+            {
+                "component": "Products",
+                "section": "heading",
+                "text_value": "MakCorp is more than a platform"
+            },
+            {
+                "component": "Products",
+                "section": "content",
+                "text_value": "MakCorp offers unparalleled access to immediate and essential information for the resources sector. Our offering provides our clients with the tools they need to see data, the way they want to. MakCorp prides itself on using interactive technology to help visualize key metrics to improve investment decisions."
+            },
+            {
+                "component": "ContactUs",
+                "section": "heading",
+                "text_value": "Ready to sign up?"
+            },
+            {
+                "component": "ContactUs",
+                "section": "content",
+                "text_value": "MakCorp offers unparalleled access to immediate and essential information for the resources sector. Our offering provides our clients with the tools they need to see data, the way they want to. MakCorp prides itself on using interactive technology to help visualize key metrics to improve investment decisions."
+            },
+            {
+                "component": "ContactUs",
+                "section": "firstName",
+                "text_value": "First Name"
+            },
+            {
+                "component": "ContactUs",
+                "section": "lastName",
+                "text_value": "Last Name"
+            },
+            {
+                "component": "ContactUs",
+                "section": "phoneNumber",
+                "text_value": "Phone Number"
+            },
+            {
+                "component": "ContactUs",
+                "section": "email",
+                "text_value": "Email"
+            },
+            {
+                "component": "ContactUs",
+                "section": "state",
+                "text_value": "State"
+            },
+            {
+                "component": "ContactUs",
+                "section": "country",
+                "text_value": "Country"
+            },
+            {
+                "component": "ContactUs",
+                "section": "referredBy",
+                "text_value": "Referred By"
+            },
+            {
+                "component": "ContactUs",
+                "section": "commodityType1",
+                "text_value": "Commodity Type 1"
+            },
+            {
+                "component": "ContactUs",
+                "section": "commodityType2",
+                "text_value": "Commodity Type 2"
+            },
+            {
+                "component": "ContactUs",
+                "section": "commodityType3",
+                "text_value": "Commodity Type 3"
+            },
+            {
+                "component": "ContactUs",
+                "section": "investmentCriteria",
+                "text_value": "Investment Criteria"
+            },
+            {
+                "component": "Products",
+                "section": "title1",
+                "text_value": "Visual Filtering"
+            },
+            {
+                "component": "Products",
+                "section": "content1",
+                "text_value": "Clicking on data changes everything you look at. As soon as you click through a piece of data, it filters the entire dashboard instantly and saves your filter at the top of the dashboard.#Remove any filters with a click. Each dashboard gives the user a full view of data, the user has the ability to filter the information simply by clicking data.#Any field within the dashboard can be filtered!"
+            },
+            {
+                "component": "Products",
+                "section": "title2",
+                "text_value": "Exclude Data"
+            },
+            {
+                "component": "Products",
+                "section": "content2",
+                "text_value": "Any data that complicates the dashboard or dominates metrics can be removed by selecting the record type and deselecting it, which will update all of the models within the dashboard instantly.#Users can filter through data to find key information with ease. Examples may be filtering out regions or areas where projects exist that may present risks for investment, or removing commodities that are not important to the user."
+            },
+            {
+                "component": "Products",
+                "section": "title3",
+                "text_value": "Field Level Filtering"
+            },
+            {
+                "component": "Products",
+                "section": "content3",
+                "text_value": "Our platform comes with the ability to use a search bar to filter out data based upon any field within our database. Typing in a letter, like A would prompt the user for any of the fields in the database like \"ASX Code\" where the user can then select as specific ASX Code.#The applications for this are extremely powerful, like \"Bank Balance is greater than 10,000,000\", \"Project Status = Exploration\". As the users learn their key data points, any field can be queried at any time!"
+            },
+            {
+                "component": "Products",
+                "section": "title4",
+                "text_value": "Mouse Over Details"
+            },
+            {
+                "component": "Products",
+                "section": "content4",
+                "text_value": "No matter where you are within the platform, there is mouseover text to help you understand the metrics and data being displayed. It may be something like a time period and the mouse over could indicate the share price for a range of companies, or it may be a pie chart showing project spend by a commodity type and the mouse over will show the company code and the spend amount.#Each element to the dashboard can provide more information just by hovering your mouse."
+            },
+            {
+                "component": "Products",
+                "section": "title5",
+                "text_value": "Time Based Analysis"
+            },
+            {
+                "component": "Products",
+                "section": "content5",
+                "text_value": "Drag and drop a time based chart to see the entire dashboard remodel itself based upon the new time period. It is as simple as going to a chart, dragging the time period and seeing everything update in real time.#It may be to better understand capital raises during a period, project spend over time or the change in market cap for a group of companies. This is a highly effective way of cutting through data quickly, to provide more timely and accurate information."
+            },
+            {
+                "component": "Products",
+                "section": "title6",
+                "text_value": "Drop Down Selection"
+            },
+            {
+                "component": "Products",
+                "section": "content6",
+                "text_value": "The dashboards allow users to select data from drop down points, such as ASX Codes, Commodity, High and Low Share price, and see the data filtered in real time.#Key prompts have been added throughout the platform for ease of use, so our clients can quickly pick up a dashboard and filter on key information they are looking for."
+            },
+            {
                 "component": "NewsContent",
                 "section": "card1_category",
                 "text_value": "Mining Exploration"
@@ -280,6 +425,76 @@ class Command(BaseCommand):
                 "component": "NewsContent",
                 "section": "card3_link",
                 "text_value": "https://mining.com.au/vulcan-south-mine-deploys-australian-first-coal-extraction-tech/"
+            },
+            {
+                "component": "Navbar",
+                "section": "tab0",
+                "text_value": '{"text": "Home", "link": "/", "showing": true, "accessLevel": -1}'
+            },
+            {
+                "component": "Navbar",
+                "section": "tab1",
+                "text_value": '{"text": "Pricing", "link": "/pricing", "showing": true, "accessLevel": -1}'
+            },
+            {
+                "component": "Navbar",
+                "section": "tab2",
+                "text_value": '{"text": "Products", "link": "/products", "showing": true, "accessLevel": -1}'
+            },
+            {
+                "component": "Navbar",
+                "section": "tab3",
+                "text_value": '{"text": "Contact Us", "link": "/contact-us", "showing": true, "accessLevel": -1}'
+            },
+            {
+                "component": "Navbar",
+                "section": "tab4",
+                "text_value": '{"text": "News", "link": "/news", "showing": true, "accessLevel": 0}'
+            },
+            {
+                "component": "Navbar",
+                "section": "tab5",
+                "text_value": '{"text": "Socials", "link": "/social-media", "showing": true, "accessLevel": 0}'
+            },
+            {
+                "component": "Navbar",
+                "section": "graph0",
+                "text_value": '{"text": "Company Details", "link": "/graphs/company-details", "showing": true, "accessLevel": 1}'
+            },
+            {
+                "component": "Navbar",
+                "section": "graph1",
+                "text_value": '{"text": "Market Data", "link": "/graphs/market-data", "showing": true, "accessLevel": 1}'
+            },
+            {
+                "component": "Navbar",
+                "section": "graph2",
+                "text_value": '{"text": "Market Trends", "link": "/graphs/market-trends", "showing": true, "accessLevel": 1}'
+            },
+            {
+                "component": "Navbar",
+                "section": "graph3",
+                "text_value": '{"text": "Directors", "link": "/graphs/directors", "showing": true, "accessLevel": 1}'
+            },
+            {
+                "component": "Navbar",
+                "section": "graph4",
+                "text_value": '{"text": "Shareholders", "link": "/graphs/shareholders", "showing": true, "accessLevel": 1}'
+            },
+            {
+                "component": "Navbar",
+                "section": "graph5",
+                "text_value": '{"text": "Capital Raises", "link": "/graphs/capital-raises", "showing": true, "accessLevel": 1}'
+            },
+            {
+                "component": "Navbar",
+                "section": "graph6",
+                "text_value": '{"text": "Projects", "link": "/graphs/projects", "showing": true, "accessLevel": 1}'
+            },
+            {
+                "component": "Navbar",
+                "section": "graph7",
+                "text_value": '{"text": "Financials", "link": "/graphs/financials", "showing": true, "accessLevel": 1}'
             }
         ]
 
