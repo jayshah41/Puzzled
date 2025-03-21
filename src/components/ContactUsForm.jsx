@@ -20,6 +20,7 @@ const ContactUsForm = () => {
     commodityType2: "Commodity Type 2",
     commodityType3: "Commodity Type 3",
     investmentCriteria: "Investment Criteria",
+    message: "Message",
   });
 
   const [formData, setFormData] = useState({
@@ -33,7 +34,8 @@ const ContactUsForm = () => {
     commodityType1: '',
     commodityType2: '',
     commodityType3: '',
-    investmentCriteria: ''
+    investmentCriteria: '',
+    message: ''
   });
 
   const commodityOptions = [
@@ -104,6 +106,31 @@ const ContactUsForm = () => {
     <div className="contact-form-card">
       <h1 className="contact-form-header">Contact us form</h1>
       <p className="contact-form-subheader">Help us by letting us know what type of investor you are by answering the following questions.</p>
+      
+      {/* Add the large message text box right after the subheader */}
+      <div className="form-group message-group">
+        <label htmlFor="message">
+          {isEditing ? (
+            <input
+              type="text"
+              name="message"
+              value={labels.message}
+              onChange={handleLabelChange}
+              className="auth-input"
+            />
+          ) : (
+            labels.message
+          )}
+        </label>
+        <textarea
+          id="message"
+          name="message"
+          value={formData.message}
+          onChange={handleChange}
+          rows="5"
+          className="message-textarea"
+        />
+      </div>
 
       {isAdminUser && (
         <button
