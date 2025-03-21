@@ -1,91 +1,132 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
+import useSaveContent from '../hooks/useSaveContent';
+import Login from './Login';
 import makcorpLogoWithText from '../assets/makcorpLogoWithText.png';
 import profileIcon from '../assets/profileIcon.png';
 import '../styles/Navbar.css';
-import { Link } from 'react-router-dom';
-import Login from './Login';
 
 const Navbar = () => {
+  const isAdminUser = localStorage.getItem("user_tier_level") == 2;
+  const hasGraphAccess = localStorage.getItem("user_tier_level") >= 1;
   const navigate = useNavigate();
+  const saveContent = useSaveContent();
 
   const [isEditing, setIsEditing] = useState(false);
-  const [showAddLinkModal, setShowAddLinkModal] = useState(false);
-
-  const [content, setContent] = useState([
-    { text: "Home", link: "/" },
-    { text: "Pricing", link: "/pricing" },
-    { text: "Products", link: "/products" },
-    { text: "Contact Us", link: "/contact-us" }
-  ]);
-
-  const [newLinkText, setNewLinkText] = useState("");
-  const [newLinkUrl, setNewLinkUrl] = useState("");
-
-  const links = content.map((e, index) => (
-    <div key={index} className="link-item">
-      <Link to={e.link}>{e.text}</Link>
-      {isEditing && (
-        <div>
-          <button onClick={() => handleRemoveLink(index)} className="remove-link-btn">
-            Remove
-          </button>
-        </div>
-      )}
-    </div>
-  ));
-
+  const [tabs, setTabs] = useState([]);
+  const [graphLinks, setGraphLinks] = useState([]);
   const [showingLogin, setShowingLogin] = useState(false);
   const [showingSignup, setShowingSignup] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [showGraphsDropdown, setShowGraphsDropdown] = useState(false);
 
   useEffect(() => {
-    const token = localStorage.getItem("accessToken");
+    fetch('/api/editable-content/?component=Navbar')
+      .then((response) => response.json())
+      .then((data) => {
+        const fetchedTabs = data.filter(item => item.section.startsWith('tab')).map((item) => JSON.parse(item.text_value));
+        const fetchedGraphLinks = data.filter(item => item.section.startsWith('graph')).map((item) => JSON.parse(item.text_value));
+        setTabs(fetchedTabs);
+        setGraphLinks(fetchedGraphLinks);
+      })
+      .catch((error) => {
+        console.error('Error fetching content:', error);
+      });
+  }, []);
+
+  const handleSave = () => {
+    const tabContentData = tabs.map((tab, index) => ({
+      component: 'Navbar',
+      section: `tab${index}`,
+      text_value: JSON.stringify(tab),
+    }));
+
+    const graphContentData = graphLinks.map((graph, index) => ({
+      component: 'Navbar',
+      section: `graph${index}`,
+      text_value: JSON.stringify(graph),
+    }));
+
+    saveContent([...tabContentData, ...graphContentData]);
+  };
+
+  const toggleTabVisibility = (index) => {
+    setTabs((prevTabs) =>
+      prevTabs.map((tab, i) =>
+        i === index ? { ...tab, showing: !tab.showing } : tab
+      )
+    );
+  };
+
+  const toggleGraphVisibility = (index) => {
+    setGraphLinks((prevGraphLinks) =>
+      prevGraphLinks.map((graph, i) =>
+        i === index ? { ...graph, showing: !graph.showing } : graph
+      )
+    );
+  };
+
+  const links = tabs.map((tab, index) => (
+    isEditing ? (
+      <div key={index}>
+        <Link to={tab.link}>{tab.text}</Link>
+        <button onClick={() => toggleTabVisibility(index)}>
+          {tab.showing ? '-' : '+'}
+        </button>
+      </div>
+    ) : (
+      tab.showing && (
+        <div key={index}>
+          <Link to={tab.link}>{tab.text}</Link>
+        </div>
+      )
+    )
+  ));
+
+  const graphLinksUI = graphLinks.map((graph, index) => (
+    isEditing ? (
+      <div key={index} style={{ display: 'flex', alignItems: 'center' }}>
+        <span>{graph.text}</span>
+        <button
+          onClick={() => toggleGraphVisibility(index)}
+          style={{ marginLeft: '8px' }}>
+          {graph.showing ? '-' : '+'}
+        </button>
+      </div>
+    ) : (
+      graph.showing && (
+        <Link key={index} to={graph.link}>
+          {graph.text}
+        </Link>
+      )
+    )
+  ));
+
+  const areAnyGraphsVisible = graphLinks.some(graph => graph.showing);
+
+  useEffect(() => {
+    const token = localStorage.getItem('accessToken');
     setIsLoggedIn(!!token);
   }, []);
 
   useEffect(() => {
     const handleStorageChange = () => {
-      const token = localStorage.getItem("accessToken");
+      const token = localStorage.getItem('accessToken');
       setIsLoggedIn(!!token);
     };
 
-    window.addEventListener("storage", handleStorageChange);
+    window.addEventListener('storage', handleStorageChange);
 
     return () => {
-      window.removeEventListener("storage", handleStorageChange);
+      window.removeEventListener('storage', handleStorageChange);
     };
   }, []);
 
   const handleLoginSuccess = () => {
     setIsLoggedIn(true);
     setShowingLogin(false);
-    console.log("Login successful. isLoggedIn:", true);
-    navigate("/account");
-  };
-
-  const handleAddLink = () => {
-    if (newLinkText && newLinkUrl) {
-      setContent([...content, { text: newLinkText, link: newLinkUrl }]);
-      setNewLinkText("");
-      setNewLinkUrl("");
-      setShowAddLinkModal(false);
-    }
-  };
-
-  const handleRemoveLink = (index) => {
-    setContent(content.filter((_, i) => i !== index));
-  };
-
-  const openAddLinkModal = () => {
-    setShowAddLinkModal(true);
-  };
-
-  const closeAddLinkModal = () => {
-    setShowAddLinkModal(false);
-    setNewLinkText("");
-    setNewLinkUrl("");
+    console.log('Login successful. isLoggedIn:', true);
+    navigate('/account');
   };
 
   return (
@@ -97,41 +138,37 @@ const Navbar = () => {
               src={makcorpLogoWithText}
               alt="MakCorp Logo"
               height="80px"
-              style={{ padding: "10px" }}
+              style={{ padding: '10px' }}
             />
           </Link>
         </div>
-        <button onClick={() => setIsEditing(!isEditing)}>
-          {isEditing ? "Stop Editing" : "Edit"}
-        </button>
-        {links}
-        {isEditing && (
-          <button onClick={openAddLinkModal} className="add-link-btn">
-            Add Link
+        {isAdminUser ? (
+          <button
+            onClick={() => {
+              if (isEditing) {
+                handleSave();
+              }
+              setIsEditing(!isEditing);
+            }}
+          >
+            {isEditing ? 'Stop Editing' : 'Edit'}
           </button>
-        )}
-        {isLoggedIn ? (
+        ) : null}
+        {links}
+        {(isEditing || (isLoggedIn && areAnyGraphsVisible)) && (
           <div className="dropdown">
             <button
               className="dropbtn"
-              onMouseEnter={() => setShowGraphsDropdown(true)}
-            >
+              onMouseEnter={() => setShowGraphsDropdown(true)}>
               Graphs
             </button>
             {showGraphsDropdown && (
               <div className="dropdown-content">
-                <Link to="/graphs/company-details">Company Details</Link>
-                <Link to="/graphs/market-data">Market Data</Link>
-                <Link to="/graphs/market-trends">Market Trends</Link>
-                <Link to="/graphs/directors">Directors</Link>
-                <Link to="/graphs/shareholders">Shareholders</Link>
-                <Link to="/graphs/capital-raises">Capital Raises</Link>
-                <Link to="/graphs/projects">Projects</Link>
-                <Link to="/graphs/financials">Financials</Link>
+                {graphLinksUI}
               </div>
             )}
           </div>
-        ) : null}
+        )}
 
         <div>
           {!isLoggedIn ? (
@@ -140,16 +177,14 @@ const Navbar = () => {
                 onClick={() => {
                   setShowingLogin(true);
                   setShowingSignup(false);
-                }}
-              >
+                }}>
                 Log In
               </button>
               <button
                 onClick={() => {
                   setShowingSignup(true);
                   setShowingLogin(true);
-                }}
-              >
+                }}>
                 Sign Up
               </button>
             </>
@@ -167,44 +202,7 @@ const Navbar = () => {
         <Login
           onClose={() => setShowingLogin(false)}
           loginButton={!showingSignup}
-          onLoginSuccess={handleLoginSuccess}
-        />
-      )}
-
-      {showAddLinkModal && (
-        <div className="modal-overlay">
-          <div className="modal-content">
-            <h3>Add New Navigation Link</h3>
-            <div className="form-group">
-              <label htmlFor="linkText">Link Text:</label>
-              <input
-                type="text"
-                id="linkText"
-                placeholder="e.g. About Us"
-                value={newLinkText}
-                onChange={(e) => setNewLinkText(e.target.value)}
-              />
-            </div>
-            <div className="form-group">
-              <label htmlFor="linkUrl">Link URL:</label>
-              <input
-                type="text"
-                id="linkUrl"
-                placeholder="e.g. /about-us"
-                value={newLinkUrl}
-                onChange={(e) => setNewLinkUrl(e.target.value)}
-              />
-            </div>
-            <div className="modal-buttons">
-              <button onClick={handleAddLink} className="add-btn">
-                Add
-              </button>
-              <button onClick={closeAddLinkModal} className="cancel-btn">
-                Cancel
-              </button>
-            </div>
-          </div>
-        </div>
+          onLoginSuccess={handleLoginSuccess} />
       )}
     </nav>
   );
