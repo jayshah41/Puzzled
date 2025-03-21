@@ -160,7 +160,7 @@ const MarketData = () => {
       .sort((a, b) => b.debt - a.debt)
       .slice(0, 10);
     
-    setBankBalanceByAsxCode({
+    setDebtByAsxCode({
       labels: topCompanies.map(company => company.asx),
       datasets: [{
         label: "Debt",
@@ -186,7 +186,7 @@ const MarketData = () => {
       .sort((a, b) => b.bankBalance - a.bankBalance)
       .slice(0, 10);
     
-    setDebtByAsxCode({
+    setBankBalanceByAsxCode({
       labels: topCompanies.map(company => company.asx),
       datasets: [{
         label: "Bank Balance",
@@ -283,7 +283,7 @@ const allFilterOptions = [
       if(value != "Default"){handleAddFilter({label: 'ASX', value})};
     },
     options: [
-      { label: '', value: '' }, ...getUniqueValues('asxCode')
+      { label: '', value: '' }, ...getUniqueValues('asx_code')
     ]
   },
   {
@@ -313,7 +313,7 @@ const allFilterOptions = [
       if(value != "Default"){handleAddFilter({label: 'Market Cap', value})};
     },
     options: [
-      { label: '', value: '' }, ...getUniqueValues('marketCap')
+      { label: '', value: '' }, ...getUniqueValues('market_cap')
     ]
   },
   {
@@ -344,7 +344,7 @@ const allFilterOptions = [
       if(value != "Default"){handleAddFilter({label: 'Bank Balance', value})};
     },
     options: [
-      { label: '', value: '' }, ...getUniqueValues('bankBalance')
+      { label: '', value: '' }, ...getUniqueValues('bank_balance')
     ]
   },
   {
@@ -359,7 +359,7 @@ const allFilterOptions = [
       if(value != "Default"){handleAddFilter({label: 'Enterprise Value', value})};
     },
     options: [
-      { label: '', value: '' }, , ...getUniqueValues('enterpriseValue')
+      { label: '', value: '' }, , ...getUniqueValues('enterprise_value')
     ]
   },
   {
@@ -374,7 +374,7 @@ const allFilterOptions = [
       if(value != "Default"){handleAddFilter({label: 'EV Resource Per Ounce Ton', value})};
     },
     options: [
-      { label: '', value: '' }, , ...getUniqueValues('evResource')
+      { label: '', value: '' }, , ...getUniqueValues('ev_resource_per_ounce_ton')
     ]
   }
 ];
@@ -454,7 +454,7 @@ const generateFilterTags = () => {
     <div className="standard-padding">
       {error && <div className="error-message">{error}</div>}
       {loading ? (
-        <div className="loading-indicator">Loading financial data...</div>
+        <div className="loading-indicator">Loading market data...</div>
       ) : (
         <GraphPage
           title="Market Data Dashboard"
