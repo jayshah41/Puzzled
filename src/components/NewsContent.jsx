@@ -11,11 +11,13 @@ const NewsContent = () => {
   
   const [isEditing, setIsEditing] = useState(false);
   const [cardToDelete, setCardToDelete] = useState(null);
+  const [paragraphToDelete, setParagraphToDelete] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [newsCards, setNewsCards] = useState([]);
   const [originalNewsCards, setOriginalNewsCards] = useState([]);
   const [cardOrderChanged, setCardOrderChanged] = useState(false);
   const [error, setError] = useState(null);
+  const [validationErrors, setValidationErrors] = useState({});
   
   const newsCardsRef = useRef(newsCards);
   
@@ -91,7 +93,64 @@ const NewsContent = () => {
       });
   }, []);
 
+  const validateNewsCards = () => {
+    const errors = {};
+    let isValid = true;
+    
+    newsCards.forEach((card, cardIndex) => {
+      // Check card fields
+      if (!card.category || card.category.trim() === '') {
+        errors[`card-${cardIndex}-category`] = 'Category cannot be empty';
+        isValid = false;
+      }
+      
+      if (!card.date || card.date.trim() === '') {
+        errors[`card-${cardIndex}-date`] = 'Date cannot be empty';
+        isValid = false;
+      }
+      
+      if (!card.title || card.title.trim() === '') {
+        errors[`card-${cardIndex}-title`] = 'Title cannot be empty';
+        isValid = false;
+      }
+      
+      if (!card.link || card.link.trim() === '') {
+        errors[`card-${cardIndex}-link`] = 'Link cannot be empty';
+        isValid = false;
+      }
+      
+      // Check paragraphs
+      if (Array.isArray(card.paragraphs)) {
+        card.paragraphs.forEach((paragraph, paragraphIndex) => {
+          if (!paragraph || paragraph.trim() === '') {
+            errors[`card-${cardIndex}-paragraph-${paragraphIndex}`] = 'Paragraph cannot be empty';
+            isValid = false;
+          }
+        });
+      } else {
+        errors[`card-${cardIndex}-paragraphs`] = 'Paragraphs are missing';
+        isValid = false;
+      }
+    });
+    
+    setValidationErrors(errors);
+    return isValid;
+  };
+
   const handleSave = async () => {
+    if (!validateNewsCards()) {
+      // Scroll to the first error
+      const firstErrorKey = Object.keys(validationErrors)[0];
+      if (firstErrorKey) {
+        const elementId = firstErrorKey;
+        const element = document.getElementById(elementId);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }
+      return;
+    }
+    
     try {
       const currentNewsCards = [...newsCardsRef.current];
       
@@ -158,6 +217,7 @@ const NewsContent = () => {
       });
       
       setIsEditing(false);
+      setValidationErrors({});
       
       setOriginalNewsCards(JSON.parse(JSON.stringify(processedData)));
       setNewsCards(processedData);
@@ -173,6 +233,13 @@ const NewsContent = () => {
     const updatedCards = [...newsCards];
     updatedCards[cardIndex][field] = value;
     setNewsCards(updatedCards);
+    
+    // Clear validation error for this field if it exists
+    if (validationErrors[`card-${cardIndex}-${field}`]) {
+      const updatedErrors = {...validationErrors};
+      delete updatedErrors[`card-${cardIndex}-${field}`];
+      setValidationErrors(updatedErrors);
+    }
   };
 
   const updateParagraph = (cardIndex, paragraphIndex, text) => {
@@ -182,6 +249,13 @@ const NewsContent = () => {
     }
     updatedCards[cardIndex].paragraphs[paragraphIndex] = text;
     setNewsCards(updatedCards);
+    
+    // Clear validation error for this paragraph if it exists
+    if (validationErrors[`card-${cardIndex}-paragraph-${paragraphIndex}`]) {
+      const updatedErrors = {...validationErrors};
+      delete updatedErrors[`card-${cardIndex}-paragraph-${paragraphIndex}`];
+      setValidationErrors(updatedErrors);
+    }
   };
 
   const addNewCard = () => {
@@ -204,6 +278,16 @@ const NewsContent = () => {
   const deleteCard = () => {
     if (cardToDelete !== null) {
       const updatedCards = newsCards.filter((_, index) => index !== cardToDelete);
+      
+      // Remove validation errors for the deleted card
+      const updatedErrors = {...validationErrors};
+      Object.keys(updatedErrors).forEach(key => {
+        if (key.startsWith(`card-${cardToDelete}-`)) {
+          delete updatedErrors[key];
+        }
+      });
+      setValidationErrors(updatedErrors);
+      
       setNewsCards(updatedCards);
       setCardToDelete(null);
       setCardOrderChanged(true);
@@ -212,6 +296,33 @@ const NewsContent = () => {
 
   const cancelDeleteCard = () => {
     setCardToDelete(null);
+  };
+
+  const confirmDeleteParagraph = (cardIndex, paragraphIndex) => {
+    setParagraphToDelete({ cardIndex, paragraphIndex });
+  };
+
+  const deleteParagraph = () => {
+    if (paragraphToDelete !== null) {
+      const { cardIndex, paragraphIndex } = paragraphToDelete;
+      const updatedCards = [...newsCards];
+      updatedCards[cardIndex].paragraphs.splice(paragraphIndex, 1);
+      if (updatedCards[cardIndex].paragraphs.length === 0) {
+        updatedCards[cardIndex].paragraphs = [""];
+      }
+      
+      // Remove validation error for the deleted paragraph
+      const updatedErrors = {...validationErrors};
+      delete updatedErrors[`card-${cardIndex}-paragraph-${paragraphIndex}`];
+      setValidationErrors(updatedErrors);
+      
+      setNewsCards(updatedCards);
+      setParagraphToDelete(null);
+    }
+  };
+
+  const cancelDeleteParagraph = () => {
+    setParagraphToDelete(null);
   };
 
   const moveCardUp = (cardIndex) => {
@@ -243,15 +354,6 @@ const NewsContent = () => {
     setNewsCards(updatedCards);
   };
 
-  const deleteParagraph = (cardIndex, paragraphIndex) => {
-    const updatedCards = [...newsCards];
-    updatedCards[cardIndex].paragraphs.splice(paragraphIndex, 1);
-    if (updatedCards[cardIndex].paragraphs.length === 0) {
-      updatedCards[cardIndex].paragraphs = [""];
-    }
-    setNewsCards(updatedCards);
-  };
-
   const moveParagraphUp = (cardIndex, paragraphIndex) => {
     if (paragraphIndex === 0) return;
     const updatedCards = [...newsCards];
@@ -270,14 +372,14 @@ const NewsContent = () => {
     setNewsCards(updatedCards);
   };
 
-  const DeleteConfirmationDialog = ({ isOpen, onConfirm, onCancel, cardTitle }) => {
+  const DeleteConfirmationDialog = ({ isOpen, onConfirm, onCancel, itemTitle, itemType }) => {
     if (!isOpen) return null;
     
     return (
       <div className="modal-overlay">
         <div className="modal-content">
           <h3 className="modal-title">Confirm Deletion</h3>
-          <p>Are you sure you want to delete the card "{cardTitle}"?</p>
+          <p>Are you sure you want to delete this {itemType} {itemTitle ? `"${itemTitle}"` : ''}?</p>
           <p className="modal-warning">This action cannot be undone.</p>
           <div className="modal-actions">
             <button 
@@ -294,6 +396,16 @@ const NewsContent = () => {
             </button>
           </div>
         </div>
+      </div>
+    );
+  };
+
+  const ValidationMessage = ({ error }) => {
+    if (!error) return null;
+    
+    return (
+      <div className="validation-error">
+        {error}
       </div>
     );
   };
@@ -315,19 +427,40 @@ const NewsContent = () => {
               handleSave();
             } else {
               setIsEditing(true);
+              setValidationErrors({});
             }
           }}
           className="admin-button"
         >
-          {isEditing ? 'Save & Stop Editing' : 'Edit News Content'}
+          {isEditing ? 'Save & Stop Editing' : 'Edit'}
         </button>
+      )}
+
+      {Object.keys(validationErrors).length > 0 && isEditing && (
+        <div className="validation-summary">
+          <h3>Please fix the following errors before saving:</h3>
+          <ul>
+            {Object.values(validationErrors).map((error, index) => (
+              <li key={index}>{error}</li>
+            ))}
+          </ul>
+        </div>
       )}
 
       <DeleteConfirmationDialog 
         isOpen={cardToDelete !== null}
         onConfirm={deleteCard}
         onCancel={cancelDeleteCard}
-        cardTitle={cardToDelete !== null ? newsCards[cardToDelete].title : ''}
+        itemTitle={cardToDelete !== null ? newsCards[cardToDelete].title : ''}
+        itemType="card"
+      />
+
+      <DeleteConfirmationDialog 
+        isOpen={paragraphToDelete !== null}
+        onConfirm={deleteParagraph}
+        onCancel={cancelDeleteParagraph}
+        itemTitle=""
+        itemType="paragraph"
       />
 
       {newsCards.length === 0 && !isEditing ? (
@@ -338,18 +471,26 @@ const NewsContent = () => {
             <div className="news-details">
               {isEditing ? (
                 <>
-                  <input
-                    type="text"
-                    value={card.category}
-                    onChange={(e) => updateCardField(cardIndex, 'category', e.target.value)}
-                    className="auth-input edit-input"
-                  />
-                  <input
-                    type="text"
-                    value={card.date}
-                    onChange={(e) => updateCardField(cardIndex, 'date', e.target.value)}
-                    className="auth-input edit-input"
-                  />
+                  <div className="input-container">
+                    <input
+                      id={`card-${cardIndex}-category`}
+                      type="text"
+                      value={card.category}
+                      onChange={(e) => updateCardField(cardIndex, 'category', e.target.value)}
+                      className={`auth-input edit-input ${validationErrors[`card-${cardIndex}-category`] ? 'input-error' : ''}`}
+                    />
+                    <ValidationMessage error={validationErrors[`card-${cardIndex}-category`]} />
+                  </div>
+                  <div className="input-container">
+                    <input
+                      id={`card-${cardIndex}-date`}
+                      type="text"
+                      value={card.date}
+                      onChange={(e) => updateCardField(cardIndex, 'date', e.target.value)}
+                      className={`auth-input edit-input ${validationErrors[`card-${cardIndex}-date`] ? 'input-error' : ''}`}
+                    />
+                    <ValidationMessage error={validationErrors[`card-${cardIndex}-date`]} />
+                  </div>
                 </>
               ) : (
                 <>
@@ -360,12 +501,16 @@ const NewsContent = () => {
             </div>
             
             {isEditing ? (
-              <input
-                type="text"
-                value={card.title}
-                onChange={(e) => updateCardField(cardIndex, 'title', e.target.value)}
-                className="auth-input edit-title-input"
-              />
+              <div className="input-container">
+                <input
+                  id={`card-${cardIndex}-title`}
+                  type="text"
+                  value={card.title}
+                  onChange={(e) => updateCardField(cardIndex, 'title', e.target.value)}
+                  className={`auth-input edit-title-input ${validationErrors[`card-${cardIndex}-title`] ? 'input-error' : ''}`}
+                />
+                <ValidationMessage error={validationErrors[`card-${cardIndex}-title`]} />
+              </div>
             ) : (
               <h2 className="news-title">{card.title}</h2>
             )}
@@ -375,12 +520,16 @@ const NewsContent = () => {
                 <div className="paragraph-editor">
                   {card.paragraphs && card.paragraphs.map((paragraph, paragraphIndex) => (
                     <div key={paragraphIndex} className="paragraph-edit-container">
-                      <textarea
-                        value={paragraph}
-                        onChange={(e) => updateParagraph(cardIndex, paragraphIndex, e.target.value)}
-                        className="auth-input paragraph-textarea"
-                        placeholder="Enter paragraph text"
-                      />
+                      <div className="input-container">
+                        <textarea
+                          id={`card-${cardIndex}-paragraph-${paragraphIndex}`}
+                          value={paragraph}
+                          onChange={(e) => updateParagraph(cardIndex, paragraphIndex, e.target.value)}
+                          className={`auth-input paragraph-textarea ${validationErrors[`card-${cardIndex}-paragraph-${paragraphIndex}`] ? 'input-error' : ''}`}
+                          placeholder="Enter paragraph text"
+                        />
+                        <ValidationMessage error={validationErrors[`card-${cardIndex}-paragraph-${paragraphIndex}`]} />
+                      </div>
                       <div className="paragraph-controls">
                         <div>
                           <button
@@ -399,7 +548,7 @@ const NewsContent = () => {
                           </button>
                         </div>
                         <button
-                          onClick={() => deleteParagraph(cardIndex, paragraphIndex)}
+                          onClick={() => confirmDeleteParagraph(cardIndex, paragraphIndex)}
                           disabled={card.paragraphs.length === 1}
                           className={`paragraph-delete-button ${card.paragraphs.length === 1 ? 'paragraph-delete-button-disabled' : ''}`}
                         >
@@ -424,13 +573,17 @@ const NewsContent = () => {
             
             <div className="news-actions">
               {isEditing ? (
-                <input
-                  type="text"
-                  value={card.link}
-                  onChange={(e) => updateCardField(cardIndex, 'link', e.target.value)}
-                  className="auth-input edit-link-input"
-                  placeholder="Article URL"
-                />
+                <div className="input-container">
+                  <input
+                    id={`card-${cardIndex}-link`}
+                    type="text"
+                    value={card.link}
+                    onChange={(e) => updateCardField(cardIndex, 'link', e.target.value)}
+                    className={`auth-input edit-link-input ${validationErrors[`card-${cardIndex}-link`] ? 'input-error' : ''}`}
+                    placeholder="Article URL"
+                  />
+                  <ValidationMessage error={validationErrors[`card-${cardIndex}-link`]} />
+                </div>
               ) : (
                 <a 
                   href={card.link} 
