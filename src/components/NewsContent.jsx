@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import '../styles/GeneralStyles.css';
 import '../styles/NewsContent.css';
 
-const API_BASE_URL = 'http://localhost:8000/api/news-cards/'; //Potentially change after deployment.
+const API_BASE_URL = 'http://localhost:8000/api/news-cards/'; //Change after deployment.
 
 const NewsContent = () => {
   const isAdminUser = localStorage.getItem("user_tier_level") == 2;
