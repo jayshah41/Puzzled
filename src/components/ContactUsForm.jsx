@@ -107,7 +107,6 @@ const ContactUsForm = () => {
       <h1 className="contact-form-header">Contact us form</h1>
       <p className="contact-form-subheader">Help us by letting us know what type of investor you are by answering the following questions.</p>
       
-      {/* Add the large message text box right after the subheader */}
       <div className="form-group message-group">
         <label htmlFor="message">
           {isEditing ? (
