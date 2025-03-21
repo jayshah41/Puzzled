@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
 from django.contrib.auth.hashers import make_password
-from app.models import User
+from users.models import User
 from faker import Faker
 import random
 

@@ -10,16 +10,13 @@ from django.contrib.auth.hashers import check_password
 
 User = get_user_model()
 
-# User Registration View
 class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = [AllowAny]
 
     def create(self, request, *args, **kwargs):
-        data = request.data  # Get the data from the request.
-        
-        # Manually handle user creation (you could rely on the serializer, but let's handle it step-by-step)
+        data = request.data 
         email = data.get('email')
         username = data.get('username')
         password = data.get('password')
@@ -27,19 +24,19 @@ class RegisterView(generics.CreateAPIView):
         last_name = data.get('last_name', '')
         phone_number = data.get('phone_number', '')
         
-        # Check if necessary fields are provided
+        
         if not email or not username or not password:
             return Response({"error": "Email, username, and password are required fields."}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Check if the email already exists
+       
         if User.objects.filter(email=email).exists():
             return Response({"error": "Email is already taken."}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Check if the username already exists
+       
         if User.objects.filter(username=username).exists():
             return Response({"error": "Username is already taken."}, status=status.HTTP_400_BAD_REQUEST)
         
-        # Create the user using the validated data
+      
         user = User.objects.create_user(
             email=email,
             username=username,
@@ -49,11 +46,9 @@ class RegisterView(generics.CreateAPIView):
             phone_number=phone_number,
         )
         
-        # Now return the response with the user's data
-        serializer = UserSerializer(user)  # Serialize the user
+        serializer = UserSerializer(user) 
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-# User Login View (JWT)
 class LoginView(generics.GenericAPIView):
     permission_classes = [AllowAny]
 
@@ -95,7 +90,6 @@ class UpdateProfileView(generics.UpdateAPIView):
         user = self.get_object()
         data = request.data
         
-        # Handle password change
         if 'old_password' in data and 'new_password' in data:
             if not check_password(data['old_password'], user.password):
                 return Response({"error": "Invalid old password"}, status=status.HTTP_400_BAD_REQUEST)
@@ -103,7 +97,6 @@ class UpdateProfileView(generics.UpdateAPIView):
             user.save()
             return Response({"message": "Password updated successfully"}, status=status.HTTP_200_OK)
             
-        # Handle other profile updates
         serializer = self.get_serializer(user, data=data, partial=True)
         if serializer.is_valid():
             serializer.save()

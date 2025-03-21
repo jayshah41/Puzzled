@@ -29,7 +29,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
-AUTH_USER_MODEL = 'app.User'
+AUTH_USER_MODEL = 'users.User'
 
 
 # Application definition
@@ -42,8 +42,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework_simplejwt',
-
-    'app',
+    'users',
     'api',
     'rest_framework',
     'corsheaders'
@@ -57,7 +56,6 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-
     'corsheaders.middleware.CorsMiddleware'
 ]
 
@@ -126,6 +124,10 @@ AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
+]
+
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
 ]
 
 

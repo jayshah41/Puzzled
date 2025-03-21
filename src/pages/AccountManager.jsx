@@ -131,7 +131,7 @@ const AccountManager = () => {
       return;
     }
     
-    setStatusMessage({ type: '', text: '' }); // Clear previous messages
+    setStatusMessage({ type: '', text: '' }); 
     
     try {
       const response = await debugFetch(endpoint, {
@@ -146,7 +146,6 @@ const AccountManager = () => {
       if (response.ok) {
         setStatusMessage({ type: 'success', text: successMessage });
         
-        // Clear password fields after successful update
         if (body.old_password) {
           setOldPassword('');
           setNewPassword('');
@@ -176,7 +175,7 @@ const AccountManager = () => {
       return;
     }
     
-    // Confirm deletion
+    
     if (!window.confirm('Are you sure you want to delete your account? This action cannot be undone.')) {
       return;
     }
@@ -227,7 +226,7 @@ const AccountManager = () => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      style={{ alignItems: 'flex-start', paddingTop: '100px' }} // Add this line
+      style={{ alignItems: 'flex-start', paddingTop: '100px' }} 
 
     >
       <motion.div
@@ -235,7 +234,7 @@ const AccountManager = () => {
         initial={{ scale: 0.8 }}
         animate={{ scale: 1 }}
         exit={{ scale: 0.8 }}
-        style={{ maxHeight: '80vh', overflowY: 'auto' }} // Add these styles
+        style={{ maxHeight: '80vh', overflowY: 'auto' }} 
       >
         <h1>Account Manager</h1>
         {error && <p className="error-message">{error}</p>}
