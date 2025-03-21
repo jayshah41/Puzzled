@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import '../styles/ValueComponent.css';
 import ValueComponent from './ValueComponent';
+import useSaveContent from '../hooks/useSaveContent';
+import '../styles/ValueComponent.css';
 
 const Values = () => {
   const isAdminUser = localStorage.getItem("user_tier_level") == 2;
-  
+  const saveContent = useSaveContent();
+
   const [isEditing, setIsEditing] = useState(false);
   const [heading, setHeading] = useState("MakCorp's Value to Clients");
   const [contentMap, setContentMap] = useState([]);
@@ -39,25 +41,15 @@ const Values = () => {
       });
   }, []);
 
-  const saveContent = () => {
-    fetch('/api/editable-content/update/', {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        component: 'Values',
-        section: 'heading',
-        text_value: heading
-      }),
-    })
-      .then(response => response.json())
-      .then(data => {
-        // console.log('Heading saved successfully:', data);
-      })
-      .catch(error => {
-        console.error('There was an error saving the heading', error);
-      });
+  const handleSave = () => {
+    const contentData = [
+      { component: 'Values', section: 'heading', text_value: heading },
+      ...contentMap.flatMap((content, index) => [
+        { component: 'Values', section: `title${index + 1}`, text_value: content.title },
+        { component: 'Values', section: `content${index + 1}`, text_value: content.content }
+      ])
+    ];
+    saveContent(contentData);
   };
 
   return (
@@ -65,12 +57,13 @@ const Values = () => {
       {isAdminUser ?
         <button onClick={() => {
           if (isEditing) {
-            saveContent();
+            handleSave();
           }
           setIsEditing(!isEditing);
         }}
         style={{ marginBottom: '1rem' }}>
-          {isEditing ? 'Stop Editing' : 'Edit'}</button>
+          {isEditing ? 'Stop Editing' : 'Edit'}
+        </button>
       : null}
       <div className="values-header">
         {isEditing ? (
@@ -87,7 +80,14 @@ const Values = () => {
       
       <div className="values-list">
         {contentMap.map((content, index) => (
-          <ValueComponent key={index} index={index + 1} title={content.title} content={content.content} isEditing={isEditing} setContentMap={setContentMap} />
+          <ValueComponent
+            key={index}
+            index={index + 1}
+            title={content.title}
+            content={content.content}
+            isEditing={isEditing}
+            setContentMap={setContentMap}
+          />
         ))}
       </div>
     </div>

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import useSaveContent from '../hooks/useSaveContent';
 import hero from '../assets/hero-picture.png';
 import '../styles/GeneralStyles.css';
 
@@ -6,6 +7,7 @@ const Hero = () => {
   const isAdminUser = localStorage.getItem("user_tier_level") == 2;
   const token = localStorage.getItem("accessToken");
   const isLoggedIn = !!token;
+  const saveContent = useSaveContent();
 
   const [isEditing, setIsEditing] = useState(false);
 
@@ -36,29 +38,14 @@ const Hero = () => {
       });
   }, []);
 
-  const saveContent = () => {
-    const content = [
+  const handleSave = () => {
+    const contentData = [
       { component: 'Hero', section: 'title', text_value: title },
       { component: 'Hero', section: 'intro', text_value: intro },
       { component: 'Hero', section: 'bulletPoints', text_value: bulletPoints.join('#') },
     ];
 
-    content.forEach(item => {
-      fetch('/api/editable-content/update/', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(item),
-      })
-        .then(response => response.json())
-        .then(data => {
-          console.log('Content saved successfully:', data);
-        })
-        .catch(error => {
-          console.error('There was an error saving the content', error);
-        });
-    });
+    saveContent(contentData);
   };
 
   const addBulletPoint = () => {
@@ -73,16 +60,18 @@ const Hero = () => {
   return (
     <div className="two-card-container standard-padding">
       <div>
-        {isAdminUser ?
-          <button onClick={() => {
-          if (isEditing) {
-            saveContent();
-          }
-          setIsEditing(!isEditing);
-        }}
-        style={{ marginBottom: '1rem' }}>
-          {isEditing ? 'Stop Editing' : 'Edit'}</button>
-        : null}
+        {isAdminUser ? (
+          <button
+            onClick={() => {
+              if (isEditing) {
+                handleSave();
+              }
+              setIsEditing(!isEditing);
+            }}
+            style={{ marginBottom: '1rem' }}>
+            {isEditing ? 'Stop Editing' : 'Edit'}
+          </button>
+        ) : null}
         {isEditing ? (
           <input
             type="text"
@@ -93,18 +82,18 @@ const Hero = () => {
         ) : (
           <h1>{title}</h1>
         )}
-            {isEditing ? (
-        <input
-          type="text"
-          value={intro}
-          onChange={(e) => setIntro(e.target.value)}
-          className="auth-input"
-        />
-      ) : (
-        <p>{intro}</p>
-      )}
+        {isEditing ? (
+          <input
+            type="text"
+            value={intro}
+            onChange={(e) => setIntro(e.target.value)}
+            className="auth-input"
+          />
+        ) : (
+          <p>{intro}</p>
+        )}
         <ul>
-        {bulletPoints.map((bullet, index) => (
+          {bulletPoints.map((bullet, index) => (
             <li key={index}>
               {isEditing ? (
                 <div style={{ display: 'flex', alignItems: 'center' }}>
@@ -130,17 +119,17 @@ const Hero = () => {
               )}
             </li>
           ))}
-        {isEditing && (
-          <button onClick={addBulletPoint} style={{ marginBottom: '10px' }}>
-            + Add Bullet
-          </button>
-        )}
+          {isEditing && (
+            <button onClick={addBulletPoint} style={{ marginBottom: '10px' }}>
+              + Add Bullet
+            </button>
+          )}
         </ul>
-        {!isLoggedIn ? 
-        <button className="defulatButton">Start now</button>
-        : null}
+        {!isLoggedIn ? (
+          <button className="defulatButton">Start now</button>
+        ) : null}
       </div>
-      <img src={hero} style={{ width: '45vw', paddingLeft: "35px" }}></img>
+      <img src={hero} style={{ width: '45vw', paddingLeft: "35px" }} alt="Hero" />
     </div>
   );
 };
