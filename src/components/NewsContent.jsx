@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import '../styles/GeneralStyles.css';
 import '../styles/NewsContent.css';
+import ErrorMessage from './ErrorMessage';
 
 const API_BASE_URL = 'http://localhost:8000/api/news-cards/'; //Change after deployment.
 
@@ -446,11 +447,7 @@ const NewsContent = () => {
         </button>
       )}
 
-      {Object.keys(validationErrors).length > 0 && isEditing && (
-        <div className="validation-summary">
-          <h3>Please fix the errors below before saving.</h3>
-        </div>
-      )}
+      {isEditing && <ErrorMessage validationErrors={validationErrors} />}
 
       <DeleteConfirmationDialog 
         isOpen={cardToDelete !== null}
