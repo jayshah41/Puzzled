@@ -52,14 +52,30 @@ const Values = () => {
     saveContent(contentData);
   };
 
+  const contentIsValid = () => {
+    if (!heading.trim()) return false;
+    for (const content of contentMap) {
+      if (!content.title.trim() || !content.content.trim()) {
+        return false;
+      }
+    }
+    return true;
+  };
+
   return (
     <div className="values-container">
       {isAdminUser ?
         <button onClick={() => {
           if (isEditing) {
-            handleSave();
+            if (contentIsValid()) {
+              handleSave();
+              setIsEditing(!isEditing);
+            } else {
+              alert("Empty values are invalid")
+            }
+          } else {
+            setIsEditing(!isEditing);
           }
-          setIsEditing(!isEditing);
         }}
         style={{ marginBottom: '1rem' }}>
           {isEditing ? 'Stop Editing' : 'Edit'}

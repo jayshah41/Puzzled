@@ -39,15 +39,25 @@ const Services = () => {
     saveContent(contentData);
   };
 
+  const contentIsValid = () => {
+    return heading.trim() && paragraphOne.trim() && paragraphTwo.trim();
+  };
+
   return (
   <div className="standard-padding">
     {isAdminUser ?
       <button
       onClick={() => {
         if (isEditing) {
-          handleSave();
+          if (contentIsValid()) {
+            handleSave();
+            setIsEditing(!isEditing);
+          } else {
+            alert("Empty values are invalid")
+          }
+        } else {
+          setIsEditing(!isEditing);
         }
-        setIsEditing(!isEditing);
       }}
       style={{ marginBottom: '1rem' }}
     >

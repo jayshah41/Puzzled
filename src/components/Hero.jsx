@@ -57,6 +57,11 @@ const Hero = () => {
     setBulletPoints(updated);
   };
 
+  const contentIsValid = () => {
+    console.log(bulletPoints);
+    return !!title && !!intro && !(bulletPoints.length === 0 || bulletPoints.every(point => point === ""));
+  };
+
   return (
     <div className="two-card-container standard-padding">
       <div>
@@ -64,9 +69,15 @@ const Hero = () => {
           <button
             onClick={() => {
               if (isEditing) {
-                handleSave();
+                if (contentIsValid()) {
+                  handleSave();
+                  setIsEditing(!isEditing);
+                } else {
+                  alert("Empty values are invalid")
+                }
+              } else {
+                setIsEditing(!isEditing);
               }
-              setIsEditing(!isEditing);
             }}
             style={{ marginBottom: '1rem' }}>
             {isEditing ? 'Stop Editing' : 'Edit'}
