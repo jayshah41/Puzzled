@@ -123,3 +123,8 @@
   border-color: #0078d4;
   box-shadow: 0 0 0 2px rgba(0, 120, 212, 0.2);
 }
+
+.editable-field {
+  border: 2px dashed #81b7f1 !important;
+  background-color: #f0f8ff !important;
+}

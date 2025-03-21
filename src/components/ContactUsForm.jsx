@@ -46,6 +46,10 @@ const ContactUsForm = () => {
     "Uranium", "Vanadium", "Zinc"
   ];
 
+  const commodityOptionElements = commodityOptions.map((option, index) => (
+    <option key={index} value={option}>{option}</option>
+  ));
+
   const investmentCriteriaOptions = [
     "People (Board & Senior Management SH, Remuneration, Exp, Qual)",
     "Project Potention (Project state, grades, location etc)",
@@ -54,6 +58,10 @@ const ContactUsForm = () => {
     "Share price performance (Short & long term potential, passion, lifestyle etc)",
     "Other (Please provide detail)"
   ];
+
+  const investmentCriteriaElements = investmentCriteriaOptions.map((option, index) => (
+    <option key={index} value={option}>{option}</option>
+  ));
 
   useEffect(() => {
     fetch('/api/editable-content/?component=ContactUs')
@@ -170,7 +178,7 @@ const ContactUsForm = () => {
                   name="firstName"
                   value={labels.firstName}
                   onChange={handleLabelChange}
-                  className="auth-input"
+                  className="auth-input editable-field"
                 />
               ) : (
                 labels.firstName
@@ -182,6 +190,7 @@ const ContactUsForm = () => {
               name="firstName"
               value={formData.firstName}
               onChange={handleChange}
+              disabled={isEditing}
               required
             />
           </div>
@@ -194,7 +203,7 @@ const ContactUsForm = () => {
                   name="lastName"
                   value={labels.lastName}
                   onChange={handleLabelChange}
-                  className="auth-input"
+                  className="auth-input editable-field"
                 />
               ) : (
                 labels.lastName
@@ -206,6 +215,7 @@ const ContactUsForm = () => {
               name="lastName"
               value={formData.lastName}
               onChange={handleChange}
+              disabled={isEditing}
               required
             />
           </div>
@@ -218,7 +228,7 @@ const ContactUsForm = () => {
                   name="phoneNumber"
                   value={labels.phoneNumber}
                   onChange={handleLabelChange}
-                  className="auth-input"
+                  className="auth-input editable-field"
                 />
               ) : (
                 labels.phoneNumber
@@ -230,6 +240,8 @@ const ContactUsForm = () => {
               name="phoneNumber"
               value={formData.phoneNumber}
               onChange={handleChange}
+              disabled={isEditing}
+              required
             />
           </div>
 
@@ -241,7 +253,7 @@ const ContactUsForm = () => {
                   name="email"
                   value={labels.email}
                   onChange={handleLabelChange}
-                  className="auth-input"
+                  className="auth-input editable-field"
                 />
               ) : (
                 labels.email
@@ -253,6 +265,7 @@ const ContactUsForm = () => {
               name="email"
               value={formData.email}
               onChange={handleChange}
+              disabled={isEditing}
               required
             />
           </div>
@@ -265,7 +278,7 @@ const ContactUsForm = () => {
                   name="state"
                   value={labels.state}
                   onChange={handleLabelChange}
-                  className="auth-input"
+                  className="auth-input editable-field"
                 />
               ) : (
                 labels.state
@@ -277,6 +290,7 @@ const ContactUsForm = () => {
               name="state"
               value={formData.state}
               onChange={handleChange}
+              disabled={isEditing}
             />
           </div>
 
@@ -288,7 +302,7 @@ const ContactUsForm = () => {
                   name="country"
                   value={labels.country}
                   onChange={handleLabelChange}
-                  className="auth-input"
+                  className="auth-input editable-field"
                 />
               ) : (
                 labels.country
@@ -300,6 +314,7 @@ const ContactUsForm = () => {
               name="country"
               value={formData.country}
               onChange={handleChange}
+              disabled={isEditing}
             />
           </div>
         </div>
@@ -313,7 +328,7 @@ const ContactUsForm = () => {
                   name="referredBy"
                   value={labels.referredBy}
                   onChange={handleLabelChange}
-                  className="auth-input"
+                  className="auth-input editable-field"
                 />
               ) : (
                 labels.referredBy
@@ -325,6 +340,7 @@ const ContactUsForm = () => {
               name="referredBy"
               value={formData.referredBy}
               onChange={handleChange}
+              disabled={isEditing}
             />
           </div>
 
@@ -336,7 +352,7 @@ const ContactUsForm = () => {
                   name="commodityType1"
                   value={labels.commodityType1}
                   onChange={handleLabelChange}
-                  className="auth-input"
+                  className="auth-input editable-field"
                 />
               ) : (
                 labels.commodityType1
@@ -347,11 +363,10 @@ const ContactUsForm = () => {
               name="commodityType1"
               value={formData.commodityType1}
               onChange={handleChange}
+              disabled={isEditing}
             >
               <option value="">Select a commodity</option>
-              {commodityOptions.map((option, index) => (
-                <option key={index} value={option}>{option}</option>
-              ))}
+              {commodityOptionElements}
             </select>
           </div>
 
@@ -363,7 +378,7 @@ const ContactUsForm = () => {
                   name="commodityType2"
                   value={labels.commodityType2}
                   onChange={handleLabelChange}
-                  className="auth-input"
+                  className="auth-input editable-field"
                 />
               ) : (
                 labels.commodityType2
@@ -374,11 +389,10 @@ const ContactUsForm = () => {
               name="commodityType2"
               value={formData.commodityType2}
               onChange={handleChange}
+              disabled={isEditing}
             >
               <option value="">Select a commodity</option>
-              {commodityOptions.map((option, index) => (
-                <option key={index} value={option}>{option}</option>
-              ))}
+              {commodityOptionElements}
             </select>
           </div>
 
@@ -390,7 +404,7 @@ const ContactUsForm = () => {
                   name="commodityType3"
                   value={labels.commodityType3}
                   onChange={handleLabelChange}
-                  className="auth-input"
+                  className="auth-input editable-field"
                 />
               ) : (
                 labels.commodityType3
@@ -401,11 +415,10 @@ const ContactUsForm = () => {
               name="commodityType3"
               value={formData.commodityType3}
               onChange={handleChange}
+              disabled={isEditing}
             >
               <option value="">Select a commodity</option>
-              {commodityOptions.map((option, index) => (
-                <option key={index} value={option}>{option}</option>
-              ))}
+              {commodityOptionElements}
             </select>
           </div>
 
@@ -417,7 +430,7 @@ const ContactUsForm = () => {
                   name="investmentCriteria"
                   value={labels.investmentCriteria}
                   onChange={handleLabelChange}
-                  className="auth-input"
+                  className="auth-input editable-field"
                 />
               ) : (
                 labels.investmentCriteria
@@ -428,11 +441,10 @@ const ContactUsForm = () => {
               name="investmentCriteria"
               value={formData.investmentCriteria}
               onChange={handleChange}
+              disabled={isEditing}
             >
               <option value="">Select investment criteria</option>
-              {investmentCriteriaOptions.map((option, index) => (
-                <option key={index} value={option}>{option}</option>
-              ))}
+              {investmentCriteriaElements}
             </select>
           </div>
 
