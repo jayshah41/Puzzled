@@ -50,3 +50,29 @@
 .text-center {
     text-align: center;
   }
+
+  .social-feed-hero {
+    max-width: 850px;
+    margin: 3rem auto;
+    padding: 3rem;
+    text-align: center;
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.social-feed-hero h1 {
+    font-size: 2.4rem;
+    font-weight: bold;
+    color: #222;
+    margin-bottom: 1rem;
+}
+
+.social-feed-hero p {
+    font-size: 1.2rem;
+    color: #555;
+    line-height: 1.6;
+    max-width: 750px;
+    margin: 0 auto;
+}
+    

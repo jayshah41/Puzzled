@@ -12,7 +12,7 @@ const TwitterFeed = ({ username }) => {
             if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
 
             const data = await response.json();
-            if (!data.rss) throw new Error("Invalid response format: missing 'rss' field");
+            if (!data.rss) throw new Error("rss data not found");
 
             const parser = new DOMParser();
             const xmlDoc = parser.parseFromString(data.rss, "text/xml");
@@ -24,7 +24,7 @@ const TwitterFeed = ({ username }) => {
             oneMonth.setDate(oneMonth.getDate() - 30);
 
             const extractedTweets = [];
-            for (let i = 0; i < items.length; i++) {
+            for (let i = 0; i < 5; i++) {
                 const descriptionTag = items[i].getElementsByTagName("description")[0];
                 const pubDateTag = items[i].getElementsByTagName("pubDate")[0];
 
@@ -54,7 +54,7 @@ const TwitterFeed = ({ username }) => {
 
     return (
         <div className="twitter-feed">
-            <h2>{username}'s Recent Tweets (Past 7 Days)</h2>
+            <h2>{username}'s Recent Tweets</h2>
             {error ? <p className="error-message">{error}</p> : (
                 <div className="twitter-cards">
                     {tweets.length > 0 ? tweets.map((tweet, index) => (
@@ -65,7 +65,7 @@ const TwitterFeed = ({ username }) => {
                                 </a>
                                 <span className="twitter-date">{tweet.date}</span>
                             </div>
-                            <p dangerouslySetInnerHTML={{ __html: tweet.content }} />
+                            <p dangerouslySetInnerHTML={{ __html: tweet.content }} /> {/*security concern*/}
                         </div>
                     )) : <p className="no-tweets">No tweets available from the past month.</p>}
                 </div>
