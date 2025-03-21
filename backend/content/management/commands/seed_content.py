@@ -238,6 +238,11 @@ class Command(BaseCommand):
             },
             {
                 "component": "ContactUs",
+                "section": "message",
+                "text_value": "Message"
+            },
+            {
+                "component": "ContactUs",
                 "section": "firstName",
                 "text_value": "First Name"
             },

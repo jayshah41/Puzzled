@@ -9,6 +9,7 @@ const ContactUsForm = () => {
   const [isEditing, setIsEditing] = useState(false);
 
   const [labels, setLabels] = useState({
+    message: "Message",
     firstName: "First Name",
     lastName: "Last Name",
     phoneNumber: "Phone Number",
@@ -19,11 +20,11 @@ const ContactUsForm = () => {
     commodityType1: "Commodity Type 1",
     commodityType2: "Commodity Type 2",
     commodityType3: "Commodity Type 3",
-    investmentCriteria: "Investment Criteria",
-    message: "Message",
+    investmentCriteria: "Investment Criteria"
   });
 
   const [formData, setFormData] = useState({
+    message: '',
     firstName: '',
     lastName: '',
     phoneNumber: '',
@@ -34,8 +35,7 @@ const ContactUsForm = () => {
     commodityType1: '',
     commodityType2: '',
     commodityType3: '',
-    investmentCriteria: '',
-    message: ''
+    investmentCriteria: ''
   });
 
   const commodityOptions = [
