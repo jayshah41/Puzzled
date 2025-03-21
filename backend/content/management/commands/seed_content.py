@@ -429,72 +429,72 @@ class Command(BaseCommand):
             {
                 "component": "Navbar",
                 "section": "tab0",
-                "text_value": '{"text": "Home", "link": "/", "showing": true}'
+                "text_value": '{"text": "Home", "link": "/", "showing": true, "accessLevel": -1}'
             },
             {
                 "component": "Navbar",
                 "section": "tab1",
-                "text_value": '{"text": "Pricing", "link": "/pricing", "showing": true}'
+                "text_value": '{"text": "Pricing", "link": "/pricing", "showing": true, "accessLevel": -1}'
             },
             {
                 "component": "Navbar",
                 "section": "tab2",
-                "text_value": '{"text": "Products", "link": "/products", "showing": true}'
+                "text_value": '{"text": "Products", "link": "/products", "showing": true, "accessLevel": -1}'
             },
             {
                 "component": "Navbar",
                 "section": "tab3",
-                "text_value": '{"text": "Contact Us", "link": "/contact-us", "showing": true}'
+                "text_value": '{"text": "Contact Us", "link": "/contact-us", "showing": true, "accessLevel": -1}'
             },
             {
                 "component": "Navbar",
                 "section": "tab4",
-                "text_value": '{"text": "News", "link": "/news", "showing": true}'
+                "text_value": '{"text": "News", "link": "/news", "showing": true, "accessLevel": 0}'
             },
             {
                 "component": "Navbar",
                 "section": "tab5",
-                "text_value": '{"text": "Steve", "link": "/social-media", "showing": true}'
+                "text_value": '{"text": "Socials", "link": "/social-media", "showing": true, "accessLevel": 0}'
             },
             {
                 "component": "Navbar",
                 "section": "graph0",
-                "text_value": '{"text": "Company Details", "link": "/graphs/company-details", "showing": true}'
+                "text_value": '{"text": "Company Details", "link": "/graphs/company-details", "showing": true, "accessLevel": 1}'
             },
             {
                 "component": "Navbar",
                 "section": "graph1",
-                "text_value": '{"text": "Market Data", "link": "/graphs/market-data", "showing": true}'
+                "text_value": '{"text": "Market Data", "link": "/graphs/market-data", "showing": true, "accessLevel": 1}'
             },
             {
                 "component": "Navbar",
                 "section": "graph2",
-                "text_value": '{"text": "Market Trends", "link": "/graphs/market-trends", "showing": true}'
+                "text_value": '{"text": "Market Trends", "link": "/graphs/market-trends", "showing": true, "accessLevel": 1}'
             },
             {
                 "component": "Navbar",
                 "section": "graph3",
-                "text_value": '{"text": "Directors", "link": "/graphs/directors", "showing": true}'
+                "text_value": '{"text": "Directors", "link": "/graphs/directors", "showing": true, "accessLevel": 1}'
             },
             {
                 "component": "Navbar",
                 "section": "graph4",
-                "text_value": '{"text": "Shareholders", "link": "/graphs/shareholders", "showing": true}'
+                "text_value": '{"text": "Shareholders", "link": "/graphs/shareholders", "showing": true, "accessLevel": 1}'
             },
             {
                 "component": "Navbar",
                 "section": "graph5",
-                "text_value": '{"text": "Capital Raises", "link": "/graphs/capital-raises", "showing": true}'
+                "text_value": '{"text": "Capital Raises", "link": "/graphs/capital-raises", "showing": true, "accessLevel": 1}'
             },
             {
                 "component": "Navbar",
                 "section": "graph6",
-                "text_value": '{"text": "Projects", "link": "/graphs/projects", "showing": true}'
+                "text_value": '{"text": "Projects", "link": "/graphs/projects", "showing": true, "accessLevel": 1}'
             },
             {
                 "component": "Navbar",
                 "section": "graph7",
-                "text_value": '{"text": "Financials", "link": "/graphs/financials", "showing": true}'
+                "text_value": '{"text": "Financials", "link": "/graphs/financials", "showing": true, "accessLevel": 1}'
             }
         ]
 
