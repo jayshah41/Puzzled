@@ -102,7 +102,7 @@ const Navbar = () => {
     )
   ));
 
-  const areAnyGraphsVisible = graphLinks.some(graph => graph.showing);
+  const areAnyGraphsVisible = hasGraphAccess && graphLinks.some(graph => graph.showing);
 
   useEffect(() => {
     const token = localStorage.getItem('accessToken');
