@@ -4,20 +4,15 @@ import GraphPage from '../../components/GraphPage.jsx';
 import axios from 'axios';
 
 const Directors = () => {
-
-   // states for api data
    const [directors, setDirectors] = useState([]);
    const [loading, setLoading] = useState(false);
    const [error, setError] = useState("");
 
-   // states for current filters (applied)
    const [asxCode, setAsxCode] = useState("");
    const [contact, setContact] = useState("");
-   const [priorityCommodity, setPriorityCommodity] = useState("");
    const [baseRemuneration, setBaseRemuneration] = useState("");
    const [totalRemuneration, setTotalRemuneration] = useState("");
 
-   // metric card states
    const [metricSummaries, setMetricSummaries] = useState({
     asx: 0, 
     avgBaseRemun: 0, 
@@ -29,12 +24,8 @@ const Directors = () => {
     directorsPaidRemun: 0, 
 });
 
-// chart data states - FIXED NAMES
-//top 10 avg total remuneration by priority commodity
-const [topCommodityRemuneration, setTopCommodityRemuneration] = useState({
-    labels: [], 
-    datasets: [{ data:[] }]
-});
+// chart data states
+
 
 //top 20 base & total remuneration by asx code
 const [topASXRemuneration, setTopASXRemuneration] = useState({
@@ -70,7 +61,6 @@ const [topDirectorRemuneration, setTopDirectorRemuneration] = useState({
       const params = {
           asx: asxCode || undefined,
           contact: contact || undefined,
-          priorityCommodity: priorityCommodity || undefined,
           baseRemuneration: baseRemuneration || undefined,
           totalRemuneration: totalRemuneration || undefined,
       };
@@ -111,7 +101,7 @@ const [topDirectorRemuneration, setTopDirectorRemuneration] = useState({
         } finally {
             setLoading(false);
         }
-    }, [asxCode, contact, priorityCommodity, baseRemuneration, totalRemuneration]);
+    }, [asxCode, contact, baseRemuneration, totalRemuneration]);
 
      // process directors data for metrics and charts 
      const processDirectors = (data) => {
@@ -173,7 +163,6 @@ const [topDirectorRemuneration, setTopDirectorRemuneration] = useState({
     });
 
       // process data for charts 
-      processTopCommodityRemunerationChart(data);
       processTopASXRemunerationChart(data); 
       processTopDirectorRemunerationChart(data);
 
@@ -196,66 +185,8 @@ const [topDirectorRemuneration, setTopDirectorRemuneration] = useState({
 
   //CHARTS
   //chart 1
-  const processTopCommodityRemunerationChart = (data) => {
-    if (!data || data.length === 0) {
-      setTopCommodityRemuneration({
-        labels: ['No Data'],
-        datasets: [{
-          type: 'bar',
-          label: "Average Total Remuneration",
-          data: [0],
-          backgroundColor: "rgba(75, 192, 192, 0.7)",
-          borderColor: "rgb(75, 192, 192)",
-          borderWidth: 1
-        }]
-      });
-      return;
-    }
   
-  const commodityRemunerationMap = {};
   
-  data.forEach(item => {
-    const commodity = item.priority_commodities || "Unknown";
-    const totalRemuneration = parseFloat(item.total_remuneration) || 0;
-    
-    if (!commodityRemunerationMap[commodity]) {
-      commodityRemunerationMap[commodity] = {
-        sum: 0,
-        count: 0
-      };
-    }
-    
-    commodityRemunerationMap[commodity].sum += totalRemuneration;
-    commodityRemunerationMap[commodity].count += 1;
-  });
-  
-  const commodityArray = Object.keys(commodityRemunerationMap).map(commodity => {
-    return {
-      commodity: commodity,
-      avgRemuneration: commodityRemunerationMap[commodity].sum / commodityRemunerationMap[commodity].count
-    };
-  });
-  
-  const topCommodity = commodityArray
-    .sort((a, b) => b.avgRemuneration - a.avgRemuneration)
-    .slice(0, 10);
-  
-  const commodityLabels = topCommodity.map(item => item.commodity);
-  const remunerationValues = topCommodity.map(item => item.avgRemuneration);
-  
-  setTopCommodityRemuneration({
-    labels: commodityLabels,
-    datasets: [{
-      type: 'bar',
-      label: "Average Total Remuneration",
-      data: remunerationValues,
-      backgroundColor: "rgba(75, 192, 192, 0.7)",
-      borderColor: "rgb(75, 192, 192)",
-      borderWidth: 1
-    }]
-  });
-};
-
 // 2. Top 20 base & total remuneration by ASX code
 const processTopASXRemunerationChart = (data) => {
   if (!data || data.length === 0) {
@@ -410,17 +341,7 @@ const processTopDirectorRemunerationChart = (data) => {
         medianBaseRemun: 0,
         directorsPaidRemun: 0,
     });
-    
-    setTopCommodityRemuneration({
-        labels: ['No Data'],
-        datasets: [{
-            type: 'bar',
-            label: "Top 10 Average Total Remuneration By Priority Commodity",
-            data: [0],
-            backgroundColor: ["rgba(75, 192, 75, 0.7)"]
-        }]
-    });
-    
+  
     setTopASXRemuneration({
         labels: ['No Data'],
         datasets: [{
@@ -451,6 +372,7 @@ useEffect(() => {
 
 const [filterTags, setFilterTags] = useState([]);
 
+/*
 const getUniqueValues = (key) => {
   if (!directors || directors.length === 0) return [];
   
@@ -467,6 +389,81 @@ const getUniqueValues = (key) => {
   
   return uniqueValues.map(value => ({ label: value, value: value }));
 };
+*/
+
+/*
+const getUniqueValues = (key) => {
+  if (!directors || directors.length === 0) return [];
+  
+  let allValues = [];
+  
+  // Special handling for JSONField (priority_commodities)
+  if (key === 'priority_commodities') {
+    directors.forEach(item => {
+      let commodities = [];
+      
+      if (!item[key]) {
+        return;
+      } else if (Array.isArray(item[key])) {
+        commodities = item[key];
+      } else if (typeof item[key] === 'object') {
+        commodities = Object.values(item[key]);
+      } else if (typeof item[key] === 'string') {
+        try {
+          const parsed = JSON.parse(item[key]);
+          if (Array.isArray(parsed)) {
+            commodities = parsed;
+          } else if (typeof parsed === 'object') {
+            commodities = Object.values(parsed);
+          } else {
+            commodities = item[key].split(',').map(c => c.trim());
+          }
+        } catch (e) {
+          commodities = [item[key]];
+        }
+      } else {
+        // For any other type, use as a single value
+        commodities = [String(item[key])];
+      }
+      
+      // Add each commodity individually after cleaning it
+      commodities.forEach(commodity => {
+        if (commodity !== null && commodity !== undefined && commodity !== "") {
+          // Clean the commodity value - trim spaces, normalize strings
+          const cleanCommodity = String(commodity).trim();
+          if (cleanCommodity) {
+            allValues.push(cleanCommodity);
+          }
+        }
+      });
+    });
+  } else {
+    // Original handling for other fields
+    allValues = directors.map(item => item[key])
+      .filter(val => val !== null && val !== undefined && val !== "");
+  }
+  
+  // Remove duplicates using Set
+  const uniqueValues = [...new Set(allValues)];
+  
+  // Sort values
+  if (uniqueValues.length > 0 && !isNaN(parseFloat(uniqueValues[0]))) {
+    uniqueValues.sort((a, b) => parseFloat(a) - parseFloat(b));
+  } else {
+    uniqueValues.sort();
+  }
+  
+  return uniqueValues.map(value => ({ label: value, value: value }));
+};
+*/
+const getUniqueValues = (key) => {
+  if (!directors || directors.length === 0) return [];
+  
+  const uniqueValues = [...new Set(directors.map(item => item[key]))].filter(Boolean);
+  return uniqueValues.map(value => ({ label: value, value: value }));
+};
+
+
 
 // Filters
 const allFilterOptions = [
@@ -483,21 +480,6 @@ const allFilterOptions = [
     },
     options: [
       { label: 'Any', value: '' }, ...getUniqueValues('asx_code')
-    ]
-  },
-  {
-    label: 'Priority Commodity',
-    value: 'Any',
-    onChange: (value) => {
-      setFilterTags(prevTags => 
-        prevTags.map(tag => 
-          tag.label === 'Priority Commodity' ? {...tag, value} : tag
-        )
-      );
-      if(value !== "Any"){handleAddFilter({label: 'Priority Commodity', value})};
-    },
-    options: [
-      { label: 'Any', value: '' }, ...getUniqueValues('priority_commodity')
     ]
   },
   {
@@ -622,35 +604,7 @@ const generateMetricCards = () => [
 
 //chart data
 const generateChartData = () => [
-  {
-    title: 'Top 10 Average Total Remuneration by Priority Commodity',
-    type: "bar",
-    data: topCommodityRemuneration,
-    options: {
-      indexAxis: 'y',
-      scales: {
-        x: {
-          type: 'linear',
-          display: true,
-          title: {
-            display: true,
-            text: 'Average Total Remuneration ($)'
-          }
-        },
-        y: {
-          title: {
-            display: true,
-            text: 'Priority Commodity'
-          }
-        }
-      },
-      plugins: {
-        legend: {
-          display: false
-        }
-      }
-    }
-  },
+  
   {
     title: 'Top 20 Base & Total Remuneration by ASX Code',
     type: "bar",

@@ -4,19 +4,16 @@ import GraphPage from '../../components/GraphPage.jsx';
 import axios from 'axios';
 
 const CapitalRaises = () => {
-  // states for api data
   const [capitalRaises, setCapitalRaises] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // states for current filters (applied)
   const [asxCode, setAsxCode] = useState("");
   const [bankBalance, setBankBalance] = useState("");
   const [date, setDate] = useState("");
   const [amount, setAmount] = useState("");
   const [price, setPrice] = useState("");
   const [raiseType, setRaiseType] = useState("");
-  const [priorityCommodities, setPriorityCommodities] = useState("");
  
   const [metricSummaries, setMetricSummaries] = useState({
     asx: 0, 
@@ -36,10 +33,6 @@ const [capitalRaiseByASX, setCapitalRaiseByASX] = useState({
   datasets: [{ data: [] }]
 });
 
-const [capRaiseByPriorityCommodity, setCapRaiseByPriorityCommodity] = useState({
-  labels: [], 
-  datasets: [{ data: [] }]
-});
 
 // table data state
 const [tableData, setTableData] = useState([]);
@@ -62,7 +55,6 @@ const fetchCapitalRaises = useCallback(async () => {
           amount: amount || undefined,
           price: price || undefined,
           raiseType: raiseType || undefined,
-          priorityCommodities: priorityCommodities || undefined, 
       };
       
       // remove undefined keys
@@ -103,7 +95,7 @@ const fetchCapitalRaises = useCallback(async () => {
   } finally {
       setLoading(false);
   }
-}, [asxCode, bankBalance, date, amount, price, raiseType, priorityCommodities]);
+}, [asxCode, bankBalance, date, amount, price, raiseType]);
 
 
 const processCapitalRaises = (data) => {
@@ -128,7 +120,6 @@ const processCapitalRaises = (data) => {
   // process data for charts 
   processMonthlyAmountRaised(data);
   processCapitalRaiseByASX(data); 
-  processAmountRaisedvsPriorityCommodity(data);
 
   // process table data 
   setTableData(data.map(item => ({
@@ -136,7 +127,6 @@ const processCapitalRaises = (data) => {
       date: item.date || 0, 
       amount: formatCurrency(item.amount || 0, 0), 
       price: formatCurrency(item.price || 0, 0), 
-      priorityCommodities: item.priorityCommodities || 0, 
   })));
 };
 
@@ -251,70 +241,6 @@ const processCapitalRaiseByASX = (data) => {
   });
 };
 
-// 3. Amount Raised vs Priority Commodity (Top 10)
-const processAmountRaisedvsPriorityCommodity = (data) => {
-  if (!data || data.length === 0) {
-    setCapRaiseByPriorityCommodity({
-      labels: ['No Data'],
-      datasets: [{
-        type: 'bar',
-        label: "Total Capital Raised",
-        data: [0],
-        backgroundColor: "rgba(75, 192, 75, 0.7)",
-        borderColor: "rgb(75, 192, 75)",
-        borderWidth: 1
-      }]
-    });
-    return;
-  }
-  const commodityData = {};
-  
-  data.forEach(item => {
-    const commodity = item.priority_commodities || "Unknown";
-    const raiseAmount = parseFloat(item.amount) || 0;
-    const raiseCount = 1;
-    
-    if (!commodityData[commodity]) {
-      commodityData[commodity] = {
-        totalAmount: 0,
-        count: 0
-      };
-    }
-    
-    commodityData[commodity].totalAmount += raiseAmount;
-    commodityData[commodity].count += raiseCount;
-  });
-  
-  const commodityEntries = Object.entries(commodityData)
-    .sort(([, dataA], [, dataB]) => dataB.totalAmount - dataA.totalAmount)
-    .slice(0, 10); 
-  
-  const commodities = commodityEntries.map(([commodity]) => commodity);
-  const totalAmounts = commodityEntries.map(([, data]) => data.totalAmount);
-  const raiseCounts = commodityEntries.map(([, data]) => data.count);
-  
-  setCapRaiseByPriorityCommodity({
-    labels: commodities,
-    datasets: [
-      {
-        type: 'bar',
-        label: "Total Capital Raised",
-        data: totalAmounts,
-        backgroundColor: "rgba(75, 192, 75, 0.7)",
-        borderColor: "rgb(75, 192, 75)",
-        borderWidth: 1
-      },
-      {
-        type: 'bar',
-        label: "Number of Raises",
-        data: raiseCounts,
-        backgroundColor: "rgba(54, 162, 235, 0.7)",
-        borderColor: "rgb(54, 162, 235)",
-        borderWidth: 1
-      }
-    ]
-  });
-};
 
 const resetData = () => {
   setMetricSummaries({
@@ -344,21 +270,9 @@ const resetData = () => {
           backgroundColor: ["rgba(75, 75, 192, 0.7)"]
       }]
   });
-
-  setAmountRaisedvsPriorityCommodity({
-    labels: ['No Data'],
-    datasets: [{
-        type: 'bar',
-        label: "Amount Raised vs Priority Commodity",
-        data: [0],
-        backgroundColor: ["rgba(75, 75, 192, 0.7)"]
-    }]
-});
-
   
   setTableData([]);
 };
-
 
 useEffect(() => {
   console.log("Fetching capital raises...");
@@ -479,20 +393,6 @@ const getUniqueValues = (key) => {
           { label: 'Any', value: 'Any' }, ...getUniqueValues('raise_type')
         ]
       },
-      {
-        label: 'Priority Commodities',
-        value: 'Any',
-        onChange: (value) => {
-          setFilterTags(prevTags => 
-            prevTags.map(tag => 
-              tag.label === 'Priority Commodities' ? {...tag, value} : tag
-            )
-          );
-          if(value != "Any"){handleAddFilter({label: 'Priority Commodities', value})};
-        },      options: [
-          { label: 'Any', value: 'Any' }, ...getUniqueValues('priorityCommodities')
-        ]
-      },
   ];
   
   const [filterOptions, setFilterOptions] = useState(() => {
@@ -610,35 +510,6 @@ const getUniqueValues = (key) => {
           }
         }
       }
-    },
-    {
-      title: 'Capital Raise by Priority Commodity (Top 10)',
-      type: 'bar',
-      data: capRaiseByPriorityCommodity,
-      options: {
-        responsive: true,
-        indexAxis: 'y',
-        scales: {
-          x: {
-            title: {
-              display: true,
-              text: 'Value',
-            },
-          },
-          y: {
-            title: {
-              display: true,
-              text: 'Priority Commodity',
-            },
-          },
-        },
-        plugins: {
-          legend: {
-            display: true,
-            position: 'top'
-          }
-        }
-      }
     }
   ];
   
@@ -647,7 +518,6 @@ const getUniqueValues = (key) => {
     { header: 'Date', key: 'date' },
     { header: 'Amount', key: 'amount' },
     { header: 'Price', key: 'price' },
-    { header: 'Priority Commodities', key: 'priorityCommodities' }, 
   ]);
   
   return (
