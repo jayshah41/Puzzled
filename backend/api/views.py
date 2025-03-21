@@ -14,7 +14,7 @@ from .models import (
 from .serializers import (
     CompanySerializer, FinancialSerializer, MarketDataSerializer, 
     MarketTrendsSerializer, DirectorsSerializer, ShareholdersSerializer, 
-    CapitalRaisesSerializer, ProjectsSerializer
+    CapitalRaisesSerializer, ProjectsSerializer, AggregatedCompanySerializer
 )
 
 class CompanyViewSet(viewsets.ModelViewSet):
@@ -62,3 +62,18 @@ class CapitalRaisesViewSet(viewsets.ModelViewSet):
 class ProjectsViewSet(viewsets.ModelViewSet):
     queryset = Projects.objects.all()
     serializer_class = ProjectsSerializer
+
+class CompanyDetailsView(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        queryset = Company.objects.prefetch_related(
+            'capital_raises',
+            'shareholders',
+            'projects'
+        ).all()
+
+        serializer = AggregatedCompanySerializer(queryset, many=True)
+        return Response(serializer.data)
+
