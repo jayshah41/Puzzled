@@ -1,397 +1,748 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import '../../styles/GeneralStyles.css';
 import GraphPage from '../../components/GraphPage.jsx';
+import axios from 'axios';
 
 const Directors = () => {
-  const [filterTags, setFilterTags] = useState([
-    { label: 'ASX', value: 'Default', onRemove: () => console.log('Remove ASX filter') },
-    { label: 'Priority Commodity', value: 'Default', onRemove: () => console.log('Remove priority commodity filter') },
-    { label: 'Company', value: 'Default', onRemove: () => console.log('Remove company filter') },
-    { label: 'Contact', value: 'Default', onRemove: () => console.log('Remove contact filter') },
-    { label: 'Qualifications', value: 'Default', onRemove: () => console.log('Remove qualifications filter') },
-    { label: 'Base Renumeration', value: 'Default', onRemove: () => console.log('Remove base renumeration filter') },
-    { label: 'Total Renumeration', value: 'Default', onRemove: () => console.log('Remove total renumeration filter') },
-    { label: 'Job Title', value: 'Default', onRemove: () => console.log('Remove job title filter') },
-    { label: 'Project Location Country', value: 'Default', onRemove: () => console.log('Remove project location country filter') },
-    { label: 'Project Area', value: 'Default', onRemove: () => console.log('Remove project area filter') },
-    { label: 'Project Stage', value: 'Default', onRemove: () => console.log('Remove project stage filter') },
-]);
-  
-//filters
-  const allFilterOptions = [
-    {
-      label: 'ASX',
-      value: 'Default',
-      onChange: (value) => {
-          setFilterTags(prevTags => 
-            prevTags.map(tag => 
-              tag.label === 'ASX' ? {...tag, value} : tag
-            )
-          );
-          if(value != "Default"){handleAddFilter({label: 'ASX', value})};
-        },
-    options: [
-      {label: 'Default', value: 'Default'},
-      { label: 'TAT', value: 'TAT' },
-      { label: 'GCM', value: 'GCM' },
-      { label: 'GMN', value: 'GMN' }
-    ]
-    },
-    {
-      label: 'Company',
-      value: 'Default',
-      onChange: (value) => {
-        setFilterTags(prevTags => 
-          prevTags.map(tag => 
-            tag.label === 'ASX' ? {...tag, value} : tag
-          )
-        );
-        if(value != "Default"){handleAddFilter({label: 'Company', value})};
-      },
-      options: [
-        { label: 'TAT', value: 'TAT' },
-        { label: 'GCM', value: 'GCM' },
-        { label: 'GMN', value: 'GMN' }
-      ]
-    },
-    {
-      label: 'Priority Commodity',
-      value: 'Default',
-      onChange: (value) => {
-        setFilterTags(prevTags => 
-          prevTags.map(tag => 
-            tag.label === 'ASX' ? {...tag, value} : tag
-          )
-        );
-        if(value != "Default"){handleAddFilter({label: 'Priority Commodity', value})};
-      },
-      options: [
-        { label: 'Gold', value: 'Gold' },
-        { label: 'Copper', value: 'Copper' },
-        { label: 'Lithium', value: 'Lithium' },
-      ]
-    },
-    {
-      label: 'Contact',
-      value: 'Default',
-      onChange: (value) => {
-        setFilterTags(prevTags => 
-          prevTags.map(tag => 
-            tag.label === 'ASX' ? {...tag, value} : tag
-          )
-        );
-        if(value != "Default"){handleAddFilter({label: 'Contact', value})};
-      },
-      options: [
-        { label: 'Australia', value: 'Australia' },
-        { label: 'Canada', value: 'Canada' },
-        { label: 'Brazil', value: 'Brazil' }
-      ]
-    },
-    {
-        label: 'Base Renumeration',
-        value: 'Default',
-        onChange: (value) => {
-          setFilterTags(prevTags => 
-            prevTags.map(tag => 
-              tag.label === 'ASX' ? {...tag, value} : tag
-            )
-          );
-          if(value != "Default"){handleAddFilter({label: 'Base Renumeration', value})};
-        },
-        options: [
-          { label: 'Australia', value: 'Australia' },
-          { label: 'Canada', value: 'Canada' },
-          { label: 'Brazil', value: 'Brazil' }
-        ]
-      },
-      {
-        label: 'Total Renumeration',
-        value: 'Default',
-        onChange: (value) => {
-          setFilterTags(prevTags => 
-            prevTags.map(tag => 
-              tag.label === 'ASX' ? {...tag, value} : tag
-            )
-          );
-          if(value != "Default"){handleAddFilter({label: 'Total Renumeration', value})};
-        },
-        options: [
-          { label: 'Australia', value: 'Australia' },
-          { label: 'Canada', value: 'Canada' },
-          { label: 'Brazil', value: 'Brazil' }
-        ]
-      },
-      {
-        label: 'Job Title',
-        value: 'Default',
-        onChange: (value) => {
-          setFilterTags(prevTags => 
-            prevTags.map(tag => 
-              tag.label === 'ASX' ? {...tag, value} : tag
-            )
-          );
-          if(value != "Default"){handleAddFilter({label: 'Job Title', value})};
-        },
-        options: [
-          { label: 'Australia', value: 'Australia' },
-          { label: 'Canada', value: 'Canada' },
-          { label: 'Brazil', value: 'Brazil' }
-        ]
-      },
-      {
-        label: 'Project Location Country',
-        value: 'Default',
-        onChange: (value) => {
-          setFilterTags(prevTags => 
-            prevTags.map(tag => 
-              tag.label === 'ASX' ? {...tag, value} : tag
-            )
-          );
-          if(value != "Default"){handleAddFilter({label: 'Project Location Country', value})};
-        },
-        options: [
-          { label: 'Australia', value: 'Australia' },
-          { label: 'Canada', value: 'Canada' },
-          { label: 'Brazil', value: 'Brazil' }
-        ]
-      },
-      {
-          label: 'Project Area',
-          value: 'Default',
-          onChange: (value) => {
-            setFilterTags(prevTags => 
-              prevTags.map(tag => 
-                tag.label === 'ASX' ? {...tag, value} : tag
-              )
-            );
-            if(value != "Default"){handleAddFilter({label: 'Project Area', value})};
-          },
-          options: [
-            { label: 'Australia', value: 'Australia' },
-            { label: 'Canada', value: 'Canada' },
-            { label: 'Brazil', value: 'Brazil' }
-          ]
-        },
-        {
-          label: 'Project Stage',
-          value: 'Default',
-          onChange: (value) => {
-            setFilterTags(prevTags => 
-              prevTags.map(tag => 
-                tag.label === 'ASX' ? {...tag, value} : tag
-              )
-            );
-            if(value != "Default"){handleAddFilter({label: 'Project Stage', value})};
-          },
-          options: [
-            { label: 'Australia', value: 'Australia' },
-            { label: 'Canada', value: 'Canada' },
-            { label: 'Brazil', value: 'Brazil' }
-          ]
-        },
-  ];
 
-  const [filterOptions, setFilterOptions] = useState(() => {
-    const currentTagLabels = filterTags.map(tag => tag.label);
-    return allFilterOptions.filter(option => !currentTagLabels.includes(option.label));
+   // states for api data
+   const [directors, setDirectors] = useState([]);
+   const [loading, setLoading] = useState(false);
+   const [error, setError] = useState("");
+
+   // states for current filters (applied)
+   const [asxCode, setAsxCode] = useState("");
+   const [contact, setContact] = useState("");
+   const [priorityCommodity, setPriorityCommodity] = useState("");
+   const [baseRemuneration, setBaseRemuneration] = useState("");
+   const [totalRemuneration, setTotalRemuneration] = useState("");
+
+   // metric card states
+   const [metricSummaries, setMetricSummaries] = useState({
+    asx: 0, 
+    avgBaseRemun: 0, 
+    contact: 0, 
+    avgTotalRemun: 0, 
+    medianTotalRemun: 0, 
+    sumTotalRemun: 0, 
+    medianBaseRemun: 0, 
+    directorsPaidRemun: 0, 
 });
 
+// chart data states - FIXED NAMES
+//top 10 avg total remuneration by priority commodity
+const [topCommodityRemuneration, setTopCommodityRemuneration] = useState({
+    labels: [], 
+    datasets: [{ data:[] }]
+});
 
-  const handleRemoveFilter = (filterLabel) => {
-    const removedFilter = filterTags.find(tag => tag.label === filterLabel);
-    setFilterTags(prevTags => prevTags.filter(tag => tag.label !== filterLabel));
-    
-    if (removedFilter) {
-      setFilterOptions(prevOptions => [...prevOptions, 
-        allFilterOptions.find(opt => opt.label === filterLabel)
-      ]);
-    }
-  };
-  
-  const handleAddFilter = (filter) => {
-    setFilterTags(prevTags => {
-        const exists = prevTags.some(tag => tag.label === filter.label);
-        if (exists) {
-            return prevTags.map(tag => 
-                tag.label === filter.label ? { ...tag, value: filter.value } : tag
-            );
+//top 20 base & total remuneration by asx code
+const [topASXRemuneration, setTopASXRemuneration] = useState({
+    labels: [], 
+    datasets: [{ data: [] }]
+});
+
+//top 25 total remuneration by director
+const [topDirectorRemuneration, setTopDirectorRemuneration] = useState({
+  labels: [], 
+  datasets: [{ data: [] }]
+});
+//end of charts
+
+ // table data state
+ const [tableData, setTableData] = useState([]);
+
+ // fetch data from api
+  const fetchDirectors = useCallback(async () => {
+  const token = localStorage.getItem("accessToken");
+
+     // handles missing tokens
+     if (!token) {
+         setError("Authentication error: No token found.");
+         setLoading(false);
+         return;
+     }
+
+     try {
+      setLoading(true);
+      
+      // building parameters from filter states
+      const params = {
+          asx: asxCode || undefined,
+          contact: contact || undefined,
+          priorityCommodity: priorityCommodity || undefined,
+          baseRemuneration: baseRemuneration || undefined,
+          totalRemuneration: totalRemuneration || undefined,
+      };
+      
+      Object.keys(params).forEach(key => 
+          params[key] === undefined && delete params[key]
+      );
+      
+      const response = await axios.get("http://127.0.0.1:8000/data/directors/", {
+          headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json"
+          },
+          params: params
+      });
+
+      console.log("API Response:", response.data);
+            
+            // handling different api formats
+            if (Array.isArray(response.data)) {
+                setDirectors(response.data);
+                processDirectors(response.data);
+            } else if (response.data && typeof response.data === 'object') {
+                const dataArray = [response.data];
+                setDirectors(dataArray);
+                processDirectors(dataArray);
+            } else {
+                setDirectors([]);
+                resetData();
+            }
+            
+            // handles errors
+            setError("");
+        } catch (error) {
+            console.error("Error fetching directors:", error.response?.data || error);
+            setError("Failed to fetch directors data: " + (error.response?.data?.detail || error.message));
+            resetData();
+        } finally {
+            setLoading(false);
         }
-        return [...prevTags, filter];
+    }, [asxCode, contact, priorityCommodity, baseRemuneration, totalRemuneration]);
+
+     // process directors data for metrics and charts 
+     const processDirectors = (data) => {
+      if (!data || data.length === 0) {
+          resetData();
+          return;
+      }
+      
+      // calculate metric values   
+    const uniqueAsxCount = new Set(data.map(item => item.asx_code).filter(Boolean)).size;
+    const validBaseRemunData = data.filter(item => !isNaN(parseFloat(item.base_remuneration)) && parseFloat(item.base_remuneration) > 0);
+    const validTotalRemunData = data.filter(item => !isNaN(parseFloat(item.total_remuneration)) && parseFloat(item.total_remuneration) > 0);
+    
+    const avgBaseRemun = validBaseRemunData.length > 0 
+        ? validBaseRemunData.reduce((sum, item) => sum + parseFloat(item.base_remuneration), 0) / validBaseRemunData.length 
+        : 0;
+    
+    const avgTotalRemun = validTotalRemunData.length > 0 
+        ? validTotalRemunData.reduce((sum, item) => sum + parseFloat(item.total_remuneration), 0) / validTotalRemunData.length 
+        : 0;
+    
+    const sumTotalRemun = data.reduce((sum, item) => {
+        const value = parseFloat(item.total_remuneration);
+        return sum + (isNaN(value) ? 0 : value);
+    }, 0);
+    
+    const uniqueContactsCount = new Set(data.map(item => item.contact).filter(Boolean)).size;
+
+    const calculateMedian = (arr) => {
+        const filtered = arr.filter(num => !isNaN(num) && num > 0);
+        if (filtered.length === 0) return 0;
+        
+        const sorted = [...filtered].sort((a, b) => a - b);
+        const mid = Math.floor(sorted.length / 2);
+        return sorted.length % 2 !== 0 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
+    };
+
+    const baseRemunerationValues = data.map(item => parseFloat(item.base_remuneration) || 0);
+    const totalRemunerationValues = data.map(item => parseFloat(item.total_remuneration) || 0);
+    
+    const medianBaseRemun = calculateMedian(baseRemunerationValues);
+    const medianTotalRemun = calculateMedian(totalRemunerationValues);
+    
+    const directorsPaidRemun = data.filter(item => {
+        const baseRemun = parseFloat(item.base_remuneration) || 0;
+        const totalRemun = parseFloat(item.total_remuneration) || 0;
+        return baseRemun > 0 || totalRemun > 0;
+    }).length;
+    
+    setMetricSummaries({
+      asx: uniqueAsxCount, 
+      avgBaseRemun: avgBaseRemun,
+      contact: uniqueContactsCount,
+      avgTotalRemun: avgTotalRemun,
+      medianTotalRemun: medianTotalRemun,
+      sumTotalRemun: sumTotalRemun,
+      medianBaseRemun: medianBaseRemun,
+      directorsPaidRemun: directorsPaidRemun,
+    });
+
+      // process data for charts 
+      processTopCommodityRemunerationChart(data);
+      processTopASXRemunerationChart(data); 
+      processTopDirectorRemunerationChart(data);
+
+      setTableData(data.map(item => ({
+          asx: item.asx_code || 'N/A',
+          contact: item.contact || 'N/A', 
+          baseRemuneration: formatCurrency(parseFloat(item.base_remuneration) || 0, 0), 
+          totalRemuneration: formatCurrency(parseFloat(item.total_remuneration) || 0, 0), 
+          marketCap: formatCurrency(parseFloat(item.market_cap) || 0, 0), 
+      })));
+  };
+
+  const formatCurrency = (value, decimals = 2) => {
+    if (isNaN(value) || value === null) return 'A$0.00';
+    return 'A$' + Number(value).toLocaleString('en-AU', {
+        minimumFractionDigits: decimals,
+        maximumFractionDigits: decimals
     });
   };
 
+  //CHARTS
+  //chart 1
+  const processTopCommodityRemunerationChart = (data) => {
+    if (!data || data.length === 0) {
+      setTopCommodityRemuneration({
+        labels: ['No Data'],
+        datasets: [{
+          type: 'bar',
+          label: "Average Total Remuneration",
+          data: [0],
+          backgroundColor: "rgba(75, 192, 192, 0.7)",
+          borderColor: "rgb(75, 192, 192)",
+          borderWidth: 1
+        }]
+      });
+      return;
+    }
   
-  //stats
-  const [metricCards] = useState([
-    {
-      title: 'ASX Code Count',
-      value: '835',
-      trend: 'positive',
-      description: 'YoY: +15%'
-    },
-    {
-      title: 'Average of Base Renumeration',
-      value: '168,970',
-      trend: 'positive',
-      description: 'YoY: +27%'
-    },
-    {
-      title: 'Count of Contacts',
-      value: '11,066',
-      trend: 'positive'
-    },
-    {
-        title: 'Average of Total Renumeration',
-        value: '288,806',
-        trend: 'positive'
-    },
-    {
-        title: 'Median of Total Renumeration',
-        value: '113,032',
-        trend: 'positive'
-    },
-    {
-        title: 'Sum of Total Renumeration',
-        value: '1,617,593,331',
-        trend: 'positive'
-    },
-    {
-        title: 'Median of Base Renumeration',
-        value: '81,988',
-        trend: 'positive'
-    },
-    {
-        title: 'No of Directors Paid Renumeration',
-        value: '5,561',
-        trend: 'positive'
-    },
-
-  ]);
-
-  //pie chart
-  const [chartData] = useState([
-    {
-      title: 'Top 10 Average/Median Total Renumeration By Priority Commodity',
+  const commodityRemunerationMap = {};
+  
+  data.forEach(item => {
+    const commodity = item.priority_commodities || "Unknown";
+    const totalRemuneration = parseFloat(item.total_remuneration) || 0;
+    
+    if (!commodityRemunerationMap[commodity]) {
+      commodityRemunerationMap[commodity] = {
+        sum: 0,
+        count: 0
+      };
+    }
+    
+    commodityRemunerationMap[commodity].sum += totalRemuneration;
+    commodityRemunerationMap[commodity].count += 1;
+  });
+  
+  const commodityArray = Object.keys(commodityRemunerationMap).map(commodity => {
+    return {
+      commodity: commodity,
+      avgRemuneration: commodityRemunerationMap[commodity].sum / commodityRemunerationMap[commodity].count
+    };
+  });
+  
+  const topCommodity = commodityArray
+    .sort((a, b) => b.avgRemuneration - a.avgRemuneration)
+    .slice(0, 10);
+  
+  const commodityLabels = topCommodity.map(item => item.commodity);
+  const remunerationValues = topCommodity.map(item => item.avgRemuneration);
+  
+  setTopCommodityRemuneration({
+    labels: commodityLabels,
+    datasets: [{
       type: 'bar',
-      options: {
-        responsive: true,
-        indexAxis: 'y', 
-        scales: {
-          x: {
-            title: {
-              display: true,
-              text: 'Total Renumeration (in $)',
-            },
-          },
-          y: {
-            title: {
-              display: true,
-              text: 'Priority Commodities',
-            },
-          },
+      label: "Average Total Remuneration",
+      data: remunerationValues,
+      backgroundColor: "rgba(75, 192, 192, 0.7)",
+      borderColor: "rgb(75, 192, 192)",
+      borderWidth: 1
+    }]
+  });
+};
+
+// 2. Top 20 base & total remuneration by ASX code
+const processTopASXRemunerationChart = (data) => {
+  if (!data || data.length === 0) {
+    setTopASXRemuneration({
+      labels: ['No Data'],
+      datasets: [
+        {
+          type: 'bar',
+          label: "Total Remuneration",
+          data: [0],
+          backgroundColor: "rgba(75, 192, 75, 0.7)",
+          borderColor: "rgb(75, 192, 75)",
+          borderWidth: 1
         },
+        {
+          type: 'bar',
+          label: "Base Remuneration",
+          data: [0],
+          backgroundColor: "rgba(54, 162, 235, 0.7)",
+          borderColor: "rgb(54, 162, 235)",
+          borderWidth: 1
+        }
+      ]
+    });
+    return;
+  }
+  
+  const asxRemunerationMap = {};
+  
+  data.forEach(item => {
+    const asx = item.asx_code || "Unknown";
+    const totalRemuneration = parseFloat(item.total_remuneration) || 0;
+    const baseRemuneration = parseFloat(item.base_remuneration) || 0;
+    
+    if (!asxRemunerationMap[asx]) {
+      asxRemunerationMap[asx] = {
+        totalSum: 0,
+        baseSum: 0
+      };
+    }
+    
+    asxRemunerationMap[asx].totalSum += totalRemuneration;
+    asxRemunerationMap[asx].baseSum += baseRemuneration;
+  });
+  
+  const asxArray = Object.keys(asxRemunerationMap).map(asx => {
+    return {
+      asx: asx,
+      totalRemuneration: asxRemunerationMap[asx].totalSum,
+      baseRemuneration: asxRemunerationMap[asx].baseSum
+    };
+  });
+  
+  const topASX = asxArray
+    .sort((a, b) => b.totalRemuneration - a.totalRemuneration)
+    .slice(0, 20);
+  
+  const asxLabels = topASX.map(item => item.asx);
+  const totalRemunerationValues = topASX.map(item => item.totalRemuneration);
+  const baseRemunerationValues = topASX.map(item => item.baseRemuneration);
+  
+  setTopASXRemuneration({
+    labels: asxLabels,
+    datasets: [
+      {
+        type: 'bar',
+        label: "Total Remuneration",
+        data: totalRemunerationValues,
+        backgroundColor: "rgba(75, 192, 75, 0.7)",
+        borderColor: "rgb(75, 192, 75)",
+        borderWidth: 1
       },
-      data: {
-        labels: ['Gold', 'Lithium', 'Uranium', 'Copper', 'Nickel', 'Zinc', 'Silver', 'Iron Ore', 'Platinum', 'Coal'],
-        datasets: [
-          {
-            label: 'Average/Median Total Renumeration',
-            data: [150000, 130000, 120000, 110000, 100000, 95000, 90000, 85000, 80000, 75000],
-            backgroundColor: '#36a2eb',
-          },
-        ],
-      },
-    },
-    {
-      title: 'Top 25 Total Renumeration by Director',
+      {
+        type: 'bar',
+        label: "Base Remuneration",
+        data: baseRemunerationValues,
+        backgroundColor: "rgba(54, 162, 235, 0.7)",
+        borderColor: "rgb(54, 162, 235)",
+        borderWidth: 1
+      }
+    ]
+  });
+};
+
+// 3. Top 25 total remuneration by director
+const processTopDirectorRemunerationChart = (data) => {
+  if (!data || data.length === 0) {
+    setTopDirectorRemuneration({
+      labels: ['No Data'],
+      datasets: [{
+        type: 'bar',
+        label: "Total Remuneration",
+        data: [0],
+        backgroundColor: "rgba(153, 102, 255, 0.7)",
+        borderColor: "rgb(153, 102, 255)",
+        borderWidth: 1
+      }]
+    });
+    return;
+  }
+
+  // Create a mapping of directors to their total remuneration
+  const directorRemunerationMap = {};
+  data.forEach(item => {
+    const director = item.contact || "Unknown";
+    const totalRemuneration = parseFloat(item.total_remuneration) || 0;
+    
+    if (!directorRemunerationMap[director]) {
+      directorRemunerationMap[director] = 0;
+    }
+    
+    directorRemunerationMap[director] += totalRemuneration;
+  });
+
+  // Convert to array and sort by total remuneration in descending order
+  const directorArray = Object.keys(directorRemunerationMap)
+    .map(director => ({
+      director: director,
+      totalRemuneration: directorRemunerationMap[director]
+    }))
+    .sort((a, b) => b.totalRemuneration - a.totalRemuneration)
+    .slice(0, 25); // Take top 25 directors
+
+  // Extract labels and data
+  const directorLabels = directorArray.map(item => item.director);
+  const remunerationValues = directorArray.map(item => item.totalRemuneration);
+
+  // Set chart data
+  setTopDirectorRemuneration({
+    labels: directorLabels,
+    datasets: [{
       type: 'bar',
-      options: {
-        responsive: true,
-        scales: {
-          x: {
-            title: {
-              display: true,
-              text: 'Total Renumeration (in $)',
-            },
-          },
-          y: {
-            title: {
-              display: true,
-              text: 'Directors',
-            },
-          },
-        },
-      },
-      data: {
-        labels: [
-          'D 1', 'D 2', 'D 3', 'D 4', 'D 5', 'D 6', 'D 7', 'D 8', 'D 9', 'D 10',
-          'D 11', 'D 12', 'D 13', 'D 14', 'D 15', 'D 16', 'D 17', 'D 18', 'D 19', 'D 20',
-          'D 21', 'D 22', 'D 23', 'D 24', 'D 25'
-        ],
-        datasets: [
-          {
-            label: 'Total Renumeration by Director',
-            data: [
-              500000, 450000, 420000, 400000, 380000, 360000, 350000, 340000, 330000, 320000,
-              310000, 300000, 290000, 280000, 270000, 260000, 250000, 240000, 230000, 220000,
-              210000, 200000, 190000, 180000, 170000
-            ],
-            backgroundColor: '#ff6384',
-          },
-        ],
-      },
+      label: "Total Remuneration",
+      data: remunerationValues,
+      backgroundColor: "rgba(153, 102, 255, 0.7)",
+      borderColor: "rgb(153, 102, 255)",
+      borderWidth: 1
+    }]
+  });
+};
+
+
+  // reset data if api call fails
+  const resetData = () => {
+    setMetricSummaries({
+        asx: 0,
+        avgBaseRemun: 0,
+        contact: 0,
+        avgTotalRemun: 0,
+        medianTotalRemun: 0,
+        sumTotalRemun: 0,
+        medianBaseRemun: 0,
+        directorsPaidRemun: 0,
+    });
+    
+    setTopCommodityRemuneration({
+        labels: ['No Data'],
+        datasets: [{
+            type: 'bar',
+            label: "Top 10 Average Total Remuneration By Priority Commodity",
+            data: [0],
+            backgroundColor: ["rgba(75, 192, 75, 0.7)"]
+        }]
+    });
+    
+    setTopASXRemuneration({
+        labels: ['No Data'],
+        datasets: [{
+            type: 'bar',
+            label: "Top 20 Base & Total Remuneration By ASX Code",
+            data: [0],
+            backgroundColor: ["rgba(75, 75, 192, 0.7)"]
+        }]
+    });
+
+    setTopDirectorRemuneration({
+      labels: ['No Data'],
+      datasets: [{
+          type: 'bar',
+          label: "Top 25 Total Remuneration By Director",
+          data: [0],
+          backgroundColor: ["rgba(75, 75, 192, 0.7)"]
+      }]
+  });
+    
+    setTableData([]);
+};
+
+useEffect(() => {
+  console.log("Fetching directors...");
+  fetchDirectors();
+}, [fetchDirectors]);
+
+const [filterTags, setFilterTags] = useState([]);
+
+const getUniqueValues = (key) => {
+  if (!directors || directors.length === 0) return [];
+  
+  const allValues = directors.map(item => item[key])
+    .filter(val => val !== null && val !== undefined && val !== "");
+  
+  const uniqueValues = [...new Set(allValues)];
+  
+  if (uniqueValues.length > 0 && !isNaN(parseFloat(uniqueValues[0]))) {
+    uniqueValues.sort((a, b) => parseFloat(a) - parseFloat(b));
+  } else {
+    uniqueValues.sort();
+  }
+  
+  return uniqueValues.map(value => ({ label: value, value: value }));
+};
+
+// Filters
+const allFilterOptions = [
+  {
+    label: 'ASX',
+    value: 'Any',
+    onChange: (value) => {
+      setFilterTags(prevTags => 
+        prevTags.map(tag => 
+          tag.label === 'ASX' ? {...tag, value} : tag
+        )
+      );
+      if(value !== "Any"){handleAddFilter({label: 'ASX', value})};
     },
-  ]);
+    options: [
+      { label: 'Any', value: '' }, ...getUniqueValues('asx_code')
+    ]
+  },
+  {
+    label: 'Priority Commodity',
+    value: 'Any',
+    onChange: (value) => {
+      setFilterTags(prevTags => 
+        prevTags.map(tag => 
+          tag.label === 'Priority Commodity' ? {...tag, value} : tag
+        )
+      );
+      if(value !== "Any"){handleAddFilter({label: 'Priority Commodity', value})};
+    },
+    options: [
+      { label: 'Any', value: '' }, ...getUniqueValues('priority_commodity')
+    ]
+  },
+  {
+    label: 'Contact',
+    value: 'Any',
+    onChange: (value) => {
+      setFilterTags(prevTags => 
+        prevTags.map(tag => 
+          tag.label === 'Contact' ? {...tag, value} : tag
+        )
+      );
+      if(value !== "Any"){handleAddFilter({label: 'Contact', value})};
+    },
+    options: [
+      { label: 'Any', value: '' }, ...getUniqueValues('contact')
+    ]
+  },
+  {
+    label: 'Base Remuneration',
+    value: 'Any',
+    onChange: (value) => {
+      setFilterTags(prevTags => 
+        prevTags.map(tag => 
+          tag.label === 'Base Remuneration' ? {...tag, value} : tag
+        )
+      );
+      if(value !== "Any"){handleAddFilter({label: 'Base Remuneration', value})};
+    },
+    options: [
+      { label: 'Any', value: '' }, ...getUniqueValues('base_remuneration')
+    ]
+  },
+  {
+    label: 'Total Remuneration',
+    value: 'Any',
+    onChange: (value) => {
+      setFilterTags(prevTags => 
+        prevTags.map(tag => 
+          tag.label === 'Total Remuneration' ? {...tag, value} : tag
+        )
+      );
+      if(value !== "Any"){handleAddFilter({label: 'Total Remuneration', value})};
+    },
+    options: [
+      { label: 'Any', value: '' }, ...getUniqueValues('total_remuneration')
+    ]
+  },
+];
 
-  //table
-  const [tableColumns] = useState([
-    { header: 'ASX', key: 'asx' },
-    { header: 'Title', key: 'title' },
-    { header: 'Start Date', key: 'startDate' },
-    { header: 'Base Renumeration', key: 'baseRenumeration' },
-    { header: 'Total Renumeration', key: 'totalRenumeration' },
-    { header: 'Market Cap on Commencement', key: 'marketCap' }
-  ]);
+const [filterOptions, setFilterOptions] = useState(() => {
+  const currentTagLabels = filterTags.map(tag => tag.label);
+  return allFilterOptions.filter(option => !currentTagLabels.includes(option.label));
+});
+
+
+const handleRemoveFilter = (filterLabel) => {
+  setFilterTags(prevTags => prevTags.filter(tag => tag.label !== filterLabel));
   
-  const [tableData] = useState([
-    { asx: 'RIO', title: 'Employee - Auditor', startDate: 'May 5, 2020', baseRenumeration: '33,500,000', totalRenumeration: '33,500,000', marketCap: '0'},
-    { asx: 'ILU', title: 'Employee - Auditor', startDate: 'Jan 1, 2024', baseRenumeration: '703,000', totalRenumeration: '703,000', marketCap: '0'},
-    { asx: 'RRL', title: 'Employee - Auditor', startDate: 'Jan 1, 2021', baseRenumeration: '611,817', totalRenumeration: '611,817', marketCap: '0'},
-  ]);
+  const removedOption = allFilterOptions.find(opt => opt.label === filterLabel);
+  if (removedOption) {
+    setFilterOptions(prevOptions => [...prevOptions, removedOption]);
+  }
+};
 
-  const [secondTableColumns] = useState([
-    { header: 'Project Stage', key: 'projectStage' },
-    { header: 'Average Base Renumeration', key: 'avgBaseRenum' },
-    { header: 'Median Base Renumeration', key: 'medBaseRenum' },
-    { header: 'Average Total Renumeration', key: 'avgTotalRenum' },
-    { header: 'Median Total Renumeration', key: 'medTotalRenum' },
-  ]);
-  
-  const [secondTableData] = useState([
-    { projectStage: 'Production Case & Maintenance Advanced', avgBaseRenum: '324,536', medBaseRenum: '156,000', avgTotalRenum: '421,476', medTotalRenum: '172,143'},
-    { projectStage: 'Production Case & Maintenance Advanced', avgBaseRenum: '324,536', medBaseRenum: '156,000', avgTotalRenum: '421,476', medTotalRenum: '172,143'},
-    { projectStage: 'Production Case & Maintenance Advanced', avgBaseRenum: '324,536', medBaseRenum: '156,000', avgTotalRenum: '421,476', medTotalRenum: '172,143'},
-  ]);
 
-  return (
-    <div className="standard-padding">
-    <GraphPage
-      title="Directors"
-      filterTags={filterTags}
-      filterOptions={filterOptions}
-      allFilterOptions={allFilterOptions}
-      metricCards={metricCards}
-      chartData={chartData}
-      tableColumns={tableColumns}
-      tableData={tableData}
-      handleAddFilter={handleAddFilter}
-      handleRemoveFilter={handleRemoveFilter}
-      secondTableColumns={secondTableColumns}
-      secondTableData={secondTableData}
-    />
-    </div>
-  );
+const handleAddFilter = (filter) => {
+  setFilterTags(prevTags => {
+    const exists = prevTags.some(tag => tag.label === filter.label);
+    if (exists) {
+      return prevTags.map(tag => 
+        tag.label === filter.label ? { ...tag, value: filter.value } : tag
+      );
+    }
+    return [...prevTags, {
+      ...filter,
+      onRemove: () => handleRemoveFilter(filter.label)
+    }];
+  });
+};
+
+const generateFilterTags = () => {
+  return filterTags.length > 0 ? filterTags : [
+    { label: 'No Filters Applied', value: 'Click to add filters', onRemove: () => {} }
+  ];
+};
+
+//stats
+const generateMetricCards = () => [
+  {
+    title: 'ASX Code Count',
+    value: metricSummaries.asx
+  },
+  {
+    title: 'Average of Base Remuneration',
+    value: formatCurrency(metricSummaries.avgBaseRemun)
+  },
+  {
+    title: 'Contact Count',
+    value: metricSummaries.contact
+  },
+  {
+    title: 'Average of Total Remuneration',
+    value: formatCurrency(metricSummaries.avgTotalRemun)
+  },
+  {
+    title: 'Median of Total Remuneration',
+    value: formatCurrency(metricSummaries.medianTotalRemun)
+  },
+  {
+    title: 'Sum of Total Remuneration',
+    value: formatCurrency(metricSummaries.sumTotalRemun)
+  },
+  {
+    title: 'Median of Base Remuneration',
+    value: formatCurrency(metricSummaries.medianBaseRemun)
+  },
+  {
+    title: 'No of Directors Paid Remuneration',
+    value: metricSummaries.directorsPaidRemun
+  },
+];
+
+//chart data
+const generateChartData = () => [
+  {
+    title: 'Top 10 Average Total Remuneration by Priority Commodity',
+    type: "bar",
+    data: topCommodityRemuneration,
+    options: {
+      indexAxis: 'y',
+      scales: {
+        x: {
+          type: 'linear',
+          display: true,
+          title: {
+            display: true,
+            text: 'Average Total Remuneration ($)'
+          }
+        },
+        y: {
+          title: {
+            display: true,
+            text: 'Priority Commodity'
+          }
+        }
+      },
+      plugins: {
+        legend: {
+          display: false
+        }
+      }
+    }
+  },
+  {
+    title: 'Top 20 Base & Total Remuneration by ASX Code',
+    type: "bar",
+    data: topASXRemuneration,
+    options: {
+      scales: {
+        x: {
+          type: 'category',
+          display: true,
+          title: {
+            display: true,
+            text: 'ASX Code'
+          }
+        },
+        y: {
+          type: 'linear',
+          display: true,
+          title: {
+            display: true,
+            text: 'Remuneration ($)'
+          }
+        }
+      },
+      plugins: {
+        legend: {
+          display: true,
+          position: 'top'
+        }
+      }
+    }
+  },
+  {
+    title: 'Top 25 Total Remuneration by Director',
+    type: "bar",
+    data: topDirectorRemuneration,
+    options: {
+      scales: {
+        x: {
+          type: 'category',
+          display: true,
+          title: {
+            display: true,
+            text: 'Director'
+          }
+        },
+        y: {
+          type: 'linear',
+          display: true,
+          title: {
+            display: true,
+            text: 'Total Remuneration ($)'
+          }
+        }
+      },
+      plugins: {
+        legend: {
+          display: false
+        }
+      }
+    }
+  }
+];
+
+//table
+const [tableColumns] = useState([
+  { header: 'ASX', key: 'asx' },
+  { header: 'Title', key: 'contact' },
+  { header: 'Base Remuneration', key: 'baseRemuneration' },
+  { header: 'Total Remuneration', key: 'totalRemuneration' },
+]);
+
+return (
+  <div className="standard-padding">
+    {error && <div className="error-message">{error}</div>}
+    {loading ? (
+      <div className="loading-indicator">Loading directors data...</div>
+    ) : (
+      <GraphPage
+        title="Directors Dashboard"
+        filterTags={generateFilterTags()}
+        filterOptions={filterOptions}
+        allFilterOptions={allFilterOptions}
+        metricCards={generateMetricCards()}
+        chartData={generateChartData()}
+        tableColumns={tableColumns}
+        tableData={tableData}
+        handleAddFilter={handleAddFilter}
+        handleRemoveFilter={handleRemoveFilter}
+      />
+    )}
+  </div>
+);
 };
 
 export default Directors;

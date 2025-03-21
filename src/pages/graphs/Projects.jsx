@@ -1,8 +1,278 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import '../../styles/GeneralStyles.css';
 import GraphPage from '../../components/GraphPage.jsx';
+import axios from 'axios';
+
 
 const Projects = () => {
+   // states for api data
+   const [projects, setProjects] = useState([]);
+   const [loading, setLoading] = useState(false);
+   const [error, setError] = useState("");
+
+   // states for current filters (applied)
+   const [asxCode, setAsxCode] = useState("");
+   const [activityDatePerDay, setActivityDatePerDay] = useState("");
+   const [projectName, setProjectName] = useState("");
+   const [intersect, setInteresect] = useState("");
+   const [marketCap, setmarketCap] = useState("");
+   const [grade, setGrade] = useState("");
+   const [depth, setDepth] = useState("");
+
+   const [metricSummaries, setMetricSummaries] = useState({
+    asx: 0, 
+    numOfProjects: 0,     
+});
+
+   // chart data states 
+   const [drillingResultsByGrade, setDrillingResultsByGrade] = useState({
+    labels: [], 
+    datasets: [{ data:[] }]
+  });
+
+  const [drillingResultsByIntersect, setDrillingResultsByIntersect] = useState({
+      labels: [], 
+      datasets: [{ data: [] }]
+  });
+
+  // fetch data from api
+  const fetchProjects = useCallback(async () => {
+    // retrieves authentication token 
+    const token = localStorage.getItem("accessToken");
+
+    // handles missing tokens
+    if (!token) {
+        setError("Authentication error: No token found.");
+        setLoading(false);
+        return;
+    }
+
+    try {
+        setLoading(true);
+            const params = {
+            asx: asxCode || undefined,
+            activityDatePerDay: activityDatePerDay || undefined,
+            projectName: projectName || undefined,
+            intersect: intersect || undefined,
+            marketCap: marketCap || undefined,
+            grade: grade || undefined,
+            depth: depth || undefined,
+        };
+        
+        // remove undefined keys
+        Object.keys(params).forEach(key => 
+            params[key] === undefined && delete params[key]
+        );
+        
+        // sending api requests
+        const response = await axios.get("http://127.0.0.1:8000/data/projects/", {
+            headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json"
+            },
+            params: params
+        });
+
+        console.log("API Response:", response.data);
+        
+        // handling different api formats
+        if (Array.isArray(response.data)) {
+            setProjects(response.data);
+            processProjects(response.data);
+        } else if (response.data && typeof response.data === 'object') {
+            const dataArray = [response.data];
+            setProjects(dataArray);
+            processProjects(dataArray);
+        } else {
+            setProjects([]);
+            resetData();
+        }
+        
+        // handles errors
+        setError("");
+    } catch (error) {
+        console.error("Error fetching projects:", error.response?.data || error);
+        setError("Failed to fetch projects data: " + (error.response?.data?.detail || error.message));
+        resetData();
+    } finally {
+        setLoading(false);
+    }
+}, [asxCode, activityDatePerDay, projectName, intersect, marketCap, grade, depth]);
+
+const processProjects = (data) => {
+  if (!data || data.length === 0) {
+      resetData();
+      return;
+  }
+  
+  // calculate metric values 
+  const asx = data.length;
+  const numOfProjects = new Set(data.filter(item => item.project_name).map(item => item.project_name)).size;
+  
+  setMetricSummaries({
+      asx: asx, 
+      numOfProjects: numOfProjects,
+  });
+
+  // process data for charts 
+  processDrillingResultsByGradeChart(data);
+  processDrillingResultsByIntersectChart(data); 
+
+  // process table data 
+  setTableData(data.map(item => ({
+      asx: item.asx_code || '',
+      marketCap: formatCurrency(item.market_cap || 0, 0), 
+      intersect: formatCurrency(item.intersect || 0, 0), 
+      grade: formatCurrency(item.grade || 0, 0), 
+      depth: formatCurrency(item.depth || 0, 0), 
+  })));
+};
+
+const formatCurrency = (value, decimals = 2) => {
+  if (isNaN(value)) return 'A$0.00';
+  return '$' + Number(value).toLocaleString('en-AU', {
+      minimumFractionDigits: decimals,
+      maximumFractionDigits: decimals
+  });
+};
+
+//CHARTS
+const processDrillingResultsByGradeChart = (data) => {
+  if (!data || data.length === 0) {
+    setDrillingResultsByGrade({
+      labels: ['No Data'],
+      datasets: [{
+        type: 'bar',
+        label: "Grade",
+        data: [0],
+        backgroundColor: "rgba(255, 99, 132, 0.7)",
+        borderColor: "rgb(255, 99, 132)",
+        borderWidth: 1
+      }]
+    });
+    return;
+  }
+  
+  const validData = data.filter(item => 
+    item.grade !== undefined && 
+    item.grade !== null && 
+    !isNaN(parseFloat(item.grade)) &&
+    item.asx_code
+  );
+  
+  const topGrades = validData
+    .sort((a, b) => parseFloat(b.grade) - parseFloat(a.grade))
+    .slice(0, 10);
+  
+  const asxCodes = topGrades.map(item => item.asx_code);
+  const grades = topGrades.map(item => parseFloat(item.grade));
+  
+  setDrillingResultsByGrade({
+    labels: asxCodes,
+    datasets: [{
+      type: 'bar',
+      label: "Grade",
+      data: grades,
+      backgroundColor: "rgba(255, 99, 132, 0.7)",
+      borderColor: "rgb(255, 99, 132)",
+      borderWidth: 1
+    }]
+  });
+};
+
+const processDrillingResultsByIntersectChart = (data) => {
+  if (!data || data.length === 0) {
+    setDrillingResultsByIntersect({
+      labels: ['No Data'],
+      datasets: [{
+        type: 'bar',
+        label: "Intersect",
+        data: [0],
+        backgroundColor: "rgba(54, 162, 235, 0.7)",
+        borderColor: "rgb(54, 162, 235)",
+        borderWidth: 1
+      }]
+    });
+    return;
+  }
+  
+  const validData = data.filter(item => 
+    item.intersect !== undefined && 
+    item.intersect !== null && 
+    !isNaN(parseFloat(item.intersect)) &&
+    item.asx_code
+  );
+  
+  const topIntersects = validData
+    .sort((a, b) => parseFloat(b.intersect) - parseFloat(a.intersect))
+    .slice(0, 10);
+  
+  const asxCodes = topIntersects.map(item => item.asx_code);
+  const intersects = topIntersects.map(item => parseFloat(item.intersect));
+  
+  setDrillingResultsByIntersect({
+    labels: asxCodes,
+    datasets: [{
+      type: 'bar',
+      label: "Intersect",
+      data: intersects,
+      backgroundColor: "rgba(54, 162, 235, 0.7)",
+      borderColor: "rgb(54, 162, 235)",
+      borderWidth: 1
+    }]
+  });
+};
+
+  // reset data if api call fails
+  const resetData = () => {
+    setMetricSummaries({
+        asx: 0,
+        numOfProjects: 0,
+    });
+    
+    setDrillingResultsByGrade({
+        labels: ['No Data'],
+        datasets: [{
+            type: 'bar',
+            label: "Top Ten Drilling Resulsts By Grade",
+            data: [0],
+            backgroundColor: ["rgba(75, 192, 75, 0.7)"]
+        }]
+    });
+    
+    // Reset for the new volume change chart
+    setDrillingResultsByIntersect({
+        labels: ['No Data'],
+        datasets: [{
+            type: 'bar',
+            label: "Top Ten Drilling Results By Intersect",
+            data: [0],
+            backgroundColor: ["rgba(75, 75, 192, 0.7)"]
+        }]
+    });
+    
+    setTableData([]);
+};
+
+useEffect(() => {
+    console.log("Fetching projects...");
+    fetchProjects();
+}, [fetchProjects]);
+
+const [filterTags, setFilterTags] = useState([]);
+
+const getUniqueValues = (key) => {
+    if (!projects || projects.length === 0) return [];
+    
+    const uniqueValues = [...new Set(projects.map(item => item[key]))].filter(Boolean);
+    return uniqueValues.map(value => ({ label: value, value: value }));
+};
+
+
+// table data state
+const [tableData, setTableData] = useState([]);
+
+/*
   const [filterTags, setFilterTags] = useState([
     { label: 'ASX', value: 'Default', onRemove: () => console.log('Remove ASX filter') },
     { label: 'Company Name', value: 'Default', onRemove: () => console.log('Remove company name filter') },
@@ -17,210 +287,112 @@ const Projects = () => {
     { label: 'Commodity Total Resource', value: 'Default', onRemove: () => console.log('Remove commodity total resource filter') },
     { label: 'Net Project Value', value: 'Default', onRemove: () => console.log('Remove net project value filter') },
 ]);
+*/
   
   const allFilterOptions = [
     {
       label: 'ASX',
-      value: 'Default',
+      value: 'Any',
       onChange: (value) => {
         setFilterTags(prevTags => 
           prevTags.map(tag => 
             tag.label === 'ASX' ? {...tag, value} : tag
           )
         );
-        if(value != "Default"){handleAddFilter({label: 'ASX', value})};
+        if(value != "Any"){handleAddFilter({label: 'ASX', value})};
       },      
       options: [
-        { label: 'TAT', value: 'TAT' },
-        { label: 'GCM', value: 'GCM' },
-        { label: 'GMN', value: 'GMN' }
+        { label: 'Any', value: 'Any' }, ...getUniqueValues('asx_code')
       ]
     },
     {
-      label: 'Company Name',
-      value: 'Default',
+      label: 'Activity Date Per Day',
+      value: 'Any',
       onChange: (value) => {
         setFilterTags(prevTags => 
           prevTags.map(tag => 
-            tag.label === 'Company Name' ? {...tag, value} : tag
+            tag.label === 'Activity Date Per Day' ? {...tag, value} : tag
           )
         );
-        if(value != "Default"){handleAddFilter({label: 'Company Name', value})};
+        if(value != "Any"){handleAddFilter({label: 'Activity Date Per Day', value})};
       },      
       options: [
-        { label: 'Gold', value: 'Gold' },
-        { label: 'Copper', value: 'Copper' },
-        { label: 'Lithium', value: 'Lithium' },
+        { label: 'Any', value: 'Any' }, ...getUniqueValues('activity_date_per_day')
       ]
     },
     {
-      label: 'Priority Commodity',
-      value: 'Default',
+      label: 'Project Name',
+      value: 'Any',
       onChange: (value) => {
         setFilterTags(prevTags => 
           prevTags.map(tag => 
-            tag.label === 'Priority Commodity' ? {...tag, value} : tag
+            tag.label === 'Project Name' ? {...tag, value} : tag
           )
         );
-        if(value != "Default"){handleAddFilter({label: 'Priority Commodity', value})};
-      },      
-      options: [
-        { label: 'Australia', value: 'Australia' },
-        { label: 'Canada', value: 'Canada' },
-        { label: 'Brazil', value: 'Brazil' }
-      ]
-    },
-    {
-      label: 'Project Location Country',
-      value: 'Default',
-      onChange: (value) => {
-        setFilterTags(prevTags => 
-          prevTags.map(tag => 
-            tag.label === 'Project Location Country' ? {...tag, value} : tag
-          )
-        );
-        if(value != "Default"){handleAddFilter({label: 'Project Location Country', value})};
+        if(value != "Any"){handleAddFilter({label: 'Project Name', value})};
       },     
       options: [
-        { label: 'Australia', value: 'Australia' },
-        { label: 'Canada', value: 'Canada' },
-        { label: 'Brazil', value: 'Brazil' }
+        { label: 'Any', value: 'Any' }, ...getUniqueValues('project_name')
       ]
     },
     {
-      label: 'Project Location Continent',
-      value: 'Default',
+      label: 'Intersect',
+      value: 'Any',
       onChange: (value) => {
         setFilterTags(prevTags => 
           prevTags.map(tag => 
-            tag.label === 'Project Location Continent' ? {...tag, value} : tag
+            tag.label === 'Intersect' ? {...tag, value} : tag
           )
         );
-        if(value != "Default"){handleAddFilter({label: 'Project Location Continent', value})};
+        if(value != "Any"){handleAddFilter({label: 'Intersect', value})};
       }, 
       options: [
-        { label: 'Australia', value: 'Australia' },
-        { label: 'Canada', value: 'Canada' },
-        { label: 'Brazil', value: 'Brazil' }
-      ]
-    },
-    {
-      label: 'Project Location State',
-      value: 'Default',
-      onChange: (value) => {
-        setFilterTags(prevTags => 
-          prevTags.map(tag => 
-            tag.label === 'Project Location State' ? {...tag, value} : tag
-          )
-        );
-        if(value != "Default"){handleAddFilter({label: 'Project Location State', value})};
-      },           
-      options: [
-        { label: 'Australia', value: 'Australia' },
-        { label: 'Canada', value: 'Canada' },
-        { label: 'Brazil', value: 'Brazil' }
-      ]
-    },
-    {
-      label: 'Project Location City',
-      value: 'Default',
-      onChange: (value) => {
-        setFilterTags(prevTags => 
-          prevTags.map(tag => 
-            tag.label === 'Project Location City' ? {...tag, value} : tag
-          )
-        );
-        if(value != "Default"){handleAddFilter({label: 'Project Location City', value})};
-      },     
-      options: [
-        { label: 'Australia', value: 'Australia' },
-        { label: 'Canada', value: 'Canada' },
-        { label: 'Brazil', value: 'Brazil' }
-      ]
-    },
-    {
-      label: 'Project Stage',
-      value: 'Default',
-      onChange: (value) => {
-        setFilterTags(prevTags => 
-          prevTags.map(tag => 
-            tag.label === 'Project Stage' ? {...tag, value} : tag
-          )
-        );
-        if(value != "Default"){handleAddFilter({label: 'Project Stage', value})};
-      },     
-      options: [
-        { label: 'Australia', value: 'Australia' },
-        { label: 'Canada', value: 'Canada' },
-        { label: 'Brazil', value: 'Brazil' }
-      ]
-    },
-    {
-      label: 'Industry Type',
-      value: 'Default',
-      onChange: (value) => {
-        setFilterTags(prevTags => 
-          prevTags.map(tag => 
-            tag.label === 'Industry Type' ? {...tag, value} : tag
-          )
-        );
-        if(value != "Default"){handleAddFilter({label: 'Industry Type', value})};
-      },     
-      options: [
-        { label: 'Australia', value: 'Australia' },
-        { label: 'Canada', value: 'Canada' },
-        { label: 'Brazil', value: 'Brazil' }
+        { label: 'Any', value: 'Any' }, ...getUniqueValues('intersect')
       ]
     },
     {
       label: 'Market Cap',
-      value: 'Default',
+      value: 'Any',
       onChange: (value) => {
         setFilterTags(prevTags => 
           prevTags.map(tag => 
             tag.label === 'Market Cap' ? {...tag, value} : tag
           )
         );
-        if(value != "Default"){handleAddFilter({label: 'Market Cap', value})};
-      },     
+        if(value != "Any"){handleAddFilter({label: 'Market Cap', value})};
+      },           
       options: [
-        { label: 'Australia', value: 'Australia' },
-        { label: 'Canada', value: 'Canada' },
-        { label: 'Brazil', value: 'Brazil' }
+        { label: 'Any', value: 'Any' }, ...getUniqueValues('market_cap')
       ]
     },
     {
-      label: 'Commodity Total Resource',
-      value: 'Default',
+      label: 'Grade',
+      value: 'Any',
       onChange: (value) => {
         setFilterTags(prevTags => 
           prevTags.map(tag => 
-            tag.label === 'Commodity Total Resource' ? {...tag, value} : tag
+            tag.label === 'Grade' ? {...tag, value} : tag
           )
         );
-        if(value != "Default"){handleAddFilter({label: 'Commodity Total Resource', value})};
+        if(value != "Any"){handleAddFilter({label: 'Grade', value})};
       },     
       options: [
-        { label: 'Australia', value: 'Australia' },
-        { label: 'Canada', value: 'Canada' },
-        { label: 'Brazil', value: 'Brazil' }
+        { label: 'Any', value: 'Any' }, ...getUniqueValues('grade')
       ]
     },
     {
-      label: 'Net Project Value',
-      value: 'Default',
+      label: 'Depth',
+      value: 'Any',
       onChange: (value) => {
         setFilterTags(prevTags => 
           prevTags.map(tag => 
-            tag.label === 'Net Project Value' ? {...tag, value} : tag
+            tag.label === 'Depth' ? {...tag, value} : tag
           )
         );
-        if(value != "Default"){handleAddFilter({label: 'Net Project Value', value})};
+        if(value != "Any"){handleAddFilter({label: 'Depth', value})};
       },     
       options: [
-        { label: 'Australia', value: 'Australia' },
-        { label: 'Canada', value: 'Canada' },
-        { label: 'Brazil', value: 'Brazil' }
+        { label: 'Any', value: 'Any' }, ...getUniqueValues('depth')
       ]
     },
   ];
@@ -255,124 +427,113 @@ const Projects = () => {
 
     };
 
+    const generateFilterTags = () => {
+      return filterTags.length > 0 ? filterTags : [
+          { label: 'No Filters Applied', value: 'Click to add filters', onRemove: () => {} }
+      ];
+      };
+
   
   //stats
-  const [metricCards] = useState([
+  const generateMetricCards = () =>  [
     {
       title: 'ASX Code Count',
-      value: '853',
-      trend: 'positive'
+      value: metricSummaries.asx
     },
     {
-      title: '# of ASX Resource Projects',
-      value: '4,715',
-      trend: 'positive',
-      description: 'YoY: +15%'
+      title: '# of ASX Projects',
+      value: metricSummaries.numOfProjects
     },
-    {
-      title: '# of Active ASX Resource Projects',
-      value: '2,924',
-      trend: 'negative',
-      description: 'YoY: +8%'
-    },
-  ]);
+  ];
 
   //charts
-  const [chartData] = useState([
+  const generateChartData = () => [
     {
-      title: 'Top 15 Projects by Commodity',
-      type: 'pie',
-      options: {
-        responsive: true,
-      },
-      data: {
-        labels: ['Gold', 'Lithium', 'Uranium', 'Coal', 'Copper', 'Nickel', 'Silver', 'Platinum', 'Iron Ore', 'Zinc', 'Lead', 'Diamonds', 'Tin', 'Manganese', 'Cobalt'],
-        datasets: [
-          {
-            data: [20, 15, 10, 8, 6, 5, 4, 4, 3, 3, 2, 2, 1, 1, 1],
-            backgroundColor: ['#ff6384', '#36a2eb', '#ffce56', '#4bc0c0', '#9966ff', '#ff9f40', '#ffbf00', '#00c2ff', '#ff3366', '#7bbf00', '#ff3366', '#c23236', '#6b33ff', '#5bafab', '#32a838'],
-          },
-        ],
-      },
-    },
-    {
-      title: 'Top 10 Project Location Countries',
-      type: 'pie',
-      options: {
-        responsive: true,
-      },
-      data: {
-        labels: ['Australia', 'Canada', 'Chile', 'United States', 'Brazil', 'Russia', 'South Africa', 'Argentina', 'China', 'Mexico'],
-        datasets: [
-          {
-            data: [25, 20, 15, 10, 8, 7, 5, 4, 3, 3],
-            backgroundColor: ['#ff6384', '#36a2eb', '#ffce56', '#4bc0c0', '#9966ff', '#ff9f40', '#ffbf00', '#00c2ff', '#ff3366', '#7bbf00'],
-          },
-        ],
-      },
-    },
-    {
-      title: 'Top 10 Project Activity by Commodity',
+      title: 'Top 10 Drilling Results by Grade',
       type: 'bar',
+      data: drillingResultsByGrade,
       options: {
+        indexAxis: 'y',
         responsive: true,
-        indexAxis: 'y', 
         scales: {
           x: {
             title: {
               display: true,
-              text: 'Commodity by Number of Periods',
+              text: 'Grade',
             },
           },
           y: {
             title: {
               display: true,
-              text: 'Top 10 Commodities by Number of ASX Codes and Period Activity',
+              text: 'ASX Code',
             },
           },
         },
-      },
-      data: {
-        labels: ['Gold', 'Lithium', 'Uranium', 'Copper', 'Nickel', 'Zinc', 'Iron Ore', 'Silver', 'Coal', 'Platinum'],
-        datasets: [
-          {
-            label: 'Commodity by Number of Periods',
-            data: [120, 105, 95, 85, 80, 75, 70, 65, 60, 55],
-            backgroundColor: '#4bc0c0',
+        plugins: {
+          legend: {
+            display: false
+          }
+        }
+      }
+    },
+    {
+      title: 'Top 10 Drilling Results by Intersect',
+      type: 'bar',
+      data: drillingResultsByIntersect,
+      options: {
+        indexAxis: 'y',
+        responsive: true,
+        scales: {
+          x: {
+            title: {
+              display: true,
+              text: 'Intersect',
+            },
           },
-        ],
-      },
+          y: {
+            title: {
+              display: true,
+              text: 'ASX Code',
+            },
+          },
+        },
+        plugins: {
+          legend: {
+            display: false
+          }
+        }
+      }
     }
-  ]);
-  
+  ];
   const [tableColumns] = useState([
     { header: 'ASX', key: 'asx' },
-    { header: 'Commodity', key: 'commodity' },
-    { header: 'Activity', key: 'activity' },
-    { header: 'Location Area', key: 'locationArea' },
-    { header: 'Market Cap', key: 'marketCap' }
+    { header: 'Market Cap', key: 'marketCap' },
+    { header: 'Intersect', key: 'intersect' },
+    { header: 'Grade', key: 'grade' },
+    { header: 'Depth', key: 'depth' }
+
   ]);
   
-  const [tableData] = useState([
-    { asx: 'CEL', commodity: 'Copper', activity: 'Drilling Company', locationArea: 'Lachlan FOld ', marketCap: '51,135,439' },
-    { asx: 'CEL', commodity: 'Copper', activity: 'Drilling Company', locationArea: 'Lachlan FOld ', marketCap: '51,135,439' },
-    { asx: 'CEL', commodity: 'Copper', activity: 'Drilling Company', locationArea: 'Lachlan FOld ', marketCap: '51,135,439' },
-  ]);
 
   return (
     <div className="standard-padding">
-    <GraphPage
-      title="Projects"
-      filterTags={filterTags}
-      filterOptions={filterOptions}
-      allFilterOptions={allFilterOptions}
-      metricCards={metricCards}
-      chartData={chartData}
-      tableColumns={tableColumns}
-      tableData={tableData}
-      handleAddFilter={handleAddFilter}
-      handleRemoveFilter={handleRemoveFilter}
-    />
+      {error && <div className="error-message">{error}</div>}
+      {loading ? (
+        <div className="loading-indicator">Loading projects data...</div>
+      ) : (
+        <GraphPage
+          title="Projects Dashboard"
+          filterTags={generateFilterTags()}
+          filterOptions={filterOptions}
+          allFilterOptions={allFilterOptions}
+          metricCards={generateMetricCards()}
+          chartData={generateChartData()}
+          tableColumns={tableColumns}
+          tableData={tableData}
+          handleAddFilter={handleAddFilter}
+          handleRemoveFilter={handleRemoveFilter}
+        />
+      )}
     </div>
   );
 };
