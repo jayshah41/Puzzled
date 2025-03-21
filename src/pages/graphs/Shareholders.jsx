@@ -7,107 +7,110 @@ const Shareholders = () => {
   const [shareholders, setShareholders] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-
-  const [asxCode, setAsxCode] = useState("");
-  const [annType, setAnnType] = useState("");
-  const [entity, setEntity] = useState("");
-  const [value, setValue] = useState("");
-  const [projectCommodity, setPriorityCommodity] = useState("");
-  const [projectArea, setProjectArea] = useState("");
-  const [transactionType, setTransactionType] = useState("");
-
+  const [filteredShareholders, setFilteredShareholders] = useState([]);
   const [metricSummaries, setMetricSummaries] = useState({
     totalAsxCount: 0,
     totalEntityCount: 0,
     totalProjectAreaCount: 0
   });
-
   const [shareholdersByMarketCap, setShareholdersByMarketCap] = useState({
     labels: [], 
     datasets: [{data: []}]
   });
-
   const [asxByMarketCapPercentage, setAsxByMarketCapPercentage] = useState({
     labels: [], 
     datasets: [{data: []}]
   });
-
   const [projectCommodityByValue, setPriorityCommodityByValue] = useState({
     labels: [], 
     datasets: [{data: []}]
   });
-
   const [tableData, setTableData] = useState([]);
   const [filterTags, setFilterTags] = useState([]);
 
   const fetchShareholders = useCallback(async () => {
-    // retrieves authentication token 
     const token = localStorage.getItem("accessToken");
-
-    // handles missing tokens
+  
     if (!token) {
       setError("Authentication error: No token found.");
       setLoading(false);
       return;
     }
-
+  
     try {
       setLoading(true);
       
-      // building parameters from filter states
-      const params = {
-        asxCode: asxCode || undefined,
-        annType: annType || undefined,
-        entity: entity || undefined,
-        value: value || undefined,
-        projectCommodity: projectCommodity || undefined,
-        projectArea: projectArea || undefined,
-        transactionType: transactionType || undefined
-      };
-      
-      // remove undefined keys
-      Object.keys(params).forEach(key => 
-        params[key] === undefined && delete params[key]
-      );
-      
-      // sending api requests
       const response = await axios.get("http://127.0.0.1:8000/data/shareholders/", {
         headers: {
           Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json"
-        },
-        params: params
+          "Content-Type": "application/json",
+        }
       });
-
-      console.log("API Response:", response.data);
       
-      // handling different api formats
       if (Array.isArray(response.data)) {
         setShareholders(response.data);
+        setFilteredShareholders(response.data);
         processShareholders(response.data);
       } else if (response.data && typeof response.data === 'object') {
         const dataArray = [response.data];
         setShareholders(dataArray);
+        setFilteredShareholders(dataArray);
         processShareholders(dataArray);
       } else {
         setShareholders([]);
+        setFilteredShareholders([]);
         processShareholders([]);
       }
-      
-      // handles errors
+  
       setError("");
     } catch (error) {
-      console.error("Error fetching shareholders:", error.response?.data || error);
-      setError("Failed to fetch shareholder data: " + (error.response?.data?.detail || error.message));
+      setError(`Failed to fetch shareholder data: ${error.response?.data?.detail || error.message}`);
       resetData();
     } finally {
       setLoading(false);
     }
-    // recreates fetchShareholders if a filter changes
-  }, [
-    asxCode, annType, entity, value, projectCommodity,  
-    projectArea, transactionType
-  ]);
+  }, []);
+  
+  const applyClientSideFilters = useCallback(() => {
+    if (!shareholders.length) return;
+    const fieldMapping = {
+      'ASX Code': 'asx_code',
+      'Ann Type': 'ann_date',
+      'Entity': 'entity',
+      'Value': 'value',
+      'Project Commodities': 'project_commodities',
+      'Project Area': 'project_area',
+      'Transaction Type': 'transaction_type'
+    };
+    let filtered = [...shareholders];
+    filterTags.forEach(tag => {
+      if (tag.value && tag.value !== 'Default' && tag.label !== 'No Filters Applied') {
+        const fieldName = fieldMapping[tag.label];
+        if (fieldName) {
+          filtered = filtered.filter(item => {
+            if (fieldName === 'value') {
+              return item[fieldName] == tag.value; 
+            } else {
+              return item[fieldName] && item[fieldName].toString() === tag.value.toString();
+            }
+          });
+        }
+      }
+    });
+    
+    setFilteredShareholders(filtered);
+    processShareholders(filtered);
+  }, [shareholders, filterTags]);
+  
+  useEffect(() => {
+    if (shareholders.length) {
+      applyClientSideFilters();
+    }
+  }, [filterTags, applyClientSideFilters]);
+  
+  useEffect(() => {
+    fetchShareholders();
+  }, [fetchShareholders]);
 
   const processShareholders = (data) => {
     if (!data || data.length === 0) {
@@ -115,23 +118,20 @@ const Shareholders = () => {
       return;
     }
 
-    // calculate metric values 
     const totalAsxCount = new Set(data.map(item => item.asx_code)).size;
     const totalEntityCount = new Set(data.map(item => item.entity)).size;
     const totalProjectAreaCount = new Set(data.map(item => item.project_area)).size;
 
     setMetricSummaries({
-      totalAsxCount: totalAsxCount, 
-      totalEntityCount: totalEntityCount, 
-      totalProjectAreaCount: totalProjectAreaCount
+      totalAsxCount,
+      totalEntityCount, 
+      totalProjectAreaCount
     });
 
-    // process data for charts 
     processShareholdersByMarketCap(data);
     processAsxByMarketCapPercentage(data);
     processPriorityCommodityByValue(data);
 
-    // process table data 
     setTableData(data.map(item => ({
       asxCode: item.asx_code || '',
       annType: item.ann_date || '',
@@ -159,6 +159,8 @@ const Shareholders = () => {
           entity: item.entity,
           value: parseFloat(item.value) || 0
         };
+      } else {
+        shareholderGroups[item.entity].value += parseFloat(item.value) || 0;
       }
     });
   
@@ -184,6 +186,8 @@ const Shareholders = () => {
           asx: item.asx_code,
           value: parseFloat(item.value) || 0
         };
+      } else {
+        asxGroups[item.asx_code].value += parseFloat(item.value) || 0;
       }
     });
   
@@ -204,11 +208,16 @@ const Shareholders = () => {
   const processPriorityCommodityByValue = (data) => {
     const commodityGroups = {};
     data.forEach(item => {
-      if (!commodityGroups[item.project_commodities]) {
-        commodityGroups[item.project_commodities] = {
-          commodity: item.project_commodities,
+      const commodity = item.project_commodities;
+      if (!commodity) return;
+      
+      if (!commodityGroups[commodity]) {
+        commodityGroups[commodity] = {
+          commodity: commodity,
           value: parseFloat(item.value) || 0
         };
+      } else {
+        commodityGroups[commodity].value += parseFloat(item.value) || 0;
       }
     });
   
@@ -263,15 +272,8 @@ const Shareholders = () => {
     setTableData([]);
   };
 
-  // Added useEffect for initial data fetch like in MarketData component
-  useEffect(() => {
-    console.log("Fetching shareholder data...");
-    fetchShareholders();
-  }, [fetchShareholders]);
-
   const getUniqueValues = (key) => {
     if (!shareholders || shareholders.length === 0) return [];
-      
     const uniqueValues = [...new Set(shareholders.map(item => item[key]))].filter(Boolean);
     return uniqueValues.map(value => ({ label: value, value: value }));
   };
@@ -280,144 +282,87 @@ const Shareholders = () => {
     {
       label: 'ASX Code',
       value: 'Default',
-      onChange: (value) => {
-        setFilterTags(prevTags => 
-          prevTags.map(tag => 
-            tag.label === 'ASX Code' ? {...tag, value} : tag
-          )
-        );
-        if(value !== "Default"){handleAddFilter({label: 'ASX Code', value})};
-      },
-      options: [
-        { label: '', value: '' }, ...getUniqueValues('asx_code')
-      ]
+      onChange: (value) => handleFilterChange('ASX Code', value),
+      options: [{ label: 'Any', value: 'Any' }, ...getUniqueValues('asx_code')]
     },
     {
       label: 'Ann Type',
       value: 'Default',
-      onChange: (value) => {
-        setFilterTags(prevTags => 
-          prevTags.map(tag => 
-            tag.label === 'Ann Type' ? {...tag, value} : tag
-          )
-        );
-        if(value !== "Default"){handleAddFilter({label: 'Ann Type', value})};
-      },
-      options: [
-        { label: '', value: '' }, ...getUniqueValues('ann_date')
-      ]
+      onChange: (value) => handleFilterChange('Ann Type', value),
+      options: [{ label: 'Any', value: 'Any' }, ...getUniqueValues('ann_date')]
     },
     {
       label: 'Entity',
       value: 'Default',
-      onChange: (value) => {
-        setFilterTags(prevTags => 
-          prevTags.map(tag => 
-            tag.label === 'Entity' ? {...tag, value} : tag
-          )
-        );
-        if(value !== "Default"){handleAddFilter({label: 'Entity', value})};
-      },
-      options: [
-        { label: '', value: '' },  ...getUniqueValues('entity')
-      ]
+      onChange: (value) => handleFilterChange('Entity', value),
+      options: [{ label: 'Any', value: 'Any' }, ...getUniqueValues('entity')]
     },
     {
       label: 'Value',
       value: 'Default',
-      onChange: (value) => {
-        setFilterTags(prevTags => 
-          prevTags.map(tag => 
-            tag.label === 'Value' ? {...tag, value} : tag
-          )
-        );
-        if(value !== "Default"){handleAddFilter({label: 'Value', value})};
-      },
-      options: [
-        { label: '', value: '' }, ...getUniqueValues('value')
-      ]
+      onChange: (value) => handleFilterChange('Value', value),
+      options: [{ label: 'Any', value: 'Any' }, ...getUniqueValues('value')]
     },
     {
       label: 'Project Commodities',
       value: 'Default',
-      onChange: (value) => {
-        setFilterTags(prevTags => 
-          prevTags.map(tag => 
-            tag.label === 'Project Commodities' ? {...tag, value} : tag
-          )
-        );
-        if(value !== "Default"){handleAddFilter({label: 'Project Commodities', value})};
-      },
-      options: [
-        { label: '', value: '' }, ...getUniqueValues('project_commodities')
-      ]
+      onChange: (value) => handleFilterChange('Project Commodities', value),
+      options: [{ label: 'Any', value: 'Any' }, ...getUniqueValues('project_commodities')]
     },
     {
       label: 'Project Area',
       value: 'Default',
-      onChange: (value) => {
-        setFilterTags(prevTags => 
-          prevTags.map(tag => 
-            tag.label === 'Project Area' ? {...tag, value} : tag
-          )
-        );
-        if(value !== "Default"){handleAddFilter({label: 'Project Area', value})};
-      },
-      options: [
-        { label: '', value: '' }, ...getUniqueValues('project_area')
-      ]
+      onChange: (value) => handleFilterChange('Project Area', value),
+      options: [{ label: 'Any', value: 'Any' }, ...getUniqueValues('project_area')]
     },
     {
       label: 'Transaction Type',
       value: 'Default',
-      onChange: (value) => {
-        setFilterTags(prevTags => 
-          prevTags.map(tag => 
-            tag.label === 'Transaction Type' ? {...tag, value} : tag
-          )
-        );
-        if(value !== "Default"){handleAddFilter({label: 'Transaction Type', value})};
-      },
-      options: [
-        { label: '', value: '' }, ...getUniqueValues('transaction_type')
-      ]
+      onChange: (value) => handleFilterChange('Transaction Type', value),
+      options: [{ label: 'Any', value: 'Any' }, ...getUniqueValues('transaction_type')]
     }
   ];
 
-  const [filterOptions, setFilterOptions] = useState(() => {
-    const currentTagLabels = filterTags.map(tag => tag.label);
-    return allFilterOptions.filter(option => !currentTagLabels.includes(option.label));
-  });
+  const handleFilterChange = (label, value) => {
+    if (value && value !== "Any") {
+      setFilterTags(prevTags => {
+        const updatedTags = prevTags.filter(tag => tag.label !== label);
+        return [...updatedTags, { label, value }];
+      });
+    } else {
+      setFilterTags(prevTags => prevTags.filter(tag => tag.label !== label));
+    }
+  };
 
   const handleRemoveFilter = (filterLabel) => {
-    const removedFilter = filterTags.find(tag => tag.label === filterLabel);
     setFilterTags(prevTags => prevTags.filter(tag => tag.label !== filterLabel));
-    
-    if (removedFilter) {
-      setFilterOptions(prevOptions => [...prevOptions, 
-        allFilterOptions.find(opt => opt.label === filterLabel)
-      ]);
-    }
   };
   
   const handleAddFilter = (filter) => {
-    setFilterTags(prevTags => {
-      const exists = prevTags.some(tag => tag.label === filter.label);
-      if (exists) {
-        return prevTags.map(tag => 
-          tag.label === filter.label ? { ...tag, value: filter.value } : tag
-        );
-      }
-      return [...prevTags, filter];
-    });
+    if (filter.value && filter.value !== "Default") {
+      setFilterTags(prevTags => {
+        const existingIndex = prevTags.findIndex(tag => tag.label === filter.label);
+        if (existingIndex >= 0) {
+          const updatedTags = [...prevTags];
+          updatedTags[existingIndex] = filter;
+          return updatedTags;
+        } else {
+          return [...prevTags, filter];
+        }
+      });
+    }
   };
-
+  
   const generateFilterTags = () => {
     return filterTags.length > 0 ? filterTags : [
       { label: 'No Filters Applied', value: 'Click to add filters', onRemove: () => {} }
     ];
   };
 
+  const applyFilters = () => {
+    applyClientSideFilters();
+  };
+  
   const generateMetricCards = () => [
     {
       title: 'No Of ASX Codes',
@@ -477,6 +422,7 @@ const Shareholders = () => {
           tableData={tableData}
           handleAddFilter={handleAddFilter}
           handleRemoveFilter={handleRemoveFilter}
+          applyFilters={applyFilters}
         />
       )}
     </div>
