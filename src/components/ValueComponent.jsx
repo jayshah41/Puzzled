@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import criticalInfo from '../assets/Values/critical-info.png';
 import keyData from '../assets/Values/key-data.png';
 import saveTime from '../assets/Values/save-time.png';
@@ -16,33 +16,6 @@ const ValueComponent = ({ index, title, content, isEditing, setContentMap }) => 
       return updatedContentMap;
     });
   };
-
-  useEffect(() => {
-    if (!isEditing) {
-      const updateContent = async (field, value) => {
-        try {
-          const response = await fetch('/api/editable-content/update/', {
-            method: 'PUT',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              component: 'Values',
-              section: `${field}${index}`,
-              text_value: value
-            }),
-          });
-          const data = await response.json();
-          console.log(`${field} saved successfully:`, data);
-        } catch (error) {
-          console.error(`There was an error saving the ${field}`, error);
-        }
-      };
-
-      updateContent('title', title);
-      updateContent('content', content);
-    }
-  }, [isEditing, index, title, content]);
 
   const Picture = () => (
     <div className="illustration-container">
