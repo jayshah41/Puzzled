@@ -93,12 +93,20 @@ const NewsContent = () => {
       });
   }, []);
 
+  const isValidUrl = (url) => {
+    try {
+      const urlObj = new URL(url);
+      return urlObj.protocol === 'http:' || urlObj.protocol === 'https:';
+    } catch (e) {
+      return false;
+    }
+  };
+
   const validateNewsCards = () => {
     const errors = {};
     let isValid = true;
     
     newsCards.forEach((card, cardIndex) => {
-      // Check card fields
       if (!card.category || card.category.trim() === '') {
         errors[`card-${cardIndex}-category`] = 'Category cannot be empty';
         isValid = false;
@@ -117,9 +125,11 @@ const NewsContent = () => {
       if (!card.link || card.link.trim() === '') {
         errors[`card-${cardIndex}-link`] = 'Link cannot be empty';
         isValid = false;
+      } else if (!isValidUrl(card.link)) {
+        errors[`card-${cardIndex}-link`] = 'Must be a valid URL (e.g., https://example.com)';
+        isValid = false;
       }
       
-      // Check paragraphs
       if (Array.isArray(card.paragraphs)) {
         card.paragraphs.forEach((paragraph, paragraphIndex) => {
           if (!paragraph || paragraph.trim() === '') {
@@ -139,7 +149,6 @@ const NewsContent = () => {
 
   const handleSave = async () => {
     if (!validateNewsCards()) {
-      // Scroll to the first error
       const firstErrorKey = Object.keys(validationErrors)[0];
       if (firstErrorKey) {
         const elementId = firstErrorKey;
@@ -234,11 +243,15 @@ const NewsContent = () => {
     updatedCards[cardIndex][field] = value;
     setNewsCards(updatedCards);
     
-    // Clear validation error for this field if it exists
     if (validationErrors[`card-${cardIndex}-${field}`]) {
       const updatedErrors = {...validationErrors};
       delete updatedErrors[`card-${cardIndex}-${field}`];
       setValidationErrors(updatedErrors);
+      
+      if (field === 'link' && value.trim() !== '' && !isValidUrl(value)) {
+        updatedErrors[`card-${cardIndex}-${field}`] = 'Must be a valid URL (e.g., https://example.com)';
+        setValidationErrors(updatedErrors);
+      }
     }
   };
 
@@ -250,7 +263,6 @@ const NewsContent = () => {
     updatedCards[cardIndex].paragraphs[paragraphIndex] = text;
     setNewsCards(updatedCards);
     
-    // Clear validation error for this paragraph if it exists
     if (validationErrors[`card-${cardIndex}-paragraph-${paragraphIndex}`]) {
       const updatedErrors = {...validationErrors};
       delete updatedErrors[`card-${cardIndex}-paragraph-${paragraphIndex}`];
@@ -279,7 +291,6 @@ const NewsContent = () => {
     if (cardToDelete !== null) {
       const updatedCards = newsCards.filter((_, index) => index !== cardToDelete);
       
-      // Remove validation errors for the deleted card
       const updatedErrors = {...validationErrors};
       Object.keys(updatedErrors).forEach(key => {
         if (key.startsWith(`card-${cardToDelete}-`)) {
@@ -311,7 +322,6 @@ const NewsContent = () => {
         updatedCards[cardIndex].paragraphs = [""];
       }
       
-      // Remove validation error for the deleted paragraph
       const updatedErrors = {...validationErrors};
       delete updatedErrors[`card-${cardIndex}-paragraph-${paragraphIndex}`];
       setValidationErrors(updatedErrors);
@@ -438,7 +448,7 @@ const NewsContent = () => {
 
       {Object.keys(validationErrors).length > 0 && isEditing && (
         <div className="validation-summary">
-          <h3>Please fix the errors below before saving (no text boxes can be empty).</h3>
+          <h3>Please fix the errors below before saving.</h3>
         </div>
       )}
 
@@ -575,7 +585,7 @@ const NewsContent = () => {
                     value={card.link}
                     onChange={(e) => updateCardField(cardIndex, 'link', e.target.value)}
                     className={`auth-input edit-link-input ${validationErrors[`card-${cardIndex}-link`] ? 'input-error' : ''}`}
-                    placeholder="Article URL"
+                    placeholder="Article URL (e.g., https://example.com/article)"
                   />
                   <ValidationMessage error={validationErrors[`card-${cardIndex}-link`]} />
                 </div>
