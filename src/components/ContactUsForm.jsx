@@ -122,7 +122,7 @@ const ContactUsForm = () => {
                 handleSave();
                 setIsEditing(!isEditing);
               } else {
-                alert("Empty values are invalid")
+                alert("Please ensure all fields are filled out before saving.")
               }
             } else {
               setIsEditing(!isEditing);
