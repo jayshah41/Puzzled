@@ -2,8 +2,11 @@ import React, { useState, useCallback, useEffect } from 'react';
 import '../../styles/GeneralStyles.css';
 import GraphPage from '../../components/GraphPage.jsx';
 import axios from 'axios';
+import useAuthToken from "../../hooks/useAuthToken";
 
 const Directors = () => {
+  const { getAccessToken, authError } = useAuthToken();
+
    const [directors, setDirectors] = useState([]);
    const [loading, setLoading] = useState(false);
    const [error, setError] = useState("");
@@ -44,64 +47,120 @@ const [topDirectorRemuneration, setTopDirectorRemuneration] = useState({
  const [tableData, setTableData] = useState([]);
 
  // fetch data from api
+  // const fetchDirectors = useCallback(async () => {
+  // const token = localStorage.getItem("accessToken");
+
+  //    // handles missing tokens
+  //    if (!token) {
+  //        setError("Authentication error: No token found.");
+  //        setLoading(false);
+  //        return;
+  //    }
+
+  //    try {
+  //     setLoading(true);
+      
+  //     // building parameters from filter states
+  //     const params = {
+  //         asx: asxCode || undefined,
+  //         contact: contact || undefined,
+  //         baseRemuneration: baseRemuneration || undefined,
+  //         totalRemuneration: totalRemuneration || undefined,
+  //     };
+      
+  //     Object.keys(params).forEach(key => 
+  //         params[key] === undefined && delete params[key]
+  //     );
+      
+  //     const response = await axios.get("http://127.0.0.1:8000/data/directors/", {
+  //         headers: {
+  //             Authorization: `Bearer ${token}`,
+  //             "Content-Type": "application/json"
+  //         },
+  //         params: params
+  //     });
+
+  //     console.log("API Response:", response.data);
+            
+  //           // handling different api formats
+  //           if (Array.isArray(response.data)) {
+  //               setDirectors(response.data);
+  //               processDirectors(response.data);
+  //           } else if (response.data && typeof response.data === 'object') {
+  //               const dataArray = [response.data];
+  //               setDirectors(dataArray);
+  //               processDirectors(dataArray);
+  //           } else {
+  //               setDirectors([]);
+  //               resetData();
+  //           }
+            
+  //           // handles errors
+  //           setError("");
+  //       } catch (error) {
+  //           console.error("Error fetching directors:", error.response?.data || error);
+  //           setError("Failed to fetch directors data: " + (error.response?.data?.detail || error.message));
+  //           resetData();
+  //       } finally {
+  //           setLoading(false);
+  //       }
+  //   }, [asxCode, contact, baseRemuneration, totalRemuneration]);
+
   const fetchDirectors = useCallback(async () => {
-  const token = localStorage.getItem("accessToken");
+    try {
+        setLoading(true);
 
-     // handles missing tokens
-     if (!token) {
-         setError("Authentication error: No token found.");
-         setLoading(false);
-         return;
-     }
-
-     try {
-      setLoading(true);
-      
-      // building parameters from filter states
-      const params = {
-          asx: asxCode || undefined,
-          contact: contact || undefined,
-          baseRemuneration: baseRemuneration || undefined,
-          totalRemuneration: totalRemuneration || undefined,
-      };
-      
-      Object.keys(params).forEach(key => 
-          params[key] === undefined && delete params[key]
-      );
-      
-      const response = await axios.get("http://127.0.0.1:8000/data/directors/", {
-          headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json"
-          },
-          params: params
-      });
-
-      console.log("API Response:", response.data);
-            
-            // handling different api formats
-            if (Array.isArray(response.data)) {
-                setDirectors(response.data);
-                processDirectors(response.data);
-            } else if (response.data && typeof response.data === 'object') {
-                const dataArray = [response.data];
-                setDirectors(dataArray);
-                processDirectors(dataArray);
-            } else {
-                setDirectors([]);
-                resetData();
-            }
-            
-            // handles errors
-            setError("");
-        } catch (error) {
-            console.error("Error fetching directors:", error.response?.data || error);
-            setError("Failed to fetch directors data: " + (error.response?.data?.detail || error.message));
-            resetData();
-        } finally {
+        // Get the valid access token
+        const token = await getAccessToken();
+        if (!token) {
+            setError(authError || "Authentication error.");
             setLoading(false);
+            return;
         }
-    }, [asxCode, contact, baseRemuneration, totalRemuneration]);
+
+        // Build query parameters
+        const params = {
+            asx: asxCode || undefined,
+            contact: contact || undefined,
+            baseRemuneration: baseRemuneration || undefined,
+            totalRemuneration: totalRemuneration || undefined,
+        };
+
+        Object.keys(params).forEach((key) => params[key] === undefined && delete params[key]);
+
+        // Make the API request
+        const response = await axios.get("http://127.0.0.1:8000/data/directors/", {
+            headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+            },
+            params: params,
+        });
+
+        console.log("API Response:", response.data);
+
+        if (Array.isArray(response.data)) {
+            setDirectors(response.data);
+            processDirectors(response.data);
+        } else if (response.data && typeof response.data === "object") {
+            const dataArray = [response.data];
+            setDirectors(dataArray);
+            processDirectors(dataArray);
+        } else {
+            setDirectors([]);
+            resetData();
+        }
+
+        setError("");
+    } catch (error) {
+        console.error("Error fetching directors:", error.response?.data || error);
+        setError("Failed to fetch directors data: " + (error.response?.data?.detail || error.message));
+        resetData();
+    } finally {
+        setLoading(false);
+    }
+}, [getAccessToken, authError, asxCode, contact, baseRemuneration, totalRemuneration]);
+
 
      // process directors data for metrics and charts 
      const processDirectors = (data) => {
