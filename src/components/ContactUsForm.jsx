@@ -156,6 +156,7 @@ const ContactUsForm = () => {
               name="firstName"
               value={formData.firstName}
               onChange={handleChange}
+              disabled={isEditing}
               required
             />
           </div>
@@ -180,6 +181,7 @@ const ContactUsForm = () => {
               name="lastName"
               value={formData.lastName}
               onChange={handleChange}
+              disabled={isEditing}
               required
             />
           </div>
@@ -204,6 +206,8 @@ const ContactUsForm = () => {
               name="phoneNumber"
               value={formData.phoneNumber}
               onChange={handleChange}
+              disabled={isEditing}
+              required
             />
           </div>
 
@@ -227,6 +231,7 @@ const ContactUsForm = () => {
               name="email"
               value={formData.email}
               onChange={handleChange}
+              disabled={isEditing}
               required
             />
           </div>
@@ -251,6 +256,7 @@ const ContactUsForm = () => {
               name="state"
               value={formData.state}
               onChange={handleChange}
+              disabled={isEditing}
             />
           </div>
 
@@ -274,6 +280,7 @@ const ContactUsForm = () => {
               name="country"
               value={formData.country}
               onChange={handleChange}
+              disabled={isEditing}
             />
           </div>
         </div>
@@ -299,6 +306,7 @@ const ContactUsForm = () => {
               name="referredBy"
               value={formData.referredBy}
               onChange={handleChange}
+              disabled={isEditing}
             />
           </div>
 
@@ -321,6 +329,7 @@ const ContactUsForm = () => {
               name="commodityType1"
               value={formData.commodityType1}
               onChange={handleChange}
+              disabled={isEditing}
             >
               <option value="">Select a commodity</option>
               {commodityOptions.map((option, index) => (
@@ -348,6 +357,7 @@ const ContactUsForm = () => {
               name="commodityType2"
               value={formData.commodityType2}
               onChange={handleChange}
+              disabled={isEditing}
             >
               <option value="">Select a commodity</option>
               {commodityOptions.map((option, index) => (
@@ -375,6 +385,7 @@ const ContactUsForm = () => {
               name="commodityType3"
               value={formData.commodityType3}
               onChange={handleChange}
+              disabled={isEditing}
             >
               <option value="">Select a commodity</option>
               {commodityOptions.map((option, index) => (
@@ -402,6 +413,7 @@ const ContactUsForm = () => {
               name="investmentCriteria"
               value={formData.investmentCriteria}
               onChange={handleChange}
+              disabled={isEditing}
             >
               <option value="">Select investment criteria</option>
               {investmentCriteriaOptions.map((option, index) => (
