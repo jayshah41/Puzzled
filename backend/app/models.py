@@ -21,6 +21,8 @@ class User(AbstractUser):
     tier_level = models.IntegerField(choices=TIER_CHOICES, default=0)
     
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['username'] 
+    REQUIRED_FIELDS = ['username']
+    
 
-
+    def __str__(self):
+        return f"{self.email} -  (Tier {self.tier_level})"
