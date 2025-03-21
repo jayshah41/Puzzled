@@ -438,12 +438,7 @@ const NewsContent = () => {
 
       {Object.keys(validationErrors).length > 0 && isEditing && (
         <div className="validation-summary">
-          <h3>Please fix the following errors before saving:</h3>
-          <ul>
-            {Object.values(validationErrors).map((error, index) => (
-              <li key={index}>{error}</li>
-            ))}
-          </ul>
+          <h3>Please fix the errors below before saving (no text boxes can be empty).</h3>
         </div>
       )}
 
