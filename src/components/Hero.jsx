@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import Login from './Login';
 import useSaveContent from '../hooks/useSaveContent';
 import hero from '../assets/hero-picture.png';
 import '../styles/GeneralStyles.css';
@@ -10,6 +11,8 @@ const Hero = () => {
   const saveContent = useSaveContent();
 
   const [isEditing, setIsEditing] = useState(false);
+  const [showingLogin, setShowingLogin] = useState(false);
+  const [showingSignup, setShowingSignup] = useState(false);
 
   const [title, setTitle] = useState("MakCorp has modernised how our clients invest in Mining, Oil & Gas.");
   const [intro, setIntro] = useState("Compare & analyse ASX resource companies, including");
@@ -62,7 +65,15 @@ const Hero = () => {
     return !!title && !!intro && !(bulletPoints.length === 0 || bulletPoints.every(point => point === ""));
   };
 
+  const handleLoginSuccess = () => {
+    setIsLoggedIn(true);
+    setShowingLogin(false);
+    console.log('Login successful. isLoggedIn:', true);
+    navigate('/account');
+  };
+
   return (
+    <>
     <div className="two-card-container standard-padding">
       <div>
         {isAdminUser ? (
@@ -137,11 +148,20 @@ const Hero = () => {
           )}
         </ul>
         {!isLoggedIn ? (
-          <button className="defulatButton">Start now</button>
+          <button className="defulatButton"
+          onClick={()=>setShowingLogin(true)}
+          >Start now</button>
         ) : null}
       </div>
       <img src={hero} style={{ width: '45vw', paddingLeft: "35px" }} alt="Hero" />
     </div>
+    {showingLogin && (
+      <Login
+        onClose={() => setShowingLogin(false)}
+        loginButton={!showingSignup}
+        onLoginSuccess={handleLoginSuccess} />
+    )}
+    </>
   );
 };
 
