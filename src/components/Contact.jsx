@@ -79,15 +79,31 @@ const Contact = () => {
     saveContent(contentData);
   };
 
+  const contentIsValid = () => {
+    if (!title.trim() || !introText.trim()) return false;
+    for (const contact of contacts) {
+      if (!contact.name.trim() || !contact.role.trim() || !contact.email.trim()) {
+        return false;
+      }
+    }
+    return true;
+  };
+
   return (
     <div className="standard-padding">
       <div style={{ marginBottom: '75px' }}>
         {isAdminUser ?
           <button onClick={() => {
               if (isEditing) {
-                handleSave();
+                if (contentIsValid()) {
+                  handleSave();
+                  setIsEditing(!isEditing);
+                } else {
+                  alert("Empty values are invalid")
+                }
+              } else {
+                setIsEditing(!isEditing);
               }
-              setIsEditing(!isEditing);
             }}
             style={{ marginBottom: '1rem' }}>
             {isEditing ? 'Stop Editing' : 'Edit'}

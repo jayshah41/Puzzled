@@ -39,6 +39,10 @@ const ProductsHero = () => {
     saveContent(contentData);
   };
 
+  const contentIsValid = () => {
+    return heading.trim() && content.trim();
+  };
+
   return (
     <div className="two-card-container standard-padding">
       <div>
@@ -46,9 +50,15 @@ const ProductsHero = () => {
           <button
             onClick={() => {
               if (isEditing) {
-                handleSave();
+                if (contentIsValid()) {
+                  handleSave();
+                  setIsEditing(!isEditing);
+                } else {
+                  alert("Empty values are invalid")
+                }
+              } else {
+                setIsEditing(!isEditing);
               }
-              setIsEditing(!isEditing);
             }}
             style={{ marginBottom: '1rem' }}
           >

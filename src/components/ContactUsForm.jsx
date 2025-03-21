@@ -100,6 +100,15 @@ const ContactUsForm = () => {
     alert('Form submitted successfully!');
   };
 
+  const contentIsValid = () => {
+    for (const key in labels) {
+      if (!labels[key].trim()) {
+        return false;
+      }
+    }
+    return true;
+  };
+
   return (
     <div className="contact-form-card">
       <h1 className="contact-form-header">Contact us form</h1>
@@ -109,9 +118,15 @@ const ContactUsForm = () => {
         <button
           onClick={() => {
             if (isEditing) {
-              handleSave();
+              if (contentIsValid()) {
+                handleSave();
+                setIsEditing(!isEditing);
+              } else {
+                alert("Empty values are invalid")
+              }
+            } else {
+              setIsEditing(!isEditing);
             }
-            setIsEditing(!isEditing);
           }}
           style={{ marginBottom: '1rem' }}
         >

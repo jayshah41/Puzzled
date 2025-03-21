@@ -44,15 +44,30 @@ const ProductsFeatures = () => {
     saveContent(contentData);
   };
 
+  const contentIsValid = () => {
+    for (const feature of features) {
+      if (!feature.title.trim() || !feature.content.trim()) {
+        return false;
+      }
+    }
+    return true;
+  };
+
   return (
     <div className="products-features-card standard-padding">
       {isAdminUser ? (
         <button
           onClick={() => {
             if (isEditing) {
-              handleSave();
+              if (contentIsValid()) {
+                handleSave();
+                setIsEditing(!isEditing);
+              } else {
+                alert("Empty values are invalid")
+              }
+            } else {
+              setIsEditing(!isEditing);
             }
-            setIsEditing(!isEditing);
           }}
           style={{ marginBottom: '1rem' }}
         >
