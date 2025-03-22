@@ -2,11 +2,16 @@ import React, { useState, useEffect } from 'react';
 import useSaveContent from '../hooks/useSaveContent';
 import '../styles/ContactUsForm.css';
 
+const API_BASE_URL = 'http://localhost:8000/'; //Change after deployment.
+
 const ContactUsForm = () => {
   const isAdminUser = localStorage.getItem("user_tier_level") == 2;
   const saveContent = useSaveContent();
 
   const [isEditing, setIsEditing] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitSuccess, setSubmitSuccess] = useState(false);
+  const [submitError, setSubmitError] = useState(null);
 
   const [labels, setLabels] = useState({
     message: "Message",
@@ -64,7 +69,7 @@ const ContactUsForm = () => {
   ));
 
   useEffect(() => {
-    fetch('/api/editable-content/?component=ContactUs')
+    fetch(`${API_BASE_URL}editable-content/?component=ContactUs`)
       .then((response) => response.json())
       .then((data) => {
         const updatedLabels = {};
@@ -104,10 +109,112 @@ const ContactUsForm = () => {
     setIsEditing(false);
   };
 
-  const handleSubmit = (e) => {
+  const validateForm = () => {
+    const requiredFields = ['firstName', 'lastName', 'phoneNumber', 'email'];
+    for (const field of requiredFields) {
+      if (!formData[field].trim()) {
+        return false;
+      }
+    }
+    
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      return false;
+    }
+    
+    return true;
+  };
+
+  const sendEmail = async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}api/send-email/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          to: 'teampuzzled25@gmail.com',
+          subject: `Contact Form Submission from ${formData.firstName} ${formData.lastName}`,
+          message: formatEmailContent(formData),
+          email: formData.email
+        }),
+      });
+      
+      if (!response.ok) {
+        console.error('Server responded with status:', response.status);
+        const errorText = await response.text();
+        console.error('Error response:', errorText);
+        throw new Error(`Failed to send email: ${response.status} ${errorText}`);
+      }
+      
+      return true;
+    } catch (error) {
+      console.error('Error sending email:', error);
+      throw error;
+    }
+  };
+  
+  const formatEmailContent = (data) => {
+    return `
+      New contact form submission:
+      
+      Message: ${data.message}
+      
+      Contact Information:
+      --------------------
+      Name: ${data.firstName} ${data.lastName}
+      Phone: ${data.phoneNumber}
+      Email: ${data.email}
+      State: ${data.state}
+      Country: ${data.country}
+      Referred By: ${data.referredBy}
+      
+      Investment Preferences:
+      ----------------------
+      Commodity Type 1: ${data.commodityType1}
+      Commodity Type 2: ${data.commodityType2}
+      Commodity Type 3: ${data.commodityType3}
+      Investment Criteria: ${data.investmentCriteria}
+    `;
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Form submitted:', formData);
-    alert('Form submitted successfully!');
+    
+    if (!validateForm()) {
+      alert('Please fill in all required fields correctly.');
+      return;
+    }
+    
+    setIsSubmitting(true);
+    setSubmitSuccess(false);
+    setSubmitError(null);
+    
+    try {
+      await sendEmail();
+      setSubmitSuccess(true);
+      setFormData({
+        message: '',
+        firstName: '',
+        lastName: '',
+        phoneNumber: '',
+        email: '',
+        state: '',
+        country: '',
+        referredBy: '',
+        commodityType1: '',
+        commodityType2: '',
+        commodityType3: '',
+        investmentCriteria: ''
+      });
+      alert('Form submitted successfully! An email has been sent to our team.');
+    } catch (error) {
+      console.error('Submission error details:', error);
+      setSubmitError('There was an error submitting the form. Please try again later.');
+      alert('There was an error submitting the form. Please try again later.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const contentIsValid = () => {
@@ -152,7 +259,7 @@ const ContactUsForm = () => {
               name="message"
               value={labels.message}
               onChange={handleLabelChange}
-              className="auth-input"
+              className="auth-input editable-field"
             />
           ) : (
             labels.message
@@ -167,6 +274,18 @@ const ContactUsForm = () => {
           className="message-textarea"
         />
       </div>
+
+      {submitSuccess && (
+        <div className="success-message">
+          Thank you for your submission! We'll get back to you soon.
+        </div>
+      )}
+      
+      {submitError && (
+        <div className="error-message">
+          {submitError}
+        </div>
+      )}
 
       <form onSubmit={handleSubmit} className="contact-form-container">
         <div className="contact-form-column">
@@ -449,7 +568,13 @@ const ContactUsForm = () => {
           </div>
 
           <div className="submit-container">
-            <button type="submit" className="submit-button">Send</button>
+            <button 
+              type="submit" 
+              className="submit-button"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? 'Sending...' : 'Send'}
+            </button>
           </div>
         </div>
       </form>

@@ -18,7 +18,7 @@ from django.contrib import admin
 from django.urls import path, include
 from app.views import RegisterView, LoginView, ProfileView
 from rest_framework_simplejwt.views import TokenRefreshView
-from content.views import EditableContentView, EditableContentUpdateView, NewsCardViewSet
+from content.views import EditableContentView, EditableContentUpdateView, NewsCardViewSet, SendEmailView
 from rest_framework_simplejwt.views import TokenRefreshView, TokenObtainPairView
 
 
@@ -38,4 +38,5 @@ urlpatterns = [
     path('news-cards/update-order/', NewsCardViewSet.as_view({'patch': 'update_order'}), name='newscard-direct-update-order'),
     path('news-cards/<int:pk>/', NewsCardViewSet.as_view({'get': 'retrieve', 'put': 'update', 'patch': 'partial_update', 'delete': 'destroy'}), name='newscard-direct-detail'),
     path('news-cards/', NewsCardViewSet.as_view({'get': 'list', 'post': 'create'}), name='newscard-direct-list'),
+    path('api/send-email/', SendEmailView.as_view(), name='send-email')
 ]
