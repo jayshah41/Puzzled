@@ -84,9 +84,6 @@ const Login = ({ onClose, loginButton, onLoginSuccess }) => {
     const handleSignup = async (e) => {
         e.preventDefault();
         setError("");
-
-        console.log("Sending signup data:", formData); 
-
         try {
             const response = await fetch("/api/register/", {
                 method: "POST",

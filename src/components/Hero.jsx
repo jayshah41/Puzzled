@@ -59,7 +59,6 @@ const Hero = () => {
   };
 
   const contentIsValid = () => {
-    console.log(bulletPoints);
     return !!title && !!intro && !(bulletPoints.length === 0 || bulletPoints.every(point => point === ""));
   };
 

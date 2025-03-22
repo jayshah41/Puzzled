@@ -12,7 +12,6 @@ const useSaveContent = () => {
       })
         .then(response => response.json())
         .then(data => {
-          console.log(`${item.section} saved successfully:`, data);
         })
         .catch(error => {
           console.error(`There was an error saving ${item.section}`, error);

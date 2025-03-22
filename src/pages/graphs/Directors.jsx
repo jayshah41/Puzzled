@@ -46,66 +46,6 @@ const [topDirectorRemuneration, setTopDirectorRemuneration] = useState({
  // table data state
  const [tableData, setTableData] = useState([]);
 
- // fetch data from api
-  // const fetchDirectors = useCallback(async () => {
-  // const token = localStorage.getItem("accessToken");
-
-  //    // handles missing tokens
-  //    if (!token) {
-  //        setError("Authentication error: No token found.");
-  //        setLoading(false);
-  //        return;
-  //    }
-
-  //    try {
-  //     setLoading(true);
-      
-  //     // building parameters from filter states
-  //     const params = {
-  //         asx: asxCode || undefined,
-  //         contact: contact || undefined,
-  //         baseRemuneration: baseRemuneration || undefined,
-  //         totalRemuneration: totalRemuneration || undefined,
-  //     };
-      
-  //     Object.keys(params).forEach(key => 
-  //         params[key] === undefined && delete params[key]
-  //     );
-      
-  //     const response = await axios.get("http://127.0.0.1:8000/data/directors/", {
-  //         headers: {
-  //             Authorization: `Bearer ${token}`,
-  //             "Content-Type": "application/json"
-  //         },
-  //         params: params
-  //     });
-
-  //     console.log("API Response:", response.data);
-            
-  //           // handling different api formats
-  //           if (Array.isArray(response.data)) {
-  //               setDirectors(response.data);
-  //               processDirectors(response.data);
-  //           } else if (response.data && typeof response.data === 'object') {
-  //               const dataArray = [response.data];
-  //               setDirectors(dataArray);
-  //               processDirectors(dataArray);
-  //           } else {
-  //               setDirectors([]);
-  //               resetData();
-  //           }
-            
-  //           // handles errors
-  //           setError("");
-  //       } catch (error) {
-  //           console.error("Error fetching directors:", error.response?.data || error);
-  //           setError("Failed to fetch directors data: " + (error.response?.data?.detail || error.message));
-  //           resetData();
-  //       } finally {
-  //           setLoading(false);
-  //       }
-  //   }, [asxCode, contact, baseRemuneration, totalRemuneration]);
-
   const fetchDirectors = useCallback(async () => {
     try {
         setLoading(true);
@@ -136,8 +76,6 @@ const [topDirectorRemuneration, setTopDirectorRemuneration] = useState({
             },
             params: params,
         });
-
-        console.log("API Response:", response.data);
 
         if (Array.isArray(response.data)) {
             setDirectors(response.data);
@@ -425,96 +363,11 @@ const processTopDirectorRemunerationChart = (data) => {
 };
 
 useEffect(() => {
-  console.log("Fetching directors...");
   fetchDirectors();
 }, [fetchDirectors]);
 
 const [filterTags, setFilterTags] = useState([]);
 
-/*
-const getUniqueValues = (key) => {
-  if (!directors || directors.length === 0) return [];
-  
-  const allValues = directors.map(item => item[key])
-    .filter(val => val !== null && val !== undefined && val !== "");
-  
-  const uniqueValues = [...new Set(allValues)];
-  
-  if (uniqueValues.length > 0 && !isNaN(parseFloat(uniqueValues[0]))) {
-    uniqueValues.sort((a, b) => parseFloat(a) - parseFloat(b));
-  } else {
-    uniqueValues.sort();
-  }
-  
-  return uniqueValues.map(value => ({ label: value, value: value }));
-};
-*/
-
-/*
-const getUniqueValues = (key) => {
-  if (!directors || directors.length === 0) return [];
-  
-  let allValues = [];
-  
-  // Special handling for JSONField (priority_commodities)
-  if (key === 'priority_commodities') {
-    directors.forEach(item => {
-      let commodities = [];
-      
-      if (!item[key]) {
-        return;
-      } else if (Array.isArray(item[key])) {
-        commodities = item[key];
-      } else if (typeof item[key] === 'object') {
-        commodities = Object.values(item[key]);
-      } else if (typeof item[key] === 'string') {
-        try {
-          const parsed = JSON.parse(item[key]);
-          if (Array.isArray(parsed)) {
-            commodities = parsed;
-          } else if (typeof parsed === 'object') {
-            commodities = Object.values(parsed);
-          } else {
-            commodities = item[key].split(',').map(c => c.trim());
-          }
-        } catch (e) {
-          commodities = [item[key]];
-        }
-      } else {
-        // For any other type, use as a single value
-        commodities = [String(item[key])];
-      }
-      
-      // Add each commodity individually after cleaning it
-      commodities.forEach(commodity => {
-        if (commodity !== null && commodity !== undefined && commodity !== "") {
-          // Clean the commodity value - trim spaces, normalize strings
-          const cleanCommodity = String(commodity).trim();
-          if (cleanCommodity) {
-            allValues.push(cleanCommodity);
-          }
-        }
-      });
-    });
-  } else {
-    // Original handling for other fields
-    allValues = directors.map(item => item[key])
-      .filter(val => val !== null && val !== undefined && val !== "");
-  }
-  
-  // Remove duplicates using Set
-  const uniqueValues = [...new Set(allValues)];
-  
-  // Sort values
-  if (uniqueValues.length > 0 && !isNaN(parseFloat(uniqueValues[0]))) {
-    uniqueValues.sort((a, b) => parseFloat(a) - parseFloat(b));
-  } else {
-    uniqueValues.sort();
-  }
-  
-  return uniqueValues.map(value => ({ label: value, value: value }));
-};
-*/
 const getUniqueValues = (key) => {
   if (!directors || directors.length === 0) return [];
   

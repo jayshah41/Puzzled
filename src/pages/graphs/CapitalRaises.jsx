@@ -74,8 +74,6 @@ const fetchCapitalRaises = useCallback(async () => {
           },
           params: params
       });
-
-      console.log("API Response:", response.data);
       
       // handling different api formats
       if (Array.isArray(response.data)) {
@@ -279,7 +277,6 @@ const resetData = () => {
 };
 
 useEffect(() => {
-  console.log("Fetching capital raises...");
   fetchCapitalRaises();
 }, [fetchCapitalRaises]);
 
@@ -291,20 +288,6 @@ const getUniqueValues = (key) => {
   const uniqueValues = [...new Set(capitalRaises.map(item => item[key]))].filter(Boolean);
   return uniqueValues.map(value => ({ label: value, value: value }));
 };
-
-/*
-
-  const [filterTags, setFilterTags] = useState([
-    { label: 'ASX', value: 'Default', onRemove: () => console.log('Remove ASX filter') },
-    { label: 'Raise Amount', value: 'Default', onRemove: () => console.log('Remove raise amount filter') },
-    { label: 'Priority Commodities', value: 'Default', onRemove: () => console.log('Remove priority commodities filter') },
-    { label: 'Project Location Area', value: 'Default', onRemove: () => console.log('Remove project location area filter') },
-    { label: 'Project Location State', value: 'Default', onRemove: () => console.log('Remove project location state filter') },
-    { label: 'Lead Manager for CR', value: 'Default', onRemove: () => console.log('Remove lead manager for CR filter') },
-    { label: 'CR Type', value: 'Default', onRemove: () => console.log('Remove CR type filter') },
-   
-]);
-*/
   
   const allFilterOptions = [
     {

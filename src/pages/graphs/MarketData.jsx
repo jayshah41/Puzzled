@@ -77,8 +77,6 @@ const MarketData = () => {
         },
         params: params
       });
-
-      console.log("API Response:", response.data);
       
       // handling different api formats - does removing anything break anything here?
       if (Array.isArray(response.data)) {
@@ -258,7 +256,6 @@ const MarketData = () => {
   };
 
   useEffect(() => {
-    console.log("Fetching market data...");
     fetchMarketData();
   }, [fetchMarketData]);
 
