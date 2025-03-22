@@ -48,7 +48,8 @@ const PricingHero = () => {
     <div className="two-card-container standard-padding">
         <div>
         {isAdminUser ?
-          <button onClick={() => {
+          <button className="edit-button"
+          onClick={() => {
             if (isEditing) {
               if (contentIsValid()) {
                 handleSave();

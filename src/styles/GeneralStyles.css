@@ -43,6 +43,11 @@
     border-radius: 10px;
 }
 
+.edit-button {
+    background-color: #2A4365;
+    color: white;
+}
+
 .defulatButton:hover {
     background-color: #1E3A8A;
 }

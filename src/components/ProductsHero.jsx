@@ -48,7 +48,7 @@ const ProductsHero = () => {
     <div className="two-card-container standard-padding">
       <div>
         {isAdminUser && (
-          <button
+          <button className="edit-button"
             onClick={() => {
               if (isEditing) {
                 if (contentIsValid()) {

@@ -65,7 +65,8 @@ const Values = () => {
   return (
     <div className="values-container">
       {isAdminUser ?
-        <button onClick={() => {
+        <button
+        onClick={() => {
           if (isEditing) {
             if (contentIsValid()) {
               handleSave();
@@ -77,7 +78,7 @@ const Values = () => {
             setIsEditing(!isEditing);
           }
         }}
-        style={{ marginBottom: '1rem' }}>
+        style={{ marginBottom: '1rem', backgroundColor: "white" }}>
           {isEditing ? 'Save Changes' : 'Edit'}
         </button>
       : null}

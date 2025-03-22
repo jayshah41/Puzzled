@@ -123,7 +123,7 @@ const ContactUsForm = () => {
       <p className="contact-form-subheader">Help us by letting us know what type of investor you are by answering the following questions.</p>
 
       {isAdminUser && (
-        <button
+        <button className="edit-button"
           onClick={() => {
             if (isEditing) {
               if (contentIsValid()) {
