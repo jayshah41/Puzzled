@@ -54,7 +54,7 @@ const Navbar = () => {
             className="dropbtn" 
             onMouseEnter={() => setShowGraphsDropdown(true)}
           >
-            Graphs
+            Dashboards
           </button>
           {showGraphsDropdown && (
             <div className="dropdown-content">

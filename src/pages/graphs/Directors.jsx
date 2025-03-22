@@ -46,7 +46,7 @@ const fetchDirectors = useCallback(async () => {
      try {
       setLoading(true);
 
-      const response = await axios.get("http://127.0.0.1:8000/data/directors/", {
+      const response = await axios.get("/api/data/directors/", {
           headers: {
               Authorization: `Bearer ${token}`,
               "Content-Type": "application/json"
