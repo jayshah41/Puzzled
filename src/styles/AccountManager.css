@@ -38,16 +38,17 @@ button.delete-button:hover {
 }
 
 button.logout-button {
-  background-color: #6c757d;
+  background-color: #007bff;
   width: 50vw;
   margin: 75px auto;
-  padding: 50px;
-  border-radius: 100px;
+  padding: 20px;
+  border-radius: 20px;
+  font-size: 21px;
   display: block;
 }
 
 button.logout-button:hover {
-  background-color: #5a6268;
+  background-color: #3076c0;
 }
 
 .error-message {
