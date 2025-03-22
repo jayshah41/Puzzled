@@ -95,13 +95,14 @@ class Command(BaseCommand):
         trends = []
 
         for company in companies:
+            new_price = 0
             trends.append(MarketTrends(
                 asx_code=company,
                 market_cap=round(random.uniform(1e7, 5e7), 2),
                 trade_value=round(random.uniform(1e6, 2e6), 2),
                 total_shares=random.randint(int(1e5), int(1e7)),
-                new_price=round(random.uniform(1, 200), 2),
-                previous_price=round(random.uniform(1, 200), 2),
+                new_price = round(random.uniform(0.05, 10), 2),
+                previous_price = round(new_price * random.uniform(0.8, 1.2), 2),
                 week_price_change=round(random.uniform(-10, 10), 2),
                 month_price_change=round(random.uniform(-20, 20), 2),
                 year_price_change=round(random.uniform(-50, 50), 2),
@@ -119,8 +120,8 @@ class Command(BaseCommand):
                 asx_code=company,
                 contact=fake.name(),
                 priority_commodities={"commodities": random.sample(["Gold", "Silver", "Copper"], k=2)},
-                base_remuneration=round(random.uniform(1e5, 5e5), 2),
-                total_remuneration=round(random.uniform(2e5, 7e5), 2),
+                base_remuneration=round(random.uniform(2e5, 1e6), 2),
+                total_remuneration=round(random.uniform(3e5, 2e6), 2)
             )
             for company in companies
         ]
@@ -138,7 +139,7 @@ class Command(BaseCommand):
                 shareholders.append(Shareholders(
                     asx_code=company,
                     entity=fake.company(),
-                    value=round(random.uniform(1e5, 2e6), 2),
+                    value=round(random.uniform(1e5, 5e7), 2),
                     project_commodities=fake.word(),
                     project_area=fake.city(),
                     transaction_type=random.choice(["Buy", "Sell"]),
@@ -151,15 +152,20 @@ class Command(BaseCommand):
     def create_capital_raises(self):
         """Generate capital raises data."""
         companies = list(Company.objects.all())
+        COMMODITY_LIST = [
+            "Gold", "Silver", "Copper", "Zinc", "Nickel", "Lithium", "Cobalt",
+            "Iron Ore", "Bauxite", "Manganese", "Uranium", "Graphite", "Tin",
+            "Platinum", "Rare Earth Elements", "Coal", "Lead", "Titanium", "Vanadium"
+        ]
         capital_raises = [
             CapitalRaises(
                 asx_code=company,
                 bank_balance=round(random.uniform(1e6, 5e6), 2),
                 date=make_aware(datetime.now() - timedelta(days=random.randint(1, 365))),
-                amount=round(random.uniform(1e5, 5e6), 2),
-                price=round(random.uniform(0.1, 5), 2),
+                amount=round(random.uniform(1e6, 2e8), 2),
+                price=round(random.uniform(0.01, 5), 2),
                 raise_type=random.choice(["Placement", "Rights Issue"]),
-                priority_commodities={"commodities": random.sample(["Gold", "Silver", "Copper"], k=2)},
+                priority_commodities={"commodities": random.sample(COMMODITY_LIST, k=random.randint(1, 3))},
             ) for company in companies
         ]
 
@@ -181,9 +187,9 @@ class Command(BaseCommand):
                     project_name=fake.company(),
                     intersect=round(random.uniform(0.1, 10), 2),
                     market_cap=round(random.uniform(1e7, 5e7), 2),
-                    grade=round(random.uniform(1, 50), 2),
-                    depth=round(random.uniform(10, 500), 2),
-                    percentage_per_metre=round(random.uniform(0.1, 10), 2),
+                    grade=round(random.uniform(0.5, 30), 2),
+                    depth=round(random.uniform(20, 1000), 2),
+                    percentage_per_metre=round(random.uniform(0.1, 25), 2)
                 ))
 
         Projects.objects.bulk_create(projects)
