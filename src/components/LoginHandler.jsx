@@ -1,7 +1,10 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Login from "./Login";
 
 const LoginHandler = ({ children }) => {
+  const navigate = useNavigate();
+
   const [showingLogin, setShowingLogin] = useState(false);
   const [isLoginMode, setIsLoginMode] = useState(true);
 
@@ -21,6 +24,8 @@ const LoginHandler = ({ children }) => {
 
   const handleLoginSuccess = () => {
     setShowingLogin(false);
+    navigate('/');
+    window.scrollTo(0, 0);
     window.location.reload();
   };
 
