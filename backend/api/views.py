@@ -42,11 +42,9 @@ class MarketStatistics(APIView):
     def get(self, request):
         stats = {
             'ASX_code_count': MarketTrends.objects.values('asx_code').distinct().count(),
-            'daily_avg_price_change': MarketTrends.objects.aggregate(Avg('daily_price_change'))['daily_price_change__avg'] or 0,
-            'avg_weekly_price_change': MarketTrends.objects.aggregate(Avg('weekly_price_change'))['weekly_price_change__avg'] or 0,
-            'avg_monthly_price_change': MarketTrends.objects.aggregate(Avg('monthly_price_change'))['monthly_price_change__avg'] or 0,
-            'avg_yearly_price_change': MarketTrends.objects.aggregate(Avg('yearly_price_change'))['yearly_price_change__avg'] or 0,
-            'daily_relative_volume_change': MarketTrends.objects.aggregate(Avg('daily_relative_volume_change'))['daily_relative_volume_change__avg'] or 0,
+            'avg_week_price_change': MarketTrends.objects.aggregate(Avg('week_price_change'))['week_price_change__avg'] or 0,
+            'avg_month_price_change': MarketTrends.objects.aggregate(Avg('month_price_change'))['month_price_change__avg'] or 0,
+            'avg_year_price_change': MarketTrends.objects.aggregate(Avg('year_price_change'))['year_price_change__avg'] or 0,
         }
         return Response(stats)
 

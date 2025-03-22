@@ -35,6 +35,8 @@ class Command(BaseCommand):
         self.stdout.write(self.style.SUCCESS("\nDatabase seeding completed!"))
 
     def create_companies(self):
+        Company.objects.all().delete()
+        
         asx_codes = self.generate_unique_asx_codes(self.COMPANY_COUNT)
         companies = [
             Company(asx_code=asx_codes[i], company_name=fake.company())

@@ -4,7 +4,7 @@ from .views import (
     CompanyViewSet, FinancialViewSet, MarketDataViewSet, 
     MarketTrendsViewSet, DirectorsViewSet, ShareholdersViewSet, 
     CapitalRaisesViewSet, ProjectsViewSet, get_tweets,
-    CompanyDetailsView
+    CompanyDetailsView, MarketStatistics
 )
 
 router = DefaultRouter()
@@ -21,4 +21,5 @@ urlpatterns = [
     path('', include(router.urls)), 
     path("tweets/<str:username>/", get_tweets, name="get_tweets"),   
     path('company-details/', CompanyDetailsView.as_view(), name='company-details'),
+    path('market-statistics/', MarketStatistics.as_view(), name='market-statistics'),
 ]
