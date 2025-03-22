@@ -61,8 +61,7 @@ const ContactUsForm = () => {
     "Project Potention (Project state, grades, location etc)",
     "Finance (Project funding support etc)",
     "Top 20 Shareholders (Who are they & what % do they hold)",
-    "Share price performance (Short & long term potential, passion, lifestyle etc)",
-    "Other (Please provide detail)"
+    "Share price performance (Short & long term potential, passion, lifestyle etc)"
   ];
 
   const investmentCriteriaElements = investmentCriteriaOptions.map((option, index) => (
@@ -92,6 +91,14 @@ const ContactUsForm = () => {
     });
     
     const updatedErrors = {...validationErrors};
+    
+    if (name === 'message') {
+      if (!value || value.trim() === '') {
+        updatedErrors.message = `${labels.message} is required`;
+      } else {
+        delete updatedErrors.message;
+      }
+    }
     
     if (name === 'email') {
       if (!value || value.trim() === '') {
@@ -140,7 +147,7 @@ const ContactUsForm = () => {
       }
     }
     
-    if (!['email', 'phoneNumber', 'firstName', 'lastName', 'state', 'country', 'referredBy', 
+    if (!['message', 'email', 'phoneNumber', 'firstName', 'lastName', 'state', 'country', 'referredBy', 
           'commodityType1', 'commodityType2', 'commodityType3', 'investmentCriteria'].includes(name) 
         && validationErrors[name]) {
       delete updatedErrors[name];
