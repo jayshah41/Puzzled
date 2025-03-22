@@ -54,6 +54,7 @@ const Login = ({ onClose, loginButton, onLoginSuccess }) => {
 
             const data = await response.json();
             localStorage.setItem("accessToken", data.access);
+            localStorage.setItem("refreshToken", data.refresh);
 
             const userResponse = await fetch("/api/profile/", {
                 method: "GET",

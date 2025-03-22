@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import '../../styles/GeneralStyles.css';
 import GraphPage from '../../components/GraphPage.jsx';
+import useAuthToken from "../../hooks/useAuthToken.js";
 import axios from 'axios';
 
 const CompanyDetails = () => {
+  const { getAccessToken, authError } = useAuthToken();
   const [companyData, setCompanyData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -18,14 +20,19 @@ const CompanyDetails = () => {
 
   const fetchCompanyData = useCallback(async () => {
     setLoading(true);
-    const token = localStorage.getItem("accessToken");
-
+  
     try {
+      const token = await getAccessToken();
+      if (!token) {
+        setError(authError || "Authentication error");
+        return;
+      }
+  
       const response = await axios.get("http://127.0.0.1:8000/data/company-details/", {
         headers: { Authorization: `Bearer ${token}` },
         params: Object.fromEntries(Object.entries(filters).filter(([_, v]) => v))
       });
-
+  
       setCompanyData(response.data);
       setError("");
     } catch (err) {
@@ -34,7 +41,7 @@ const CompanyDetails = () => {
     } finally {
       setLoading(false);
     }
-  }, [filters]);
+  }, [filters, getAccessToken, authError]);  
 
   useEffect(() => {
     fetchCompanyData();
