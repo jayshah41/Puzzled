@@ -61,7 +61,7 @@ const PricingHero = () => {
             }
         }}
         style={{ marginBottom: '1rem' }}>
-          {isEditing ? 'Stop Editing' : 'Edit'}</button>
+          {isEditing ? 'Save Changes' : 'Edit'}</button>
         : null}
         {isEditing ? (
           <input

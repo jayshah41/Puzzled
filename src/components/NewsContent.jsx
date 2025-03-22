@@ -443,7 +443,7 @@ const NewsContent = () => {
           }}
           className="admin-button"
         >
-          {isEditing ? 'Save & Stop Editing' : 'Edit'}
+          {isEditing ? 'Save & Save Changes' : 'Edit'}
         </button>
       )}
 

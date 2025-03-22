@@ -138,7 +138,7 @@ const ContactUsForm = () => {
           }}
           style={{ marginBottom: '1rem' }}
         >
-          {isEditing ? 'Stop Editing' : 'Edit Labels'}
+          {isEditing ? 'Save Changes' : 'Edit Labels'}
         </button>
       )}
 

@@ -191,7 +191,7 @@ const Navbar = () => {
               }
             }}
           >
-            {isEditing ? 'Stop Editing' : 'Edit'}
+            {isEditing ? 'Save Changes' : 'Edit'}
           </button>
         ) : null}
         </div>

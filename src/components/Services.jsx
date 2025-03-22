@@ -61,7 +61,7 @@ const Services = () => {
       }}
       style={{ marginBottom: '1rem' }}
     >
-      {isEditing ? "Stop Editing" : "Edit"}
+      {isEditing ? "Save Changes" : "Edit"}
     </button>
     : null}
     <div style={{ textAlign: 'center' }}>
