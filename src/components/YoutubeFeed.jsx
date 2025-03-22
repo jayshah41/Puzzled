@@ -4,12 +4,11 @@ import "../styles/YouTubeFeed.css";
 const YouTubeFeed = ({ channelId }) => {
     const [videos, setVideos] = useState([]);
     const [error, setError] = useState(null);
-    const API_KEY = "AIzaSyAr39fniaV-08hZ7fBQ6w7i1XYSX0Ygu9c"
-
+    const YT_API_KEY = import.meta.env.VITE_YT_API_KEY;
     const fetchVideos = async () => {
         try {
             const response = await fetch(
-                `https://www.googleapis.com/youtube/v3/search?key=${API_KEY}&channelId=${channelId}&part=snippet,id&order=date&maxResults=5`
+                `https://www.googleapis.com/youtube/v3/search?key=${YT_API_KEY}&channelId=${channelId}&part=snippet,id&order=date&maxResults=5`
             );
 
             if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
