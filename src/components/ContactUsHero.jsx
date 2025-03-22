@@ -8,8 +8,8 @@ const ContactUsHero = () => {
   const saveContent = useSaveContent();
   const [isEditing, setIsEditing] = useState(false);
 
-  const [heading, setHeading] = useState("Ready to sign up?");
-  const [content, setContent] = useState("MakCorp offers unparalleled access to immediate and essential information for the resources sector. Our offering provides our clients with the tools they need to see data, the way they want to. MakCorp prides itself on using interactive technology to help visualize key metrics to improve investment decisions.");
+  const [heading, setHeading] = useState("Have a question?");
+  const [content, setContent] = useState("Having some difficulties using the website? Contact us through the form below, and we will respond back to you as soon as possible!");
 
   useEffect(() => {
     fetch('/api/editable-content/?component=ContactUs')
