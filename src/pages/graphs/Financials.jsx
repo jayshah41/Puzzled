@@ -4,33 +4,16 @@ import GraphPage from '../../components/GraphPage.jsx';
 import useAuthToken from "../../hooks/useAuthToken";
 import axios from 'axios';
 
-
 const Financials = () => {
   const { getAccessToken, authError } = useAuthToken();
 
-  // states for api data
   const [financials, setFinancials] = useState([]);
+  const [filteredFinancials, setFilteredFinancials] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // states for filters
-  const [asxCode, setAsxCode] = useState("");
-  const [annType, setAnnType] = useState("");
-  const [period, setPeriod] = useState("");
-  const [netOperating, setNetOperating] = useState("");
-  const [exploration, setExploration] = useState("");
-  const [developmentSpend, setDevelopmentSpend] = useState("");
-  const [staffCost, setStaffCost] = useState("");
-  const [adminCost, setAdminCost] = useState("");
-  const [otherCost, setOtherCost] = useState("");
-  const [netInvest, setNetInvest] = useState("");
-  const [cashflowTotal, setCashflowTotal] = useState("");
-  const [bankBalance, setBankBalance] = useState("");
-  const [debt, setDebt] = useState("");
-  const [marketCap, setMarketCap] = useState("");
-  const [forecastNetOp, setForecastNetOp] = useState("");
+  const [filterTags, setFilterTags] = useState([]);
 
-  // metric card states
   const [metricSummaries, setMetricSummaries] = useState({
     totalExploration: 0, 
     totalOtherCosts: 0, 
@@ -38,7 +21,6 @@ const Financials = () => {
     avgProjectSpend: 0
   });
 
-  // chart data states 
   const [qtrTotalExploration, setQtrTotalExploration] = useState({
     labels: [], 
     datasets: [{data: []}]
@@ -54,15 +36,11 @@ const Financials = () => {
     datasets: [{data: []}]
   });
 
-  // table data state
   const [tableData, setTableData] = useState([]);
 
-  // fetch data from api
   const fetchFinancials = useCallback(async () => {
-    // retrieves authentication token 
     const token = await getAccessToken();
 
-    // handles missing tokens
     if (!token) {
       setError("Authentication error: No token found.");
       setLoading(false);
@@ -71,56 +49,29 @@ const Financials = () => {
 
     try {
       setLoading(true);
-      
-      // building parameters from filter states
-      const params = {
-        asx_code: asxCode || undefined,
-        ann_type: annType || undefined,
-        period: period || undefined,
-        net_operating: netOperating || undefined,
-        exploration: exploration || undefined,
-        development: developmentSpend || undefined,
-        staff_costs: staffCost || undefined,
-        admin_costs: adminCost || undefined,
-        other_costs: otherCost || undefined,
-        net_cash_invest: netInvest || undefined,
-        cash_flow: cashflowTotal || undefined,
-        bank_balance: bankBalance || undefined,
-        debt: debt || undefined,
-        market_cap: marketCap || undefined,
-        forecast: forecastNetOp || undefined
-      };
-      
-      // remove undefined keys
-      Object.keys(params).forEach(key => 
-        params[key] === undefined && delete params[key]
-      );
-      
-      // sending api requests
+
       const response = await axios.get("http://127.0.0.1:8000/data/financials/", {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json"
-        },
-        params: params
+        }
       });
 
-      console.log("API Response:", response.data);
-      
-      // handling different api formats - does removing anything break anything here?
       if (Array.isArray(response.data)) {
         setFinancials(response.data);
+        setFilteredFinancials(response.data);
         processFinancialData(response.data);
       } else if (response.data && typeof response.data === 'object') {
         const dataArray = [response.data];
         setFinancials(dataArray);
+        setFilteredFinancials(dataArray);
         processFinancialData(dataArray);
       } else {
         setFinancials([]);
+        setFilteredFinancials([]);
         resetData();
       }
-      
-      // handles errors
+
       setError("");
     } catch (error) {
       console.error("Error fetching financials:", error.response?.data || error);
@@ -129,22 +80,69 @@ const Financials = () => {
     } finally {
       setLoading(false);
     }
-    // recreates fetchFinancials if a filter changes
-  }, [
-    asxCode, annType, period, netOperating, exploration, 
-    developmentSpend, staffCost, adminCost, otherCost, 
-    netInvest, cashflowTotal, bankBalance, debt, 
-    marketCap, forecastNetOp
-  ]);
+  }, []);
 
-  // process financial data for metrics and charts 
+  const applyClientSideFilters = useCallback(() => {
+    if (!financials.length) return;
+    
+    const fieldMapping = {
+      'ASX Code': 'asx_code',
+      'Ann Type': 'ann_date',
+      'Period': 'period',
+      'Net Operating Cash Flow': 'net_operating_cash_flow',
+      'Exploration Spend': 'exploration_spend',
+      'Development Production Spend': 'development_production_spend',
+      'Staff Costs': 'staff_costs',
+      'Admin Costs': 'admin_costs',
+      'Other Costs': 'other_costs',
+      'Net Cash Invest': 'net_cash_invest',
+      'Cash Flow Total': 'cashflow_total',
+      'Bank Balance': 'bank_balance',
+      'Debt': 'debt',
+      'Market Cap': 'market_cap',
+      'Forecast Net Operating': 'forecast_net_operating'
+    };
+    
+    let filtered = [...financials];
+    
+    filterTags.forEach(tag => {
+      if (tag.value && tag.value !== 'Default' && tag.label !== 'No Filters Applied') {
+        const fieldName = fieldMapping[tag.label];
+        if (fieldName) {
+          filtered = filtered.filter(item => {
+            if (['net_operating_cash_flow', 'exploration_spend', 'development_production_spend', 
+                 'staff_costs', 'admin_costs', 'other_costs', 'net_cash_invest', 
+                 'cashflow_total', 'bank_balance', 'debt', 'market_cap', 
+                 'forecast_net_operating'].includes(fieldName)) {
+              return parseFloat(item[fieldName]) == parseFloat(tag.value);
+            } else {
+              return item[fieldName] && item[fieldName].toString() === tag.value.toString();
+            }
+          });
+        }
+      }
+    });
+    
+    setFilteredFinancials(filtered);
+    processFinancialData(filtered);
+  }, [financials, filterTags]);
+
+  useEffect(() => {
+    if (financials.length) {
+      applyClientSideFilters();
+    }
+  }, [filterTags, applyClientSideFilters]);
+
+  useEffect(() => {
+    fetchFinancials();
+  }, [fetchFinancials]);
+
   const processFinancialData = (data) => {
     if (!data || data.length === 0) {
       resetData();
       return;
     }
 
-    // calculate metric values 
     const totalExploration = data.reduce((sum, item) => sum + (parseFloat(item.exploration_spend) || 0), 0);
     const totalOtherCosts = data.reduce((sum, item) => sum + (parseFloat(item.other_costs) || 0), 0);
     const totalStaffCosts = data.reduce((sum, item) => sum + (parseFloat(item.staff_costs) || 0), 0);
@@ -160,28 +158,26 @@ const Financials = () => {
       avgProjectSpend: formatCurrency(avgProjectSpend)
     });
 
-    // process data for charts 
     processExplorationChart(data);
     processProjectSpendChart(data);
-    processBankBalanaceChart(data);
+    processBankBalanceChart(data);
 
-    // process table data 
     setTableData(data.map(item => ({
-      ann: item.ann_date || '',
-      asx: item.asx_code || '',
+      annDate: item.ann_date || '',
+      asxCode: item.asx_code || '',
       period: item.period || '', 
-      netOp: formatCurrency(item.net_operating_cash_flow || 0, 0), 
-      exploration: formatCurrency(item.exploration_spend || 0, 0), 
-      development: formatCurrency(item.development_production_spend || 0, 0), 
+      netOperatingCashFlow: formatCurrency(item.net_operating_cash_flow || 0, 0), 
+      explorationSpend: formatCurrency(item.exploration_spend || 0, 0), 
+      developmentProductionSpend: formatCurrency(item.development_production_spend || 0, 0), 
       staffCosts: formatCurrency(item.staff_costs || 0, 0), 
       adminCosts: formatCurrency(item.admin_costs || 0, 0), 
       otherCosts: formatCurrency(item.other_costs || 0, 0), 
-      netInvest: formatCurrency(item.net_cash_invest || 0, 0), 
+      netCashInvest: formatCurrency(item.net_cash_invest || 0, 0), 
       cashFlow: formatCurrency(item.cashflow_total || 0, 0), 
       bankBalance: formatCurrency(item.bank_balance || 0, 0), 
       debt: formatCurrency(item.debt || 0, 0), 
-      marketcap: formatCurrency(item.market_cap || 0, 0), 
-      forecast: formatCurrency(item.forecast_net_operating || 0, 0)
+      marketCap: formatCurrency(item.market_cap || 0, 0), 
+      forecastNetOperating: formatCurrency(item.forecast_net_operating || 0, 0)
     })));
   };
 
@@ -193,9 +189,7 @@ const Financials = () => {
     });
   };
 
-  // process exploration chart 
   const processExplorationChart = (data) => {
-    // spend per quarter
     const quarters = [...new Set(data.map(item => item.period))].sort();
     const explorationByQuarter = quarters.map(quarter => {
       const quarterData = data.filter(item => item.period === quarter);
@@ -204,10 +198,10 @@ const Financials = () => {
     });
     
     setQtrTotalExploration({
-      labels: quarters,
+      labels: quarters.length > 0 ? quarters : ['No Data'],
       datasets: [{
         label: "Exploration Spend",
-        data: explorationByQuarter,
+        data: explorationByQuarter.length > 0 ? explorationByQuarter : [0],
         backgroundColor: "#5271b9",
       }]
     });
@@ -225,7 +219,6 @@ const Financials = () => {
     quarters.forEach(quarter => {
       const quarterData = data.filter(item => item.period === quarter);
   
-      // this has already been done above as well? 
       const totalAdminSpend = quarterData.reduce((sum, item) => sum + (parseFloat(item.admin_costs) || 0), 0);
       const totalStaffSpend = quarterData.reduce((sum, item) => sum + (parseFloat(item.staff_costs) || 0), 0);
       const totalDevProdSpend = quarterData.reduce((sum, item) => sum + (parseFloat(item.development_production_spend) || 0), 0);
@@ -244,37 +237,34 @@ const Financials = () => {
       datasets: [
         {
           label: "Admin Spend",
-          data: adminSpend,
+          data: adminSpend.length > 0 ? adminSpend : [0],
           backgroundColor: "#ff6384",
         },
         {
           label: "Staff Spend",
-          data: staffSpend,
+          data: staffSpend.length > 0 ? staffSpend : [0],
           backgroundColor: "#36a2eb",
         },
         {
           label: "Development & Production Spend",
-          data: devProdSpend,
+          data: devProdSpend.length > 0 ? devProdSpend : [0],
           backgroundColor: "#ffce56",
         },
         {
           label: "Exploration Spend",
-          data: explorationSpend,
+          data: explorationSpend.length > 0 ? explorationSpend : [0],
           backgroundColor: "#4bc0c0",
         },
         {
           label: "Other Spend",
-          data: otherSpend,
+          data: otherSpend.length > 0 ? otherSpend : [0],
           backgroundColor: "#9966ff",
         },
       ],
     });
   };
-  
-  
-  // process bank balance chart 
-  const processBankBalanaceChart = (data) => {
-    // group by ASX code and sort by top10 bank balance
+
+  const processBankBalanceChart = (data) => {
     const asxGroups = {};
     data.forEach(item => {
       if (!asxGroups[item.asx_code]) {
@@ -290,16 +280,15 @@ const Financials = () => {
       .slice(0, 10);
     
     setQtrBankBalance({
-      labels: topCompanies.map(company => company.asx),
+      labels: topCompanies.length > 0 ? topCompanies.map(company => company.asx) : ['No Data'],
       datasets: [{
         label: "Bank Balance",
-        data: topCompanies.map(company => company.bankBalance),
+        data: topCompanies.length > 0 ? topCompanies.map(company => company.bankBalance) : [0],
         backgroundColor: "#28a745",
       }]
     });
   };
 
-  // reset data if api call fails
   const resetData = () => {
     setMetricSummaries({
       totalExploration: '$0',
@@ -338,288 +327,152 @@ const Financials = () => {
     setTableData([]);
   };
 
-  // fetching financial data
-  useEffect(() => {
-    console.log("Fetching financials...");
-    fetchFinancials();
-  }, [fetchFinancials]);
+  const getUniqueValues = (key) => {
+    if (!financials || financials.length === 0) return [];
+    
+    const uniqueValues = [...new Set(financials.map(item => item[key]))].filter(Boolean);
+    return uniqueValues.map(value => ({ label: value, value: value }));
+  };
 
-const [filterTags, setFilterTags] = useState([]);
-
-// get unique values for filter options from api data
-const getUniqueValues = (key) => {
-  if (!financials || financials.length === 0) return [];
-  
-  const uniqueValues = [...new Set(financials.map(item => item[key]))].filter(Boolean);
-  return uniqueValues.map(value => ({ label: value, value: value }));
-};
-
-const allFilterOptions = [
-  {
-    label: 'ASX Code',
-    value: 'Default',
-    onChange: (value) => {
-      setFilterTags(prevTags => 
-        prevTags.map(tag => 
-          tag.label === 'ASX Code' ? {...tag, value} : tag
-        )
-      );
-      if(value !== "Default"){handleAddFilter({label: 'ASX Code', value})};
+  const allFilterOptions = [
+    {
+      label: 'ASX Code',
+      value: 'Default',
+      onChange: (value) => handleFilterChange('ASX Code', value),
+      options: [{ label: 'Any', value: 'Any' }, ...getUniqueValues('asx_code')]
     },
-    options: [
-      { label: '', value: '' }, ...getUniqueValues('asx_code')
-    ]
-  },
-  {
-    label: 'Ann Type',
-    value: 'Default',
-    onChange: (value) => {
-      setFilterTags(prevTags => 
-        prevTags.map(tag => 
-          tag.label === 'Ann Type' ? {...tag, value} : tag
-        )
-      );
-      if(value !== "Default"){handleAddFilter({label: 'Ann Type', value})};
+    {
+      label: 'Ann Type',
+      value: 'Default',
+      onChange: (value) => handleFilterChange('Ann Type', value),
+      options: [{ label: 'Any', value: 'Any' }, ...getUniqueValues('ann_date')]
     },
-    options: [
-      { label: '', value: '' }, ...getUniqueValues('ann_type')
-    ]
-  },
-  {
-    label: 'Period',
-    value: 'Default',
-    onChange: (value) => {
-      setFilterTags(prevTags => 
-        prevTags.map(tag => 
-          tag.label === 'Period' ? {...tag, value} : tag
-        )
-      );
-      if(value !== "Default"){handleAddFilter({label: 'Period', value})};
+    {
+      label: 'Period',
+      value: 'Default',
+      onChange: (value) => handleFilterChange('Period', value),
+      options: [{ label: 'Any', value: 'Any' }, ...getUniqueValues('period')]
     },
-    options: [
-      { label: '', value: '' }, ...getUniqueValues('period')
-    ]
-  },
-  {
-    label: 'Net Operating Cash Flow',
-    value: 'Default',
-    onChange: (value) => {
-      setFilterTags(prevTags => 
-        prevTags.map(tag => 
-          tag.label === 'Net Operating Cash Flow' ? {...tag, value} : tag
-        )
-      );
-      if(value !== "Default"){handleAddFilter({label: 'Net Operating Cash Flow', value})};
+    {
+      label: 'Net Operating Cash Flow',
+      value: 'Default',
+      onChange: (value) => handleFilterChange('Net Operating Cash Flow', value),
+      options: [{ label: 'Any', value: 'Any' }, ...getUniqueValues('net_operating_cash_flow')]
     },
-    options: [
-      { label: '', value: '' }, ...getUniqueValues('net_operating')
-    ]
-  },
-  {
-    label: 'Exploration Spend',
-    value: 'Default',
-    onChange: (value) => {
-      setFilterTags(prevTags => 
-        prevTags.map(tag => 
-          tag.label === 'Exploration Spend' ? {...tag, value} : tag
-        )
-      );
-      if(value !== "Default"){handleAddFilter({label: 'Exploration Spend', value})};
+    {
+      label: 'Exploration Spend',
+      value: 'Default',
+      onChange: (value) => handleFilterChange('Exploration Spend', value),
+      options: [{ label: 'Any', value: 'Any' }, ...getUniqueValues('exploration_spend')]
     },
-    options: [
-      { label: '', value: '' }, ...getUniqueValues('exploration')
-    ]
-  },
-  {
-    label: 'Development Production Spend',
-    value: 'Default',
-    onChange: (value) => {
-      setFilterTags(prevTags => 
-        prevTags.map(tag => 
-          tag.label === 'Development Production Spend' ? {...tag, value} : tag
-        )
-      );
-      if(value !== "Default"){handleAddFilter({label: 'Development Production Spend', value})};
+    {
+      label: 'Development Production Spend',
+      value: 'Default',
+      onChange: (value) => handleFilterChange('Development Production Spend', value),
+      options: [{ label: 'Any', value: 'Any' }, ...getUniqueValues('development_production_spend')]
     },
-    options: [
-      { label: '', value: '' }, ...getUniqueValues('development')
-    ]
-  },
-  {
-    label: 'Staff Costs',
-    value: 'Default',
-    onChange: (value) => {
-      setFilterTags(prevTags => 
-        prevTags.map(tag => 
-          tag.label === 'Staff Costs' ? {...tag, value} : tag
-        )
-      );
-      if(value !== "Default"){handleAddFilter({label: 'Staff Costs', value})};
+    {
+      label: 'Staff Costs',
+      value: 'Default',
+      onChange: (value) => handleFilterChange('Staff Costs', value),
+      options: [{ label: 'Any', value: 'Any' }, ...getUniqueValues('staff_costs')]
     },
-    options: [
-      { label: '', value: '' }, ...getUniqueValues('staff_costs')
-    ]
-  },
-  {
-    label: 'Admin Costs',
-    value: 'Default',
-    onChange: (value) => {
-      setFilterTags(prevTags => 
-        prevTags.map(tag => 
-          tag.label === 'Admin Costs' ? {...tag, value} : tag
-        )
-      );
-      if(value !== "Default"){handleAddFilter({label: 'Admin Costs', value})};
+    {
+      label: 'Admin Costs',
+      value: 'Default',
+      onChange: (value) => handleFilterChange('Admin Costs', value),
+      options: [{ label: 'Any', value: 'Any' }, ...getUniqueValues('admin_costs')]
     },
-    options: [
-      { label: '', value: '' }, ...getUniqueValues('admin_costs')
-    ]
-  },
-  {
-    label: 'Other Costs',
-    value: 'Default',
-    onChange: (value) => {
-      setFilterTags(prevTags => 
-        prevTags.map(tag => 
-          tag.label === 'Other Costs' ? {...tag, value} : tag
-        )
-      );
-      if(value !== "Default"){handleAddFilter({label: 'Other Costs', value})};
+    {
+      label: 'Other Costs',
+      value: 'Default',
+      onChange: (value) => handleFilterChange('Other Costs', value),
+      options: [{ label: 'Any', value: 'Any' }, ...getUniqueValues('other_costs')]
     },
-    options: [
-      { label: '', value: '' }, ...getUniqueValues('other_costs')
-    ]
-  },
-  {
-    label: 'Net Cash Invest',
-    value: 'Default',
-    onChange: (value) => {
-      setFilterTags(prevTags => 
-        prevTags.map(tag => 
-          tag.label === 'Net Cash Invest' ? {...tag, value} : tag
-        )
-      );
-      if(value !== "Default"){handleAddFilter({label: 'Net Cash Invest', value})};
+    {
+      label: 'Net Cash Invest',
+      value: 'Default',
+      onChange: (value) => handleFilterChange('Net Cash Invest', value),
+      options: [{ label: 'Any', value: 'Any' }, ...getUniqueValues('net_cash_invest')]
     },
-    options: [
-      { label: '', value: '' }, ...getUniqueValues('net_cash_invest')
-    ]
-  },
-  {
-    label: 'Cash Flow Total',
-    value: 'Default',
-    onChange: (value) => {
-      setFilterTags(prevTags => 
-        prevTags.map(tag => 
-          tag.label === 'Cash Flow Total' ? {...tag, value} : tag
-        )
-      );
-      if(value !== "Default"){handleAddFilter({label: 'Cash Flow Total', value})};
+    {
+      label: 'Cash Flow Total',
+      value: 'Default',
+      onChange: (value) => handleFilterChange('Cash Flow Total', value),
+      options: [{ label: 'Any', value: 'Any' }, ...getUniqueValues('cashflow_total')]
     },
-    options: [
-      { label: '', value: '' }, ...getUniqueValues('cash_flow')
-    ]
-  },
-  {
-    label: 'Bank Balance',
-    value: 'Default',
-    onChange: (value) => {
-      setFilterTags(prevTags => 
-        prevTags.map(tag => 
-          tag.label === 'Bank Balance' ? {...tag, value} : tag
-        )
-      );
-      if(value !== "Default"){handleAddFilter({label: 'Bank Balance', value})};
+    {
+      label: 'Bank Balance',
+      value: 'Default',
+      onChange: (value) => handleFilterChange('Bank Balance', value),
+      options: [{ label: 'Any', value: 'Any' }, ...getUniqueValues('bank_balance')]
     },
-    options: [
-      { label: '', value: '' }, ...getUniqueValues('bank_balance')
-    ]
-  },
-  {
-    label: 'Debt',
-    value: 'Default',
-    onChange: (value) => {
-      setFilterTags(prevTags => 
-        prevTags.map(tag => 
-          tag.label === 'Debt' ? {...tag, value} : tag
-        )
-      );
-      if(value !== "Default"){handleAddFilter({label: 'Debt', value})};
+    {
+      label: 'Debt',
+      value: 'Default',
+      onChange: (value) => handleFilterChange('Debt', value),
+      options: [{ label: 'Any', value: 'Any' }, ...getUniqueValues('debt')]
     },
-    options: [
-      { label: '', value: '' }, ...getUniqueValues('debt')
-    ]
-  },
-  {
-    label: 'Market Cap',
-    value: 'Default',
-    onChange: (value) => {
-      setFilterTags(prevTags => 
-        prevTags.map(tag => 
-          tag.label === 'Market Cap' ? {...tag, value} : tag
-        )
-      );
-      if(value !== "Default"){handleAddFilter({label: 'Market Cap', value})};
+    {
+      label: 'Market Cap',
+      value: 'Default',
+      onChange: (value) => handleFilterChange('Market Cap', value),
+      options: [{ label: 'Any', value: 'Any' }, ...getUniqueValues('market_cap')]
     },
-    options: [
-      { label: '', value: '' }, ...getUniqueValues('market_cap')
-    ]
-  },
-  {
-    label: 'Forecast Net Operating',
-    value: 'Default',
-    onChange: (value) => {
-      setFilterTags(prevTags => 
-        prevTags.map(tag => 
-          tag.label === 'Forecast Net Operating' ? {...tag, value} : tag
-        )
-      );
-      if(value !== "Default"){handleAddFilter({label: 'Forecast Net Operating', value})};
-    },
-    options: [
-      { label: '', value: '' }, ...getUniqueValues('forecast')
-    ]
-  },
-];
-
-const [filterOptions, setFilterOptions] = useState(() => {
-  const currentTagLabels = filterTags.map(tag => tag.label);
-  return allFilterOptions.filter(option => !currentTagLabels.includes(option.label));
-});
-
-const handleAddFilter = (filter) => {
-  setFilterTags(prevTags => {
-    const exists = prevTags.some(tag => tag.label === filter.label);
-    if (exists) {
-      return prevTags.map(tag => 
-        tag.label === filter.label ? { ...tag, value: filter.value } : tag
-      );
+    {
+      label: 'Forecast Net Operating',
+      value: 'Default',
+      onChange: (value) => handleFilterChange('Forecast Net Operating', value),
+      options: [{ label: 'Any', value: 'Any' }, ...getUniqueValues('forecast_net_operating')]
     }
-    return [...prevTags, {
-      ...filter,
-      onRemove: () => handleRemoveFilter(filter.label)
-    }];
-  });
-};
-
-
-const handleRemoveFilter = (filterLabel) => {
-  setFilterTags(prevTags => prevTags.filter(tag => tag.label !== filterLabel));
-  
-  const removedOption = allFilterOptions.find(opt => opt.label === filterLabel);
-  if (removedOption) {
-    setFilterOptions(prevOptions => [...prevOptions, removedOption]);
-  }
-};
-
-// generate current filter tags based on active filters -- ??
-const generateFilterTags = () => {
-  return filterTags.length > 0 ? filterTags : [
-    { label: 'No Filters Applied', value: 'Click to add filters', onRemove: () => {} }
   ];
-};
+
+  const handleFilterChange = (label, value) => {
+    if (value && value !== "Any") {
+      setFilterTags(prevTags => {
+        const updatedTags = prevTags.filter(tag => tag.label !== label);
+        return [...updatedTags, { 
+          label, 
+          value,
+          onRemove: () => handleRemoveFilter(label)
+        }];
+      });
+    } else {
+      setFilterTags(prevTags => prevTags.filter(tag => tag.label !== label));
+    }
+  };
+
+  const handleRemoveFilter = (filterLabel) => {
+    setFilterTags(prevTags => prevTags.filter(tag => tag.label !== filterLabel));
+  };
   
-  // generate metric cards using api data
+  const handleAddFilter = (filter) => {
+    if (filter.value && filter.value !== "Default") {
+      setFilterTags(prevTags => {
+        const existingIndex = prevTags.findIndex(tag => tag.label === filter.label);
+        if (existingIndex >= 0) {
+          const updatedTags = [...prevTags];
+          updatedTags[existingIndex] = {
+            ...filter,
+            onRemove: () => handleRemoveFilter(filter.label)
+          };
+          return updatedTags;
+        } else {
+          return [...prevTags, {
+            ...filter,
+            onRemove: () => handleRemoveFilter(filter.label)
+          }];
+        }
+      });
+    }
+  };
+
+  const generateFilterTags = () => {
+    return filterTags.length > 0 ? filterTags : [
+      { label: 'No Filters Applied', value: 'Click to add filters', onRemove: () => {} }
+    ];
+  };
+  
   const generateMetricCards = () => [
     {
       title: 'Exploration',
@@ -639,7 +492,6 @@ const generateFilterTags = () => {
     }
   ];
   
-  // generate charts using api data
   const generateChartData = () => [
     {
       title: 'Total Quarterly Exploration Spend',
@@ -658,25 +510,27 @@ const generateFilterTags = () => {
     }
   ];
   
-  // define table columns
   const [tableColumns] = useState([
-    { header: 'Ann Date', key: 'ann' },
-    { header: 'ASX Code', key: 'asx' },
+    { header: 'Ann Date', key: 'annDate' },
+    { header: 'ASX Code', key: 'asxCode' },
     { header: 'Period', key: 'period' },
-    { header: 'Net Operating', key: 'netOp' },
-    { header: 'Exploration', key: 'exploration' },
-    { header: 'Development', key: 'development' },
+    { header: 'Net Operating', key: 'netOperatingCashFlow' },
+    { header: 'Exploration', key: 'explorationSpend' },
+    { header: 'Development', key: 'developmentProductionSpend' },
     { header: 'Staff Costs', key: 'staffCosts' },
     { header: 'Admin Costs', key: 'adminCosts' },
     { header: 'Other Costs', key: 'otherCosts' },
-    { header: 'Net Invest', key: 'netInvest' },
+    { header: 'Net Invest', key: 'netCashInvest' },
     { header: 'Cash Flow', key: 'cashFlow' },
     { header: 'Bank Balance', key: 'bankBalance' },
     { header: 'Debt', key: 'debt' },
-    { header: 'Market Cap', key: 'marketcap' },
-    { header: 'Forecast Net Operating', key: 'forecast' }
+    { header: 'Market Cap', key: 'marketCap' },
+    { header: 'Forecast Net Operating', key: 'forecastNetOperating' }
   ]);
-  
+
+  const applyFilters = () => {
+    applyClientSideFilters();
+  };
 
   return (
     <div className="standard-padding">
@@ -685,9 +539,8 @@ const generateFilterTags = () => {
         <div className="loading-indicator">Loading financial data...</div>
       ) : (
         <GraphPage
-          title="Financial Dashboard"
-          filterTags={generateFilterTags()} // Or just filterTags if you want to use the raw state
-          filterOptions={filterOptions}
+          title="Financial"
+          filterTags={generateFilterTags()}
           allFilterOptions={allFilterOptions}
           metricCards={generateMetricCards()}
           chartData={generateChartData()}
@@ -695,6 +548,7 @@ const generateFilterTags = () => {
           tableData={tableData}
           handleAddFilter={handleAddFilter}
           handleRemoveFilter={handleRemoveFilter}
+          applyFilters={applyFilters}
         />
       )}
     </div>

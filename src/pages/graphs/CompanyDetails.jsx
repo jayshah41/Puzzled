@@ -1,253 +1,406 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import '../../styles/GeneralStyles.css';
 import GraphPage from '../../components/GraphPage.jsx';
-import useAuthToken from '../../hooks/useAuthToken';
 import axios from 'axios';
+import useAuthToken from "../../hooks/useAuthToken";
 
 const CompanyDetails = () => {
-  const [companyData, setCompanyData] = useState([]);
+  const { getAccessToken, authError } = useAuthToken();
+  const [companies, setCompanies] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [filteredCompanies, setFilteredCompanies] = useState([]);
+  const [metricSummaries, setMetricSummaries] = useState({
+    totalAsxCount: 0,
+    totalCompanyCount: 0,
+    totalProjectAreaCount: 0
+  });
+  const [topBankBalances, setTopBankBalances] = useState({
+    labels: [], 
+    datasets: [{data: []}]
+  });
+  const [valueByProjectArea, setValueByProjectArea] = useState({
+    labels: [], 
+    datasets: [{data: []}]
+  });
+  const [priorityCommodityDistribution, setPriorityCommodityDistribution] = useState({
+    labels: [], 
+    datasets: [{data: []}]
+  });
+  const [tableData, setTableData] = useState([]);
   const [filterTags, setFilterTags] = useState([]);
 
-  const [filters, setFilters] = useState({
-    asxCode: "",
-    companyName: "",
-    priorityCommodity: "",
-    projectArea: ""
-  });
-
-  const { getAccessToken, authError } = useAuthToken(); 
-
   const fetchCompanyData = useCallback(async () => {
-    setLoading(true);
-
+    const token = await getAccessToken();
+    if (!token) {
+      setError("Authentication error: No token found.");
+      setLoading(false);
+      return;
+    }
+  
     try {
-      const token = await getAccessToken();
-      if (!token) {
-        setError(authError || "Authentication error");
-        return;
-      }
-
+      setLoading(true);
+      
       const response = await axios.get("http://127.0.0.1:8000/data/company-details/", {
-        headers: { Authorization: `Bearer ${token}` },
-        params: Object.fromEntries(Object.entries(filters).filter(([_, v]) => v))
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        }
       });
-
-      setCompanyData(response.data);
+      
+      if (Array.isArray(response.data)) {
+        setCompanies(response.data);
+        setFilteredCompanies(response.data);
+        processCompanyData(response.data);
+      } else if (response.data && typeof response.data === 'object') {
+        const dataArray = [response.data];
+        setCompanies(dataArray);
+        setFilteredCompanies(dataArray);
+        processCompanyData(dataArray);
+      } else {
+        setCompanies([]);
+        setFilteredCompanies([]);
+        processCompanyData([]);
+      }
+  
       setError("");
-    } catch (err) {
-      console.error(err);
-      setError("Error fetching company details.");
+    } catch (error) {
+      setError(`Failed to fetch company data: ${error.response?.data?.detail || error.message}`);
+      resetData();
     } finally {
       setLoading(false);
     }
-  }, [filters, getAccessToken, authError]); 
-
+  }, [getAccessToken]);
+  
+  const applyClientSideFilters = useCallback(() => {
+    if (!companies.length) return;
+    const fieldMapping = {
+      'ASX Code': 'asx_code',
+      'Company Name': 'company_name',
+      'Priority Commodity': 'priority_commodity',
+      'Project Area': 'project_area',
+      'Bank Balance': 'bank_balance',
+      'Value': 'value'
+    };
+    let filtered = [...companies];
+    filterTags.forEach(tag => {
+      if (tag.value && tag.value !== 'Default' && tag.label !== 'No Filters Applied') {
+        const fieldName = fieldMapping[tag.label];
+        if (fieldName) {
+          filtered = filtered.filter(item => {
+            if (fieldName === 'bank_balance' || fieldName === 'value') {
+              return item[fieldName] == tag.value; 
+            } else {
+              return item[fieldName] && item[fieldName].toString() === tag.value.toString();
+            }
+          });
+        }
+      }
+    });
+    
+    setFilteredCompanies(filtered);
+    processCompanyData(filtered);
+  }, [companies, filterTags]);
+  
+  useEffect(() => {
+    if (companies.length) {
+      applyClientSideFilters();
+    }
+  }, [filterTags, applyClientSideFilters]);
+  
   useEffect(() => {
     fetchCompanyData();
   }, [fetchCompanyData]);
 
-  const topBy = (key, label) => {
-    const sorted = [...companyData]
-      .filter(item => item[key])
-      .sort((a, b) => b[key] - a[key])
-      .slice(0, 10);
-
-    return {
-      labels: sorted.map(item => item.asx_code),
-      datasets: [{
-        label,
-        data: sorted.map(item => item[key]),
-        backgroundColor: "#007bff"
-      }]
-    };
-  };
-
-  const valueByProjectArea = () => {
-    if (!companyData || companyData.length === 0) {
-      return {
-        data: {
-          labels: ["No Data"],
-          datasets: [{
-            label: "No Shareholder Data",
-            data: [0],
-            backgroundColor: "#ccc"
-          }]
-        },
-        options: {
-          responsive: true,
-          plugins: {
-            title: {
-              display: true,
-              text: "No Data Available"
-            }
-          }
-        }
-      };
+  const processCompanyData = (data) => {
+    if (!data || data.length === 0) {
+      resetData();
+      return;
     }
 
-    const grouped = {};
-    companyData.forEach(item => {
+    const totalAsxCount = new Set(data.map(item => item.asx_code)).size;
+    const totalCompanyCount = new Set(data.map(item => item.company_name)).size;
+    const totalProjectAreaCount = new Set(data.map(item => item.project_area).filter(Boolean)).size;
+
+    setMetricSummaries({
+      totalAsxCount,
+      totalCompanyCount, 
+      totalProjectAreaCount
+    });
+
+    processTopBankBalances(data);
+    processValueByProjectArea(data);
+    processPriorityCommodityDistribution(data);
+
+    setTableData(data.map(item => ({
+      asx_code: item.asx_code || '',
+      company_name: item.company_name || '',
+      bank_balance: formatCurrency(item.bank_balance || 0), 
+      value: formatCurrency(item.value || 0),
+      priority_commodity: item.priority_commodity || '', 
+      project_area: item.project_area || ''
+    })));
+  };
+
+  const formatCurrency = (value, decimals = 2) => {
+    if (isNaN(value)) return '$0.00';
+    return '$' + Number(value).toLocaleString('en-AU', {
+      minimumFractionDigits: decimals,
+      maximumFractionDigits: decimals
+    });
+  };
+
+  const processTopBankBalances = (data) => {
+    const sortedData = [...data]
+      .filter(item => item.bank_balance)
+      .sort((a, b) => b.bank_balance - a.bank_balance)
+      .slice(0, 10);
+  
+    setTopBankBalances({
+      labels: sortedData.map(item => item.asx_code),
+      datasets: [{
+        label: "Bank Balance",
+        data: sortedData.map(item => item.bank_balance),
+        backgroundColor: "#007bff",
+      }]
+    });
+  };
+  
+  const processValueByProjectArea = (data) => {
+    const areaGroups = {};
+    data.forEach(item => {
       const area = item.project_area;
       if (!area) return;
-      grouped[area] = (grouped[area] || 0) + (item.value || 0);
+      
+      if (!areaGroups[area]) {
+        areaGroups[area] = {
+          area: area,
+          value: parseFloat(item.value) || 0
+        };
+      } else {
+        areaGroups[area].value += parseFloat(item.value) || 0;
+      }
     });
-
-    const topAreas = Object.entries(grouped)
-      .sort(([, a], [, b]) => b - a)
+  
+    const topAreas = Object.values(areaGroups)
+      .sort((a, b) => b.value - a.value)
       .slice(0, 5);
-
-    const data = {
-      labels: topAreas.map(([area]) => area),
+  
+    setValueByProjectArea({
+      labels: topAreas.map(area => area.area),
       datasets: [{
         label: "Shareholder Value",
-        data: topAreas.map(([, val]) => val),
-        backgroundColor: "#28a745"
+        data: topAreas.map(area => area.value),
+        backgroundColor: "#28a745",
       }]
-    };
-
-    const options = {
-      responsive: true,
-      plugins: {
-        legend: {
-          display: true,
-          position: 'top'
-        },
-        title: {
-          display: true,
-          text: 'Shareholder Value by Project Area'
-        }
-      }
-    };
-
-    return { data, options };
+    });
   };
-
-  const priorityCommodityDistribution = () => {
-    const counts = {};
-    companyData.forEach(item => {
+  
+  const processPriorityCommodityDistribution = (data) => {
+    const commodityCounts = {};
+    data.forEach(item => {
       const commodity = item.priority_commodity;
       if (!commodity) return;
-      counts[commodity] = (counts[commodity] || 0) + 1;
+      
+      commodityCounts[commodity] = (commodityCounts[commodity] || 0) + 1;
     });
-
-    const topCommodities = Object.entries(counts)
+  
+    const topCommodities = Object.entries(commodityCounts)
       .sort(([, a], [, b]) => b - a)
-      .slice(0, 10);
-
-    return {
-      labels: topCommodities.map(([key]) => key),
+      .slice(0, 10)
+      .map(([commodity, count]) => ({ commodity, count }));
+  
+    setPriorityCommodityDistribution({
+      labels: topCommodities.map(item => item.commodity),
       datasets: [{
         label: "Count",
-        data: topCommodities.map(([, count]) => count),
-        backgroundColor: "#ffc107"
+        data: topCommodities.map(item => item.count),
+        backgroundColor: "#ffc107",
       }]
-    };
+    });
+  };
+   
+  const resetData = () => {
+    setMetricSummaries({
+      totalAsxCount: 0, 
+      totalCompanyCount: 0, 
+      totalProjectAreaCount: 0
+    });
+    
+    setTopBankBalances({
+      labels: ['No Data'],
+      datasets: [{
+        label: "Bank Balance",
+        data: [0],
+        backgroundColor: "#rgba(0, 123, 255, 0.2)",
+      }]
+    });
+    
+    setValueByProjectArea({
+      labels: ['No Data'],
+      datasets: [{
+        label: "Shareholder Value",
+        data: [0],
+        backgroundColor: "#rgba(40, 167, 69, 0.2)",
+      }]
+    });
+    
+    setPriorityCommodityDistribution({
+      labels: ['No Data'],
+      datasets: [{
+        label: "Count",
+        data: [0],
+        backgroundColor: "#rgba(255, 193, 7, 0.2)",
+      }]
+    });
+    
+    setTableData([]);
   };
 
-  const metrics = [
-    { title: "Total ASX Codes", value: new Set(companyData.map(d => d.asx_code)).size },
-    { title: "Total Companies", value: new Set(companyData.map(d => d.company_name)).size },
-    { title: "Project Areas", value: new Set(companyData.map(d => d.project_area).filter(Boolean)).size }
-  ];
-
-  const tableColumns = [
-    { header: "ASX Code", key: "asx_code" },
-    { header: "Company", key: "company_name" },
-    { header: "Bank Balance", key: "bank_balance" },
-    { header: "Value", key: "value" },
-    { header: "Priority Commodity", key: "priority_commodity" },
-    { header: "Project Area", key: "project_area" }
-  ];
-
-  const getUnique = (key) =>
-    [...new Set(companyData.map(item => item[key]).filter(Boolean))].map(value => ({ label: value, value }));
+  const getUniqueValues = (key) => {
+    if (!companies || companies.length === 0) return [];
+    const uniqueValues = [...new Set(companies.map(item => item[key]))].filter(Boolean);
+    return uniqueValues.map(value => ({ label: value, value: value }));
+  };
 
   const allFilterOptions = [
     {
-      label: "ASX Code",
-      value: filters.asxCode,
-      onChange: val => updateFilter("asxCode", val),
-      options: [{ label: "Default", value: "" }, ...getUnique("asx_code")]
+      label: 'ASX Code',
+      value: 'Default',
+      onChange: (value) => handleFilterChange('ASX Code', value),
+      options: [{ label: 'Any', value: 'Any' }, ...getUniqueValues('asx_code')]
     },
     {
-      label: "Company Name",
-      value: filters.companyName,
-      onChange: val => updateFilter("companyName", val),
-      options: [{ label: "Default", value: "" }, ...getUnique("company_name")]
+      label: 'Company Name',
+      value: 'Default',
+      onChange: (value) => handleFilterChange('Company Name', value),
+      options: [{ label: 'Any', value: 'Any' }, ...getUniqueValues('company_name')]
     },
     {
-      label: "Priority Commodity",
-      value: filters.priorityCommodity,
-      onChange: val => updateFilter("priorityCommodity", val),
-      options: [{ label: "Default", value: "" }, ...getUnique("priority_commodity")]
+      label: 'Priority Commodity',
+      value: 'Default',
+      onChange: (value) => handleFilterChange('Priority Commodity', value),
+      options: [{ label: 'Any', value: 'Any' }, ...getUniqueValues('priority_commodity')]
     },
     {
-      label: "Project Area",
-      value: filters.projectArea,
-      onChange: val => updateFilter("projectArea", val),
-      options: [{ label: "Default", value: "" }, ...getUnique("project_area")]
+      label: 'Project Area',
+      value: 'Default',
+      onChange: (value) => handleFilterChange('Project Area', value),
+      options: [{ label: 'Any', value: 'Any' }, ...getUniqueValues('project_area')]
+    },
+    {
+      label: 'Bank Balance',
+      value: 'Default',
+      onChange: (value) => handleFilterChange('Bank Balance', value),
+      options: [{ label: 'Any', value: 'Any' }, ...getUniqueValues('bank_balance')]
+    },
+    {
+      label: 'Value',
+      value: 'Default',
+      onChange: (value) => handleFilterChange('Value', value),
+      options: [{ label: 'Any', value: 'Any' }, ...getUniqueValues('value')]
     }
   ];
 
-  const updateFilter = (key, value) => {
-    setFilters(prev => ({ ...prev, [key]: value }));
-    if (value) {
-      const tagLabel = {
-        asxCode: "ASX Code",
-        companyName: "Company Name",
-        priorityCommodity: "Priority Commodity",
-        projectArea: "Project Area"
-      }[key];
-      handleAddFilter({ label: tagLabel, value });
+  const handleFilterChange = (label, value) => {
+    if (value && value !== "Any") {
+      setFilterTags(prevTags => {
+        const updatedTags = prevTags.filter(tag => tag.label !== label);
+        return [...updatedTags, { label, value }];
+      });
+    } else {
+      setFilterTags(prevTags => prevTags.filter(tag => tag.label !== label));
     }
   };
 
+  const handleRemoveFilter = (filterLabel) => {
+    setFilterTags(prevTags => prevTags.filter(tag => tag.label !== filterLabel));
+  };
+  
   const handleAddFilter = (filter) => {
-    setFilterTags(prev => {
-      const exists = prev.some(tag => tag.label === filter.label);
-      return exists
-        ? prev.map(tag => tag.label === filter.label ? filter : tag)
-        : [...prev, filter];
-    });
-  };
-
-  const handleRemoveFilter = (label) => {
-    setFilterTags(prev => prev.filter(tag => tag.label !== label));
-    switch (label) {
-      case "ASX Code": updateFilter("asxCode", ""); break;
-      case "Company Name": updateFilter("companyName", ""); break;
-      case "Priority Commodity": updateFilter("priorityCommodity", ""); break;
-      case "Project Area": updateFilter("projectArea", ""); break;
-      default: break;
+    if (filter.value && filter.value !== "Default") {
+      setFilterTags(prevTags => {
+        const existingIndex = prevTags.findIndex(tag => tag.label === filter.label);
+        if (existingIndex >= 0) {
+          const updatedTags = [...prevTags];
+          updatedTags[existingIndex] = filter;
+          return updatedTags;
+        } else {
+          return [...prevTags, filter];
+        }
+      });
     }
   };
+  
+  const generateFilterTags = () => {
+    return filterTags.length > 0 ? filterTags : [
+      { label: 'No Filters Applied', value: 'Click to add filters', onRemove: () => {} }
+    ];
+  };
 
-  const valueByArea = valueByProjectArea();
+  const applyFilters = () => {
+    applyClientSideFilters();
+  };
+  
+  const generateMetricCards = () => [
+    {
+      title: 'Total ASX Codes',
+      value: metricSummaries.totalAsxCount
+    },
+    {
+      title: 'Total Companies',
+      value: metricSummaries.totalCompanyCount
+    },
+    {
+      title: 'Project Areas',
+      value: metricSummaries.totalProjectAreaCount
+    }
+  ];
+  
+  const generateChartData = () => [
+    {
+      title: 'Top 10 Bank Balances',
+      type: "bar",
+      data: topBankBalances
+    },
+    {
+      title: 'Top 5 Values by Project Area',
+      type: "bar",
+      data: valueByProjectArea
+    },
+    {
+      title: 'Top 10 Priority Commodities',
+      type: "bar",
+      data: priorityCommodityDistribution
+    }
+  ];
+  
+  const [tableColumns] = useState([
+    { header: 'ASX Code', key: 'asx_code' },
+    { header: 'Company', key: 'company_name' },
+    { header: 'Bank Balance', key: 'bank_balance' },
+    { header: 'Value', key: 'value' },
+    { header: 'Priority Commodity', key: 'priority_commodity' },
+    { header: 'Project Area', key: 'project_area' }
+  ]);
 
   return (
     <div className="standard-padding">
       {error && <div className="error-message">{error}</div>}
       {loading ? (
-        <div className="loading-indicator">Loading...</div>
+        <div className="loading-indicator">Loading company data...</div>
       ) : (
         <GraphPage
           title="Company Details"
-          filterTags={filterTags}
+          filterTags={generateFilterTags()} 
           allFilterOptions={allFilterOptions}
-          filterOptions={allFilterOptions.filter(opt => !filterTags.find(tag => tag.label === opt.label))}
-          metricCards={metrics}
-          chartData={[
-            { title: "Top 10 Bank Balances", type: "bar", data: topBy("bank_balance", "Bank Balance") },
-            { title: "Top 5 Values by Project Area", type: "bar", data: valueByArea.data, options: valueByArea.options },
-            { title: "Top 10 Priority Commodities", type: "bar", data: priorityCommodityDistribution() }
-          ]}
+          metricCards={generateMetricCards()}
+          chartData={generateChartData()}
           tableColumns={tableColumns}
-          tableData={companyData}
+          tableData={tableData}
           handleAddFilter={handleAddFilter}
           handleRemoveFilter={handleRemoveFilter}
-          applyFilters={fetchCompanyData}
+          applyFilters={applyFilters}
         />
       )}
     </div>
