@@ -4,6 +4,7 @@ import useSaveContent from '../hooks/useSaveContent';
 import LoginHandler from './LoginHandler';
 import makcorpLogoWithText from '../assets/makcorpLogoWithText.png';
 import profileIcon from '../assets/profileIcon.png';
+import '../styles/GeneralStyles.css';
 import '../styles/Navbar.css';
 
 const Navbar = () => {
@@ -177,7 +178,7 @@ const Navbar = () => {
           </Link>
         
         {isAdminUser ? (
-          <button style={{ backgroundColor: "#2A4365", color: "white" }}
+          <button className="edit-button"
             onClick={() => {
               if (isEditing) {
                 if (contentIsValid(tabs, graphLinks)) {
@@ -199,7 +200,7 @@ const Navbar = () => {
         {(isEditing || (isLoggedIn && areAnyGraphsVisible)) && (
           <div className="dropdown">
             <button
-              className="dropbtn"
+              className="dropbtn navbar-button"
               onMouseEnter={() => setShowGraphsDropdown(true)}>
               Graphs
             </button>
@@ -216,8 +217,8 @@ const Navbar = () => {
             <div>
               {!isLoggedIn ?
                 <>
-                  <button onClick={handleOpenLogin}>Log In</button>
-                  <button onClick={handleOpenSignup}>Sign Up</button>
+                  <button className="navbar-button" onClick={handleOpenLogin}>Log In</button>
+                  <button className="navbar-button" onClick={handleOpenSignup}>Sign Up</button>
                 </>
               :
                 <Link to="/account">

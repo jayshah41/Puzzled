@@ -432,7 +432,7 @@ const NewsContent = () => {
   return (
     <div className="news-content-container">
       {isAdminUser && (
-        <button 
+        <button
           onClick={() => {
             if (isEditing) {
               handleSave();
@@ -441,7 +441,8 @@ const NewsContent = () => {
               setValidationErrors({});
             }
           }}
-          className="admin-button"
+          className="edit-button"
+          style={{ marginBottom: "1rem" }}
         >
           {isEditing ? 'Save & Save Changes' : 'Edit'}
         </button>

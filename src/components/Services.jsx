@@ -46,7 +46,7 @@ const Services = () => {
   return (
   <div className="standard-padding">
     {isAdminUser ?
-      <button
+      <button className="edit-button"
       onClick={() => {
         if (isEditing) {
           if (contentIsValid()) {

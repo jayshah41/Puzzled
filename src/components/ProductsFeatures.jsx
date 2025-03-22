@@ -56,7 +56,7 @@ const ProductsFeatures = () => {
   return (
     <div className="products-features-card standard-padding">
       {isAdminUser ? (
-        <button
+        <button className="edit-button"
           onClick={() => {
             if (isEditing) {
               if (contentIsValid()) {
