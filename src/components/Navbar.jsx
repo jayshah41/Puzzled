@@ -166,7 +166,7 @@ const Navbar = () => {
   return (
     <nav className="navbar sticky">
       <div className="navbar-container">
-        <div className="flex items-center">
+        <div className="centre">
           <Link to="/">
             <img
               src={makcorpLogoWithText}
@@ -175,9 +175,9 @@ const Navbar = () => {
               style={{ padding: '10px' }}
             />
           </Link>
-        </div>
+        
         {isAdminUser ? (
-          <button
+          <button style={{ backgroundColor: "#2A4365", color: "white" }}
             onClick={() => {
               if (isEditing) {
                 if (contentIsValid(tabs, graphLinks)) {
@@ -194,6 +194,7 @@ const Navbar = () => {
             {isEditing ? 'Stop Editing' : 'Edit'}
           </button>
         ) : null}
+        </div>
         {links}
         {(isEditing || (isLoggedIn && areAnyGraphsVisible)) && (
           <div className="dropdown">
