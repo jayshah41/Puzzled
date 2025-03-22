@@ -551,7 +551,7 @@ return (
       <div className="loading-indicator">Loading directors data...</div>
     ) : (
       <GraphPage
-        title="Directors Dashboard"
+        title="Directors"
         filterTags={generateFilterTags()}
         allFilterOptions={allFilterOptions}
         metricCards={generateMetricCards()}

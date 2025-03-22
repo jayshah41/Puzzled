@@ -489,7 +489,7 @@ const CapitalRaises = () => {
         <div className="loading-indicator">Loading capital raises data...</div>
       ) : (
         <GraphPage
-          title="Capital Raises Dashboard"
+          title="Capital Raises"
           filterTags={generateFilterTags()}
           allFilterOptions={allFilterOptions}
           metricCards={generateMetricCards()}

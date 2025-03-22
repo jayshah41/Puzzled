@@ -456,7 +456,7 @@ const processDrillingResultsByIntersectChart = (data) => {
         <div className="loading-indicator">Loading projects data...</div>
       ) : (
         <GraphPage
-          title="Projects Dashboard"
+          title="Projects"
           filterTags={generateFilterTags()}
           allFilterOptions={allFilterOptions}
           metricCards={generateMetricCards()}

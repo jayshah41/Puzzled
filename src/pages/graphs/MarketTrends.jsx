@@ -82,12 +82,15 @@ const MarketTrends = () => {
         
         const fieldMapping = {
             'ASX Code': 'asx_code',
+        };
+
+        const rangeFieldMapping ={
             'Market Cap': 'market_cap',
             'Trade Value': 'trade_value',
             'Total Shares': 'total_shares',
             'New Price': 'new_price',
             'Previous Price': 'previous_price'
-        };
+        }
         
         let filtered = [...marketTrends];
         
@@ -97,6 +100,15 @@ const MarketTrends = () => {
                 if (fieldName) {
                     filtered = filtered.filter(item => {
                         return item[fieldName] && item[fieldName].toString() === tag.value.toString();
+                    });
+                }
+                
+                const rangeField = rangeFieldMapping[tag.label];
+                if (rangeField) {
+                    const [min, max] = tag.value.split(' to ').map(val => parseFloat(val));
+                    filtered = filtered.filter(item => {
+                        const value = parseFloat(item[rangeField]);
+                        return value >= min && value <= max;
                     });
                 }
             }
@@ -403,6 +415,44 @@ const MarketTrends = () => {
         return uniqueValues.map(value => ({ label: value, value: value }));
     };
 
+    const generateRangeOptions = (field) => {
+        if (!marketTrends || !marketTrends.length) return [];
+        
+        const values = marketTrends.map(item => parseFloat(item[field])).filter(val => !isNaN(val));
+        if (!values.length) return [];
+        
+        const min = Math.min(...values);
+        const max = Math.max(...values);
+        
+        let increment = field.includes('price') ? 
+            Math.ceil((max - min) / 10 * 100) / 100 : 
+            Math.ceil((max - min) / 10);              
+        
+        if (field.includes('price') && increment < 0.01) increment = 0.01;
+        
+        const options = [];
+        options.push({ label: 'Any', value: 'Any' }); 
+        
+        for (let i = min; i < max; i += increment) {
+            const rangeMin = i;
+            const rangeMax = Math.min(i + increment, max);
+            
+            let rangeLabel;
+            if (field.includes('price')) {
+                rangeLabel = `${rangeMin.toFixed(2)} to ${rangeMax.toFixed(2)}`;
+            } else {
+                rangeLabel = `${Math.floor(rangeMin).toLocaleString()} to ${Math.ceil(rangeMax).toLocaleString()}`;
+            }
+            
+            options.push({ 
+                label: rangeLabel, 
+                value: `${rangeMin} to ${rangeMax}` 
+            });
+        }
+        
+        return options;
+    };
+
     const allFilterOptions = [
         {
             label: 'ASX Code',
@@ -411,34 +461,34 @@ const MarketTrends = () => {
             options: [{ label: 'Any', value: 'Any' }, ...getUniqueValues('asx_code')]
         },
         {
-            label: 'Market Cap',
+            label: 'Market Cap Range',
             value: 'Default',
-            onChange: (value) => handleFilterChange('Market Cap', value),
-            options: [{ label: 'Any', value: 'Any' }, ...getUniqueValues('market_cap')]
+            onChange: (value) => handleFilterChange('Market Cap Range', value),
+            options: generateRangeOptions('market_cap')
         },
         {
-            label: 'Trade Value',
+            label: 'Trade Value Range',
             value: 'Default',
-            onChange: (value) => handleFilterChange('Trade Value', value),
-            options: [{ label: 'Any', value: 'Any' }, ...getUniqueValues('trade_value')]
+            onChange: (value) => handleFilterChange('Trade Value Range', value),
+            options: generateRangeOptions('trade_value')
         },
         {
-            label: 'Total Shares',
+            label: 'Total Shares Range',
             value: 'Default',
-            onChange: (value) => handleFilterChange('Total Shares', value),
-            options: [{ label: 'Any', value: 'Any' }, ...getUniqueValues('total_shares')]
+            onChange: (value) => handleFilterChange('Total Shares Range', value),
+            options: generateRangeOptions('total_shares')
         },
         {
-            label: 'New Price',
+            label: 'New Price Range',
             value: 'Default',
-            onChange: (value) => handleFilterChange('New Price', value),
-            options: [{ label: 'Any', value: 'Any' }, ...getUniqueValues('new_price')]
+            onChange: (value) => handleFilterChange('New Price Range', value),
+            options: generateRangeOptions('new_price')
         },
         {
-            label: 'Previous Price',
+            label: 'Previous Price Range',
             value: 'Default',
-            onChange: (value) => handleFilterChange('Previous Price', value),
-            options: [{ label: 'Any', value: 'Any' }, ...getUniqueValues('previous_price')]
+            onChange: (value) => handleFilterChange('Previous Price Range', value),
+            options: generateRangeOptions('previous_price')
         }
     ];
 
@@ -472,6 +522,8 @@ const MarketTrends = () => {
         }
     };
 
+
+
     const generateFilterTags = () => {
         return filterTags.length > 0 ? filterTags : [
             { label: 'No Filters Applied', value: 'Click to add filters', onRemove: () => {} }
@@ -481,6 +533,7 @@ const MarketTrends = () => {
     const applyFilters = () => {
         applyClientSideFilters();
     };
+
 
     const generateMetricCards = () => [
         {
