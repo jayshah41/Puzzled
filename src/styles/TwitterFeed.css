@@ -1,0 +1,54 @@
+.twitter-feed {
+    max-width: 800px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
+
+.twitter-card {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 2rem;
+    margin-bottom: 2rem;
+}
+
+.twitter-details {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+}
+
+.twitter-category {
+    color: #4a90e2;
+    font-weight: 600;
+}
+
+.twitter-date {
+    color: #666;
+}
+
+.twitter-excerpt p {
+    margin-bottom: 1rem;
+    line-height: 1.6;
+    color: #444;
+}
+
+.twitter-actions {
+    margin-top: 1.5rem;
+}
+
+.read-more-btn {
+    display: inline-block;
+    background-color: #4a90e2;
+    color: white;
+    padding: 0.7rem 1.5rem;
+    border-radius: 4px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: background-color 0.3s ease;
+}
+
+.read-more-btn:hover {
+    background-color: #3570b8;
+}

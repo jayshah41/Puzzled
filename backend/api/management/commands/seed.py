@@ -6,6 +6,8 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
         call_command('seed_users')  
+        call_command('seed_companies')
+        call_command('seed_content')
         call_command('seed_companies')  
         
         self.stdout.write(self.style.SUCCESS('all seeders run'))

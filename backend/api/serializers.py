@@ -43,3 +43,30 @@ class ProjectsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Projects
         fields = '__all__'
+
+class AggregatedCompanySerializer(serializers.ModelSerializer):
+    bank_balance = serializers.SerializerMethodField()
+    value = serializers.SerializerMethodField()
+    priority_commodity = serializers.SerializerMethodField()
+    project_area = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Company
+        fields = ['asx_code', 'company_name', 'bank_balance', 'value', 'priority_commodity', 'project_area']
+
+    def get_bank_balance(self, obj):
+        raise_obj = obj.capital_raises.first()
+        return raise_obj.bank_balance if raise_obj else None
+
+    def get_value(self, obj):
+        shareholder = obj.shareholders.first()
+        return shareholder.value if shareholder else None
+
+    def get_priority_commodity(self, obj):
+        project = obj.projects.first()
+        return project.commodity if project else None
+
+    def get_project_area(self, obj):
+        shareholder = obj.shareholders.first()
+        return shareholder.project_area if shareholder else None
+

@@ -54,6 +54,7 @@ const Login = ({ onClose, loginButton, onLoginSuccess }) => {
 
             const data = await response.json();
             localStorage.setItem("accessToken", data.access);
+            localStorage.setItem("refreshToken", data.refresh);
 
             const userResponse = await fetch("/api/profile/", {
                 method: "GET",
@@ -66,6 +67,7 @@ const Login = ({ onClose, loginButton, onLoginSuccess }) => {
             if (!userResponse.ok) throw new Error("Failed to fetch user data");
 
             const userData = await userResponse.json();
+            localStorage.setItem("user_tier_level", userData.tier_level);
 
             onLoginSuccess();
 
@@ -93,7 +95,6 @@ const Login = ({ onClose, loginButton, onLoginSuccess }) => {
                     commodities: formData.commodities,
                     password: formData.password,
                     tier_level: 1,
-                    user_type: "client"
                 }),
             });
 
