@@ -4,46 +4,32 @@ import GraphPage from '../../components/GraphPage.jsx';
 import axios from 'axios';
 import useAuthToken from "../../hooks/useAuthToken";
 
-
-
 const Projects = () => {
    const { getAccessToken, authError } = useAuthToken();
-   
-   // states for api data
    const [projects, setProjects] = useState([]);
+   const [filteredProjects, setFilteredProjects] = useState([]);
    const [loading, setLoading] = useState(false);
    const [error, setError] = useState("");
 
-   // states for current filters (applied)
-   const [asxCode, setAsxCode] = useState("");
-   const [activityDatePerDay, setActivityDatePerDay] = useState("");
-   const [projectName, setProjectName] = useState("");
-   const [intersect, setInteresect] = useState("");
-   const [marketCap, setmarketCap] = useState("");
-   const [grade, setGrade] = useState("");
-   const [depth, setDepth] = useState("");
+   const [filterTags, setFilterTags] = useState([]);
 
    const [metricSummaries, setMetricSummaries] = useState({
     asx: 0, 
     numOfProjects: 0,     
-});
+   });
 
-   // chart data states 
    const [drillingResultsByGrade, setDrillingResultsByGrade] = useState({
     labels: [], 
     datasets: [{ data:[] }]
-  });
+   });
 
-  const [drillingResultsByIntersect, setDrillingResultsByIntersect] = useState({
+   const [drillingResultsByIntersect, setDrillingResultsByIntersect] = useState({
       labels: [], 
       datasets: [{ data: [] }]
-  });
+   });
 
-  // fetch data from api
   const fetchProjects = useCallback(async () => {
-    // retrieves authentication token 
     const token = await getAccessToken();
-    // handles missing tokens
     if (!token) {
         setError("Authentication error: No token found.");
         setLoading(false);
@@ -52,46 +38,28 @@ const Projects = () => {
 
     try {
         setLoading(true);
-            const params = {
-            asx: asxCode || undefined,
-            activityDatePerDay: activityDatePerDay || undefined,
-            projectName: projectName || undefined,
-            intersect: intersect || undefined,
-            marketCap: marketCap || undefined,
-            grade: grade || undefined,
-            depth: depth || undefined,
-        };
-        
-        // remove undefined keys
-        Object.keys(params).forEach(key => 
-            params[key] === undefined && delete params[key]
-        );
-        
-        // sending api requests
         const response = await axios.get("http://127.0.0.1:8000/data/projects/", {
             headers: {
                 Authorization: `Bearer ${token}`,
                 "Content-Type": "application/json"
-            },
-            params: params
+            }
         });
-
-        console.log("API Response:", response.data);
         
-        // handling different api formats
         if (Array.isArray(response.data)) {
             setProjects(response.data);
+            setFilteredProjects(response.data);
             processProjects(response.data);
         } else if (response.data && typeof response.data === 'object') {
             const dataArray = [response.data];
             setProjects(dataArray);
+            setFilteredProjects(dataArray);
             processProjects(dataArray);
         } else {
             setProjects([]);
+            setFilteredProjects([]);
             resetData();
         }
         
-        // handles errors
         setError("");
     } catch (error) {
         console.error("Error fetching projects:", error.response?.data || error);
@@ -100,7 +68,51 @@ const Projects = () => {
     } finally {
         setLoading(false);
     }
-}, [asxCode, activityDatePerDay, projectName, intersect, marketCap, grade, depth]);
+  }, []);
+
+const applyClientSideFilters = useCallback(() => {
+    if (!projects.length) return;
+    
+    const fieldMapping = {
+      'ASX': 'asx_code',
+      'Activity Date Per Day': 'activity_date_per_day',
+      'Project Name': 'project_name',
+      'Intersect': 'intersect',
+      'Market Cap': 'market_cap',
+      'Grade': 'grade',
+      'Depth': 'depth'
+    };
+    
+    let filtered = [...projects];
+    
+    filterTags.forEach(tag => {
+      if (tag.value && tag.value !== 'Any' && tag.label !== 'No Filters Applied') {
+        const fieldName = fieldMapping[tag.label];
+        if (fieldName) {
+          filtered = filtered.filter(item => {
+            if (typeof item[fieldName] === 'number') {
+              return item[fieldName] == tag.value;
+            } else {
+              return item[fieldName] && item[fieldName].toString() === tag.value.toString();
+            }
+          });
+        }
+      }
+    });
+    
+    setFilteredProjects(filtered);
+    processProjects(filtered);
+  }, [projects, filterTags]);
+  
+  useEffect(() => {
+    if (projects.length) {
+      applyClientSideFilters();
+    }
+  }, [filterTags, applyClientSideFilters]);
+  
+  useEffect(() => {
+    fetchProjects();
+  }, [fetchProjects]);
 
 const processProjects = (data) => {
   if (!data || data.length === 0) {
@@ -108,8 +120,7 @@ const processProjects = (data) => {
       return;
   }
   
-  // calculate metric values 
-  const asx = data.length;
+  const asx = new Set(data.filter(item => item.asx_code).map(item => item.asx_code)).size;
   const numOfProjects = new Set(data.filter(item => item.project_name).map(item => item.project_name)).size;
   
   setMetricSummaries({
@@ -117,11 +128,9 @@ const processProjects = (data) => {
       numOfProjects: numOfProjects,
   });
 
-  // process data for charts 
   processDrillingResultsByGradeChart(data);
   processDrillingResultsByIntersectChart(data); 
 
-  // process table data 
   setTableData(data.map(item => ({
       asx: item.asx_code || '',
       marketCap: formatCurrency(item.market_cap || 0, 0), 
@@ -132,14 +141,13 @@ const processProjects = (data) => {
 };
 
 const formatCurrency = (value, decimals = 2) => {
-  if (isNaN(value)) return 'A$0.00';
+  if (isNaN(value)) return '$0.00';
   return '$' + Number(value).toLocaleString('en-AU', {
       minimumFractionDigits: decimals,
       maximumFractionDigits: decimals
   });
 };
 
-//CHARTS
 const processDrillingResultsByGradeChart = (data) => {
   if (!data || data.length === 0) {
     setDrillingResultsByGrade({
@@ -226,7 +234,6 @@ const processDrillingResultsByIntersectChart = (data) => {
   });
 };
 
-  // reset data if api call fails
   const resetData = () => {
     setMetricSummaries({
         asx: 0,
@@ -243,7 +250,6 @@ const processDrillingResultsByIntersectChart = (data) => {
         }]
     });
     
-    // Reset for the new volume change chart
     setDrillingResultsByIntersect({
         labels: ['No Data'],
         datasets: [{
@@ -255,55 +261,22 @@ const processDrillingResultsByIntersectChart = (data) => {
     });
     
     setTableData([]);
-};
+  };
 
-useEffect(() => {
-    console.log("Fetching projects...");
-    fetchProjects();
-}, [fetchProjects]);
-
-const [filterTags, setFilterTags] = useState([]);
-
-const getUniqueValues = (key) => {
+  const getUniqueValues = (key) => {
     if (!projects || projects.length === 0) return [];
     
     const uniqueValues = [...new Set(projects.map(item => item[key]))].filter(Boolean);
     return uniqueValues.map(value => ({ label: value, value: value }));
-};
+  };
 
+  const [tableData, setTableData] = useState([]);
 
-// table data state
-const [tableData, setTableData] = useState([]);
-
-/*
-  const [filterTags, setFilterTags] = useState([
-    { label: 'ASX', value: 'Default', onRemove: () => console.log('Remove ASX filter') },
-    { label: 'Company Name', value: 'Default', onRemove: () => console.log('Remove company name filter') },
-    { label: 'Priority Commodity', value: 'Default', onRemove: () => console.log('Remove priority commodity filter') },
-    { label: 'Project Location Country', value: 'Default', onRemove: () => console.log('Remove project location country filter') },
-    { label: 'Project Location Continent', value: 'Default', onRemove: () => console.log('Remove project location continent filter') },
-    { label: 'Project Location State', value: 'Default', onRemove: () => console.log('Remove project location state filter') },
-    { label: 'Project Location City', value: 'Default', onRemove: () => console.log('Remove project location city filter') },
-    { label: 'Project Stage', value: 'Default', onRemove: () => console.log('Remove project stage filter') },
-    { label: 'Industry Type', value: 'Default', onRemove: () => console.log('Remove industry type filter') },
-    { label: 'Market Cap', value: 'Default', onRemove: () => console.log('Remove market cap filter') },
-    { label: 'Commodity Total Resource', value: 'Default', onRemove: () => console.log('Remove commodity total resource filter') },
-    { label: 'Net Project Value', value: 'Default', onRemove: () => console.log('Remove net project value filter') },
-]);
-*/
-  
   const allFilterOptions = [
     {
       label: 'ASX',
       value: 'Any',
-      onChange: (value) => {
-        setFilterTags(prevTags => 
-          prevTags.map(tag => 
-            tag.label === 'ASX' ? {...tag, value} : tag
-          )
-        );
-        if(value != "Any"){handleAddFilter({label: 'ASX', value})};
-      },      
+      onChange: (value) => handleFilterChange('ASX', value),
       options: [
         { label: 'Any', value: 'Any' }, ...getUniqueValues('asx_code')
       ]
@@ -311,14 +284,7 @@ const [tableData, setTableData] = useState([]);
     {
       label: 'Activity Date Per Day',
       value: 'Any',
-      onChange: (value) => {
-        setFilterTags(prevTags => 
-          prevTags.map(tag => 
-            tag.label === 'Activity Date Per Day' ? {...tag, value} : tag
-          )
-        );
-        if(value != "Any"){handleAddFilter({label: 'Activity Date Per Day', value})};
-      },      
+      onChange: (value) => handleFilterChange('Activity Date Per Day', value),
       options: [
         { label: 'Any', value: 'Any' }, ...getUniqueValues('activity_date_per_day')
       ]
@@ -326,14 +292,7 @@ const [tableData, setTableData] = useState([]);
     {
       label: 'Project Name',
       value: 'Any',
-      onChange: (value) => {
-        setFilterTags(prevTags => 
-          prevTags.map(tag => 
-            tag.label === 'Project Name' ? {...tag, value} : tag
-          )
-        );
-        if(value != "Any"){handleAddFilter({label: 'Project Name', value})};
-      },     
+      onChange: (value) => handleFilterChange('Project Name', value),
       options: [
         { label: 'Any', value: 'Any' }, ...getUniqueValues('project_name')
       ]
@@ -341,14 +300,7 @@ const [tableData, setTableData] = useState([]);
     {
       label: 'Intersect',
       value: 'Any',
-      onChange: (value) => {
-        setFilterTags(prevTags => 
-          prevTags.map(tag => 
-            tag.label === 'Intersect' ? {...tag, value} : tag
-          )
-        );
-        if(value != "Any"){handleAddFilter({label: 'Intersect', value})};
-      }, 
+      onChange: (value) => handleFilterChange('Intersect', value),
       options: [
         { label: 'Any', value: 'Any' }, ...getUniqueValues('intersect')
       ]
@@ -356,14 +308,7 @@ const [tableData, setTableData] = useState([]);
     {
       label: 'Market Cap',
       value: 'Any',
-      onChange: (value) => {
-        setFilterTags(prevTags => 
-          prevTags.map(tag => 
-            tag.label === 'Market Cap' ? {...tag, value} : tag
-          )
-        );
-        if(value != "Any"){handleAddFilter({label: 'Market Cap', value})};
-      },           
+      onChange: (value) => handleFilterChange('Market Cap', value),
       options: [
         { label: 'Any', value: 'Any' }, ...getUniqueValues('market_cap')
       ]
@@ -371,14 +316,7 @@ const [tableData, setTableData] = useState([]);
     {
       label: 'Grade',
       value: 'Any',
-      onChange: (value) => {
-        setFilterTags(prevTags => 
-          prevTags.map(tag => 
-            tag.label === 'Grade' ? {...tag, value} : tag
-          )
-        );
-        if(value != "Any"){handleAddFilter({label: 'Grade', value})};
-      },     
+      onChange: (value) => handleFilterChange('Grade', value),
       options: [
         { label: 'Any', value: 'Any' }, ...getUniqueValues('grade')
       ]
@@ -386,58 +324,53 @@ const [tableData, setTableData] = useState([]);
     {
       label: 'Depth',
       value: 'Any',
-      onChange: (value) => {
-        setFilterTags(prevTags => 
-          prevTags.map(tag => 
-            tag.label === 'Depth' ? {...tag, value} : tag
-          )
-        );
-        if(value != "Any"){handleAddFilter({label: 'Depth', value})};
-      },     
+      onChange: (value) => handleFilterChange('Depth', value),
       options: [
         { label: 'Any', value: 'Any' }, ...getUniqueValues('depth')
       ]
     },
   ];
 
-  const [filterOptions, setFilterOptions] = useState(() => {
-    const currentTagLabels = filterTags.map(tag => tag.label);
-    return allFilterOptions.filter(option => !currentTagLabels.includes(option.label));
-});
-
+  const handleFilterChange = (label, value) => {
+    if (value && value !== "Any") {
+      setFilterTags(prevTags => {
+        const updatedTags = prevTags.filter(tag => tag.label !== label);
+        return [...updatedTags, { label, value }];
+      });
+    } else {
+      setFilterTags(prevTags => prevTags.filter(tag => tag.label !== label));
+    }
+  };
 
   const handleRemoveFilter = (filterLabel) => {
-    const removedFilter = filterTags.find(tag => tag.label === filterLabel);
     setFilterTags(prevTags => prevTags.filter(tag => tag.label !== filterLabel));
-    
-    if (removedFilter) {
-      setFilterOptions(prevOptions => [...prevOptions, 
-        allFilterOptions.find(opt => opt.label === filterLabel)
-      ]);
-    }
   };
   
   const handleAddFilter = (filter) => {
-    setFilterTags(prevTags => {
-        const exists = prevTags.some(tag => tag.label === filter.label);
-        if (exists) {
-            return prevTags.map(tag => 
-                tag.label === filter.label ? { ...tag, value: filter.value } : tag
-            );
+    if (filter.value && filter.value !== "Any") {
+      setFilterTags(prevTags => {
+        const existingIndex = prevTags.findIndex(tag => tag.label === filter.label);
+        if (existingIndex >= 0) {
+          const updatedTags = [...prevTags];
+          updatedTags[existingIndex] = filter;
+          return updatedTags;
+        } else {
+          return [...prevTags, filter];
         }
-        return [...prevTags, filter];
-    });
+      });
+    }
+  };
 
-    };
+  const generateFilterTags = () => {
+    return filterTags.length > 0 ? filterTags : [
+      { label: 'No Filters Applied', value: 'Click to add filters', onRemove: () => {} }
+    ];
+  };
 
-    const generateFilterTags = () => {
-      return filterTags.length > 0 ? filterTags : [
-          { label: 'No Filters Applied', value: 'Click to add filters', onRemove: () => {} }
-      ];
-      };
-
+  const applyFilters = () => {
+    applyClientSideFilters();
+  };
   
-  //stats
   const generateMetricCards = () =>  [
     {
       title: 'ASX Code Count',
@@ -449,7 +382,6 @@ const [tableData, setTableData] = useState([]);
     },
   ];
 
-  //charts
   const generateChartData = () => [
     {
       title: 'Top 10 Drilling Results by Grade',
@@ -508,16 +440,15 @@ const [tableData, setTableData] = useState([]);
       }
     }
   ];
+  
   const [tableColumns] = useState([
     { header: 'ASX', key: 'asx' },
     { header: 'Market Cap', key: 'marketCap' },
     { header: 'Intersect', key: 'intersect' },
     { header: 'Grade', key: 'grade' },
     { header: 'Depth', key: 'depth' }
-
   ]);
   
-
   return (
     <div className="standard-padding">
       {error && <div className="error-message">{error}</div>}
@@ -527,7 +458,6 @@ const [tableData, setTableData] = useState([]);
         <GraphPage
           title="Projects Dashboard"
           filterTags={generateFilterTags()}
-          filterOptions={filterOptions}
           allFilterOptions={allFilterOptions}
           metricCards={generateMetricCards()}
           chartData={generateChartData()}
@@ -535,6 +465,7 @@ const [tableData, setTableData] = useState([]);
           tableData={tableData}
           handleAddFilter={handleAddFilter}
           handleRemoveFilter={handleRemoveFilter}
+          applyFilters={applyFilters}
         />
       )}
     </div>

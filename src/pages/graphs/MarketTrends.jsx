@@ -12,7 +12,6 @@ const MarketTrends = () => {
     const { getAccessToken, authError } = useAuthToken();
     const [filterTags, setFilterTags] = useState([]);
 
-    // metric card states
     const [metricSummaries, setMetricSummaries] = useState({
         asx: 0, 
         dailyAvgPriceChange: 0, 
@@ -25,7 +24,6 @@ const MarketTrends = () => {
         avgYearlyRelVolChange: 0
     });
 
-    // chart data states 
     const [topTenCommodityVolChange, setTopTenCommodityVolChange] = useState({
         labels: [], 
         datasets: [{ data:[] }]
@@ -36,14 +34,10 @@ const MarketTrends = () => {
         datasets: [{ data: [] }]
     });
 
-    // table data state
     const [tableData, setTableData] = useState([]);
 
-    // fetch data from api
     const fetchMarketTrends = useCallback(async () => {
-        // retrieves authentication token 
         const token = await getAccessToken();
-        // handles missing tokens
         if (!token) {
             setError("Authentication error: No token found.");
             setLoading(false);
@@ -52,18 +46,12 @@ const MarketTrends = () => {
 
         try {
             setLoading(true);
-            
-            // sending api requests - fetch all data without filters
-            const response = await axios.get("http://127.0.0.1:8000/data/market-trends/", {
+                const response = await axios.get("http://127.0.0.1:8000/data/market-trends/", {
                 headers: {
                     Authorization: `Bearer ${token}`,
                     "Content-Type": "application/json"
                 }
             });
-
-            console.log("API Response:", response.data);
-            
-            // handling different api formats
             if (Array.isArray(response.data)) {
                 setMarketTrends(response.data);
                 setFilteredMarketTrends(response.data);
@@ -79,7 +67,6 @@ const MarketTrends = () => {
                 resetData();
             }
             
-            // handles errors
             setError("");
         } catch (error) {
             console.error("Error fetching market trends:", error.response?.data || error);
@@ -109,7 +96,6 @@ const MarketTrends = () => {
                 const fieldName = fieldMapping[tag.label];
                 if (fieldName) {
                     filtered = filtered.filter(item => {
-                        // Check if item[fieldName] exists and convert to string for comparison
                         return item[fieldName] && item[fieldName].toString() === tag.value.toString();
                     });
                 }
@@ -127,18 +113,14 @@ const MarketTrends = () => {
     }, [filterTags, applyClientSideFilters]);
 
     useEffect(() => {
-        console.log("Fetching market trends...");
         fetchMarketTrends();
     }, [fetchMarketTrends]);
 
-    // process market trends data for metrics and charts 
     const processMarketTrends = (data) => {
         if (!data || data.length === 0) {
             resetData();
             return;
         }
-        
-        // calculate metric values 
         const asx = data.length;
         const dailyAvgPriceChange = data.reduce((sum, item) => sum + (((item.new_price - item.previous_price) / item.previous_price) * 100 || 0), 0) / (data.length || 1);
         const weeklyAvgPriceChange = data.reduce((sum, item) => sum + (parseFloat(item.week_price_change) || 0), 0) / (data.length || 1);
@@ -161,11 +143,9 @@ const MarketTrends = () => {
             avgYearlyRelVolChange: avgYearlyRelVolChange
         });
 
-        // process data for charts 
         processASXPriceChangeChart(data);
         processASXVolumeChangeChart(data); 
 
-        // process table data 
         setTableData(data.map(item => ({
             asx: item.asx_code || '',
             id: item.id || 0, 
@@ -188,7 +168,6 @@ const MarketTrends = () => {
         });
     };
 
-    //CHART
     const processASXPriceChangeChart = (data) => {
         if (!data || data.length === 0) {
             setTopTenCommodityVolChange({
@@ -282,9 +261,7 @@ const MarketTrends = () => {
             ]
         });
     };
-    //end of chart 1
 
-    //chart 2
     const processASXVolumeChangeChart = (data) => {
         if (!data || data.length === 0) {
             setTopTenASXVolumeChange({
@@ -382,9 +359,7 @@ const MarketTrends = () => {
             ]
         });
     };
-    //end of chart 2
     
-    // reset data if api call fails
     const resetData = () => {
         setMetricSummaries({
             asx: 0,
@@ -408,7 +383,6 @@ const MarketTrends = () => {
             }]
         });
         
-        // Reset for the new volume change chart
         setTopTenASXVolumeChange({
             labels: ['No Data'],
             datasets: [{

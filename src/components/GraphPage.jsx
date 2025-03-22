@@ -73,8 +73,8 @@ const GraphPage = ({
               ))}
             </select>
           ) : (
-            <span className="no-filters-message">No more filters available</span>
-          )}
+            <span className="no-filters-message"></span>
+            )}
         </div>
       </div>
 
@@ -103,10 +103,7 @@ const GraphPage = ({
                 </div>
               );
             })}
-          </div>
-          
-          
-          
+          </div>          
         </div>
         
         <div className="metrics-section">
