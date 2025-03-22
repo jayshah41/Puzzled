@@ -1,6 +1,6 @@
 .navbar {
     background-color: #AED3FD;
-    z-index: 9999;
+    z-index: 99;
 }
 
 .navbar-container {
@@ -26,7 +26,7 @@
     color: #2D3748;
 }
 
-.navbar-container button {
+.navbar-button {
     color: #2D3748;
     background-color: #AED3FD;
 }
@@ -40,12 +40,6 @@
 .dropdown {
     position: relative;
     display: inline-block;
-}
-
-.dropbtn {
-    color: white;
-    padding: 16px;
-    font-size: 16px;
 }
 
 .dropdown-content {

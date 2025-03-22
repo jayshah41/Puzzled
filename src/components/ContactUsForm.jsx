@@ -346,7 +346,7 @@ const ContactUsForm = () => {
       <p className="contact-form-subheader">Fill out the form below to ask us any questions or concerns you may have.</p>
       
       {isAdminUser && (
-        <button
+        <button className="edit-button"
           onClick={() => {
             if (isEditing) {
               if (contentIsValid()) {
@@ -361,7 +361,7 @@ const ContactUsForm = () => {
           }}
           style={{ marginBottom: '1rem' }}
         >
-          {isEditing ? 'Stop Editing' : 'Edit'}
+          {isEditing ? 'Save Changes' : 'Edit Labels'}
         </button>
       )}
 

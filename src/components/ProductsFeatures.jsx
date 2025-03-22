@@ -56,7 +56,7 @@ const ProductsFeatures = () => {
   return (
     <div className="products-features-card standard-padding">
       {isAdminUser ? (
-        <button
+        <button className="edit-button"
           onClick={() => {
             if (isEditing) {
               if (contentIsValid()) {
@@ -71,7 +71,7 @@ const ProductsFeatures = () => {
           }}
           style={{ marginBottom: '1rem' }}
         >
-          {isEditing ? 'Stop Editing' : 'Edit'}
+          {isEditing ? 'Save Changes' : 'Edit'}
         </button>
       ) : null}
       <div className="products-features-wrapper">

@@ -93,7 +93,8 @@ const Contact = () => {
     <div className="standard-padding">
       <div style={{ marginBottom: '75px' }}>
         {isAdminUser ?
-          <button onClick={() => {
+          <button className="edit-button"
+          onClick={() => {
               if (isEditing) {
                 if (contentIsValid()) {
                   handleSave();
@@ -106,7 +107,7 @@ const Contact = () => {
               }
             }}
             style={{ marginBottom: '1rem' }}>
-            {isEditing ? 'Stop Editing' : 'Edit'}
+            {isEditing ? 'Save Changes' : 'Edit'}
           </button>
         : null}
       <div style={{ textAlign: 'center', marginBottom: '75px' }}>

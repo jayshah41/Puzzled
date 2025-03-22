@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import useSaveContent from '../hooks/useSaveContent';
+import LoginHandler from './LoginHandler';
 import hero from '../assets/hero-picture.png';
 import '../styles/GeneralStyles.css';
 
@@ -66,7 +67,7 @@ const Hero = () => {
     <div className="two-card-container standard-padding">
       <div>
         {isAdminUser ? (
-          <button
+          <button className="edit-button"
             onClick={() => {
               if (isEditing) {
                 if (contentIsValid()) {
@@ -80,7 +81,7 @@ const Hero = () => {
               }
             }}
             style={{ marginBottom: '1rem' }}>
-            {isEditing ? 'Stop Editing' : 'Edit'}
+            {isEditing ? 'Save Changes' : 'Edit'}
           </button>
         ) : null}
         {isEditing ? (
@@ -137,7 +138,13 @@ const Hero = () => {
           )}
         </ul>
         {!isLoggedIn ? (
-          <button className="defulatButton">Start now</button>
+          <LoginHandler>
+            {({ handleOpenLogin }) => (
+              <button className="defulatButton" onClick={handleOpenLogin}>
+                Start now
+              </button>
+            )}
+          </LoginHandler>
         ) : null}
       </div>
       <img src={hero} style={{ width: '45vw', paddingLeft: "35px" }} alt="Hero" />

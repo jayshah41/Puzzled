@@ -43,7 +43,7 @@ const ContactUsHero = () => {
     <div className="two-card-container standard-padding">
       <div>
         {isAdminUser && (
-          <button
+          <button className="edit-button"
             onClick={() => {
               if (isEditing) {
                 if (contentIsValid()) {
@@ -58,7 +58,7 @@ const ContactUsHero = () => {
             }}
             style={{ marginBottom: '1rem' }}
           >
-            {isEditing ? 'Stop Editing' : 'Edit'}
+            {isEditing ? 'Save Changes' : 'Edit'}
           </button>
         )}
         {isEditing ? (

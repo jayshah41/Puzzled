@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import DOMPurify from 'dompurify';
+
 import "../styles/TwitterFeed.css";
 
 const TwitterFeed = ({ username }) => {
@@ -65,7 +67,7 @@ const TwitterFeed = ({ username }) => {
                                 </a>
                                 <span className="twitter-date">{tweet.date}</span>
                             </div>
-                            <p dangerouslySetInnerHTML={{ __html: tweet.content }} /> {/*security concern*/}
+                            <p dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(tweet.content) }} />
                         </div>
                     )) : <p className="no-tweets">No tweets available from the past month.</p>}
                 </div>

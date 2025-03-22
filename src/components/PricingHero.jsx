@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import LoginHandler from './LoginHandler';
 import useSaveContent from '../hooks/useSaveContent';
 import pricingHeaderImage from '../assets/pricing-header-image.png';
 import '../styles/GeneralStyles.css';
@@ -47,7 +48,8 @@ const PricingHero = () => {
     <div className="two-card-container standard-padding">
         <div>
         {isAdminUser ?
-          <button onClick={() => {
+          <button className="edit-button"
+          onClick={() => {
             if (isEditing) {
               if (contentIsValid()) {
                 handleSave();
@@ -60,7 +62,7 @@ const PricingHero = () => {
             }
         }}
         style={{ marginBottom: '1rem' }}>
-          {isEditing ? 'Stop Editing' : 'Edit'}</button>
+          {isEditing ? 'Save Changes' : 'Edit'}</button>
         : null}
         {isEditing ? (
           <input
@@ -82,9 +84,15 @@ const PricingHero = () => {
         ) : (
           <p>{content}</p>
         )}
-        {!isLoggedIn ?
-        <button className="defulatButton">Start now</button>
-        : null}
+        {!isLoggedIn ? (
+          <LoginHandler>
+            {({ handleOpenLogin }) => (
+              <button className="defulatButton" onClick={handleOpenLogin}>
+                Start now
+              </button>
+            )}
+          </LoginHandler>
+        ) : null}
         </div>
         <img src={pricingHeaderImage} style={{ width: '45vw', paddingLeft: "35px" }}></img>
     </div>
