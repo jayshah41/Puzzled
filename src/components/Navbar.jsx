@@ -5,6 +5,7 @@ import LoginHandler from './LoginHandler';
 import makcorpLogoWithText from '../assets/makcorpLogoWithText.png';
 import profileIcon from '../assets/profileIcon.png';
 import '../styles/GeneralStyles.css';
+import '../styles/GeneralStyles.css';
 import '../styles/Navbar.css';
 
 const Navbar = () => {
