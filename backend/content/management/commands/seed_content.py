@@ -10,7 +10,7 @@ class Command(BaseCommand):
 
     def create_editable_content(self):
         print("Seeding editable content...")
-
+        EditableContent.objects.all().delete()
         content_data = [
             {
                 "component": "Hero",

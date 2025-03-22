@@ -3,8 +3,6 @@ import '../styles/GeneralStyles.css';
 import '../styles/NewsContent.css';
 import ErrorMessage from './ErrorMessage';
 
-const API_BASE_URL = 'http://localhost:8000/api/news-cards/'; //Change after deployment.
-
 const NewsContent = () => {
   const isAdminUser = localStorage.getItem("user_tier_level") == 2;
   const token = localStorage.getItem("accessToken");
@@ -70,7 +68,7 @@ const NewsContent = () => {
     setIsLoading(true);
     setError(null);
     
-    apiRequest(API_BASE_URL)
+    apiRequest('/api/news-cards/')
       .then(data => {
         const sortedData = data.sort((a, b) => a.order - b.order);
         
@@ -170,7 +168,7 @@ const NewsContent = () => {
       
       for (const card of deletedCards) {
         try {
-          await apiRequest(`${API_BASE_URL}${card.id}/`, {
+          await apiRequest(`${'/api/news-cards/'}${card.id}/`, {
             method: 'DELETE'
           });
         } catch (error) {
@@ -186,12 +184,12 @@ const NewsContent = () => {
         };
         
         if (card.id) {
-          await apiRequest(`${API_BASE_URL}${card.id}/`, {
+          await apiRequest(`${'/api/news-cards/'}${card.id}/`, {
             method: 'PUT',
             body: JSON.stringify(cardData)
           });
         } else {
-          const newCard = await apiRequest(API_BASE_URL, {
+          const newCard = await apiRequest('/api/news-cards/', {
             method: 'POST',
             body: JSON.stringify(cardData)
           });
@@ -207,13 +205,13 @@ const NewsContent = () => {
           order: index
         }));
         
-        await apiRequest(`${API_BASE_URL}update-order/`, {
+        await apiRequest(`${'/api/news-cards/'}update-order/`, {
           method: 'PATCH',
           body: JSON.stringify(orderData)
         });
       }
 
-      const updatedData = await apiRequest(API_BASE_URL);
+      const updatedData = await apiRequest('/api/news-cards/');
       
       const sortedData = updatedData.sort((a, b) => a.order - b.order);
       
@@ -444,7 +442,7 @@ const NewsContent = () => {
           className="edit-button"
           style={{ marginBottom: "1rem" }}
         >
-          {isEditing ? 'Save & Save Changes' : 'Edit'}
+          {isEditing ? 'Save Changes' : 'Edit'}
         </button>
       )}
 
