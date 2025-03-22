@@ -34,10 +34,8 @@ const MarketData = () => {
   const [tableData, setTableData] = useState([]);
 
   const fetchMarketData = useCallback(async () => {
-    // retrieves authentication token 
     const token = await getAccessToken();
 
-    // handles missing tokens
     if (!token) {
       setError("Authentication error: No token found.");
       setLoading(false);
@@ -54,7 +52,6 @@ const MarketData = () => {
         }
       });
       
-      // handling different api formats
       if (Array.isArray(response.data)) {
         setMarketData(response.data);
         setFilteredMarketData(response.data);
@@ -70,7 +67,6 @@ const MarketData = () => {
         processMarketData([]);
       }
       
-      // handles errors
       setError("");
     } catch (error) {
       console.error("Error fetching market data:", error.response?.data || error);
@@ -100,7 +96,7 @@ const MarketData = () => {
         if (fieldName) {
           filtered = filtered.filter(item => {
             if (typeof item[fieldName] === 'number') {
-              return item[fieldName] == tag.value; // Using loose equality for number/string comparison
+              return item[fieldName] == tag.value; 
             } else {
               return item[fieldName] && item[fieldName].toString() === tag.value.toString();
             }
@@ -129,19 +125,16 @@ const MarketData = () => {
       return;
     }
 
-    // calculate metric values 
     const totalAsxCount = new Set(data.map(item => item.asx_code)).size;
 
     setMetricSummaries({
       totalAsxCount: totalAsxCount
     });
 
-    // process data for charts 
     processDebtByAsxCode(data);
     processMarketCapByAsxCode(data);
     processBankBalanceByAsxCode(data);
 
-    // process table data 
     setTableData(data.map(item => ({
       asxCode: item.asx_code || '',
       changed: item.changed || '',
@@ -187,7 +180,6 @@ const MarketData = () => {
   };
 
   const processBankBalanceByAsxCode = (data) => {
-    // group by ASX code and sort by top10 bank balance
     const asxGroups = {};
     data.forEach(item => {
       if (!asxGroups[item.asx_code]) {
@@ -388,7 +380,6 @@ const MarketData = () => {
     }
   ];
 
-  // define table columns
   const [tableColumns] = useState([
     { header: 'ASX Code', key: 'asxCode' },
     { header: 'Changed', key: 'changed' },

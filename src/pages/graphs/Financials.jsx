@@ -7,16 +7,13 @@ import axios from 'axios';
 const Financials = () => {
   const { getAccessToken, authError } = useAuthToken();
 
-  // states for api data
   const [financials, setFinancials] = useState([]);
   const [filteredFinancials, setFilteredFinancials] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // states for filters
   const [filterTags, setFilterTags] = useState([]);
 
-  // metric card states
   const [metricSummaries, setMetricSummaries] = useState({
     totalExploration: 0, 
     totalOtherCosts: 0, 
@@ -24,7 +21,6 @@ const Financials = () => {
     avgProjectSpend: 0
   });
 
-  // chart data states 
   const [qtrTotalExploration, setQtrTotalExploration] = useState({
     labels: [], 
     datasets: [{data: []}]
@@ -40,15 +36,11 @@ const Financials = () => {
     datasets: [{data: []}]
   });
 
-  // table data state
   const [tableData, setTableData] = useState([]);
 
-  // fetch all financial data once
   const fetchFinancials = useCallback(async () => {
-    // retrieves authentication token 
     const token = await getAccessToken();
 
-    // handles missing tokens
     if (!token) {
       setError("Authentication error: No token found.");
       setLoading(false);
@@ -57,8 +49,7 @@ const Financials = () => {
 
     try {
       setLoading(true);
-      
-      // sending api request to get all data
+
       const response = await axios.get("http://127.0.0.1:8000/data/financials/", {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -66,9 +57,6 @@ const Financials = () => {
         }
       });
 
-      console.log("API Response:", response.data);
-      
-      // handling different api formats
       if (Array.isArray(response.data)) {
         setFinancials(response.data);
         setFilteredFinancials(response.data);
@@ -83,8 +71,7 @@ const Financials = () => {
         setFilteredFinancials([]);
         resetData();
       }
-      
-      // handles errors
+
       setError("");
     } catch (error) {
       console.error("Error fetching financials:", error.response?.data || error);
@@ -95,13 +82,12 @@ const Financials = () => {
     }
   }, []);
 
-  // Apply client-side filters
   const applyClientSideFilters = useCallback(() => {
     if (!financials.length) return;
     
     const fieldMapping = {
       'ASX Code': 'asx_code',
-      'Ann Date': 'ann_date',
+      'Ann Type': 'ann_date',
       'Period': 'period',
       'Net Operating Cash Flow': 'net_operating_cash_flow',
       'Exploration Spend': 'exploration_spend',
@@ -124,7 +110,6 @@ const Financials = () => {
         const fieldName = fieldMapping[tag.label];
         if (fieldName) {
           filtered = filtered.filter(item => {
-            // Handle numeric fields
             if (['net_operating_cash_flow', 'exploration_spend', 'development_production_spend', 
                  'staff_costs', 'admin_costs', 'other_costs', 'net_cash_invest', 
                  'cashflow_total', 'bank_balance', 'debt', 'market_cap', 
@@ -141,28 +126,23 @@ const Financials = () => {
     setFilteredFinancials(filtered);
     processFinancialData(filtered);
   }, [financials, filterTags]);
-  
-  // Apply filters when filter tags change
+
   useEffect(() => {
     if (financials.length) {
       applyClientSideFilters();
     }
   }, [filterTags, applyClientSideFilters]);
-  
-  // Initial data fetch
+
   useEffect(() => {
-    console.log("Fetching financials...");
     fetchFinancials();
   }, [fetchFinancials]);
 
-  // process financial data for metrics and charts 
   const processFinancialData = (data) => {
     if (!data || data.length === 0) {
       resetData();
       return;
     }
 
-    // calculate metric values 
     const totalExploration = data.reduce((sum, item) => sum + (parseFloat(item.exploration_spend) || 0), 0);
     const totalOtherCosts = data.reduce((sum, item) => sum + (parseFloat(item.other_costs) || 0), 0);
     const totalStaffCosts = data.reduce((sum, item) => sum + (parseFloat(item.staff_costs) || 0), 0);
@@ -178,28 +158,26 @@ const Financials = () => {
       avgProjectSpend: formatCurrency(avgProjectSpend)
     });
 
-    // process data for charts 
     processExplorationChart(data);
     processProjectSpendChart(data);
-    processBankBalanaceChart(data);
+    processBankBalanceChart(data);
 
-    // process table data 
     setTableData(data.map(item => ({
-      ann: item.ann_date || '',
-      asx: item.asx_code || '',
+      annDate: item.ann_date || '',
+      asxCode: item.asx_code || '',
       period: item.period || '', 
-      netOp: formatCurrency(item.net_operating_cash_flow || 0, 0), 
-      exploration: formatCurrency(item.exploration_spend || 0, 0), 
-      development: formatCurrency(item.development_production_spend || 0, 0), 
+      netOperatingCashFlow: formatCurrency(item.net_operating_cash_flow || 0, 0), 
+      explorationSpend: formatCurrency(item.exploration_spend || 0, 0), 
+      developmentProductionSpend: formatCurrency(item.development_production_spend || 0, 0), 
       staffCosts: formatCurrency(item.staff_costs || 0, 0), 
       adminCosts: formatCurrency(item.admin_costs || 0, 0), 
       otherCosts: formatCurrency(item.other_costs || 0, 0), 
-      netInvest: formatCurrency(item.net_cash_invest || 0, 0), 
+      netCashInvest: formatCurrency(item.net_cash_invest || 0, 0), 
       cashFlow: formatCurrency(item.cashflow_total || 0, 0), 
       bankBalance: formatCurrency(item.bank_balance || 0, 0), 
       debt: formatCurrency(item.debt || 0, 0), 
-      marketcap: formatCurrency(item.market_cap || 0, 0), 
-      forecast: formatCurrency(item.forecast_net_operating || 0, 0)
+      marketCap: formatCurrency(item.market_cap || 0, 0), 
+      forecastNetOperating: formatCurrency(item.forecast_net_operating || 0, 0)
     })));
   };
 
@@ -211,9 +189,7 @@ const Financials = () => {
     });
   };
 
-  // process exploration chart 
   const processExplorationChart = (data) => {
-    // spend per quarter
     const quarters = [...new Set(data.map(item => item.period))].sort();
     const explorationByQuarter = quarters.map(quarter => {
       const quarterData = data.filter(item => item.period === quarter);
@@ -287,10 +263,8 @@ const Financials = () => {
       ],
     });
   };
-  
-  // process bank balance chart 
-  const processBankBalanaceChart = (data) => {
-    // group by ASX code and sort by top10 bank balance
+
+  const processBankBalanceChart = (data) => {
     const asxGroups = {};
     data.forEach(item => {
       if (!asxGroups[item.asx_code]) {
@@ -315,7 +289,6 @@ const Financials = () => {
     });
   };
 
-  // reset data if api call fails
   const resetData = () => {
     setMetricSummaries({
       totalExploration: '$0',
@@ -354,7 +327,6 @@ const Financials = () => {
     setTableData([]);
   };
 
-  // get unique values for filter options from api data
   const getUniqueValues = (key) => {
     if (!financials || financials.length === 0) return [];
     
@@ -495,14 +467,12 @@ const Financials = () => {
     }
   };
 
-  // generate current filter tags based on active filters
   const generateFilterTags = () => {
     return filterTags.length > 0 ? filterTags : [
       { label: 'No Filters Applied', value: 'Click to add filters', onRemove: () => {} }
     ];
   };
   
-  // generate metric cards using api data
   const generateMetricCards = () => [
     {
       title: 'Exploration',
@@ -522,7 +492,6 @@ const Financials = () => {
     }
   ];
   
-  // generate charts using api data
   const generateChartData = () => [
     {
       title: 'Total Quarterly Exploration Spend',
@@ -541,26 +510,24 @@ const Financials = () => {
     }
   ];
   
-  // define table columns
   const [tableColumns] = useState([
-    { header: 'Ann Date', key: 'ann' },
-    { header: 'ASX Code', key: 'asx' },
+    { header: 'Ann Date', key: 'annDate' },
+    { header: 'ASX Code', key: 'asxCode' },
     { header: 'Period', key: 'period' },
-    { header: 'Net Operating', key: 'netOp' },
-    { header: 'Exploration', key: 'exploration' },
-    { header: 'Development', key: 'development' },
+    { header: 'Net Operating', key: 'netOperatingCashFlow' },
+    { header: 'Exploration', key: 'explorationSpend' },
+    { header: 'Development', key: 'developmentProductionSpend' },
     { header: 'Staff Costs', key: 'staffCosts' },
     { header: 'Admin Costs', key: 'adminCosts' },
     { header: 'Other Costs', key: 'otherCosts' },
-    { header: 'Net Invest', key: 'netInvest' },
+    { header: 'Net Invest', key: 'netCashInvest' },
     { header: 'Cash Flow', key: 'cashFlow' },
     { header: 'Bank Balance', key: 'bankBalance' },
     { header: 'Debt', key: 'debt' },
-    { header: 'Market Cap', key: 'marketcap' },
-    { header: 'Forecast Net Operating', key: 'forecast' }
+    { header: 'Market Cap', key: 'marketCap' },
+    { header: 'Forecast Net Operating', key: 'forecastNetOperating' }
   ]);
 
-  // Function to apply filters (needed for GraphPage component)
   const applyFilters = () => {
     applyClientSideFilters();
   };
