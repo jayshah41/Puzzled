@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import useSaveContent from '../hooks/useSaveContent';
-import Login from './Login';
+import LoginHandler from './LoginHandler';
 import makcorpLogoWithText from '../assets/makcorpLogoWithText.png';
 import profileIcon from '../assets/profileIcon.png';
 import '../styles/Navbar.css';
@@ -10,14 +10,11 @@ const Navbar = () => {
   const userTierLevel = parseInt(localStorage.getItem("user_tier_level"), 10) || 0;
   const isAdminUser = userTierLevel === 2;
   const hasGraphAccess = userTierLevel >= 1;
-  const navigate = useNavigate();
   const saveContent = useSaveContent();
 
   const [isEditing, setIsEditing] = useState(false);
   const [tabs, setTabs] = useState([]);
   const [graphLinks, setGraphLinks] = useState([]);
-  const [showingLogin, setShowingLogin] = useState(false);
-  const [showingSignup, setShowingSignup] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [showGraphsDropdown, setShowGraphsDropdown] = useState(false);
 
@@ -152,13 +149,6 @@ const Navbar = () => {
     };
   }, []);
 
-  const handleLoginSuccess = () => {
-    setIsLoggedIn(true);
-    setShowingLogin(false);
-    console.log('Login successful. isLoggedIn:', true);
-    navigate('/account');
-  };
-
   const contentIsValid = (tabs, graphLinks) => {
     for (const tab of tabs) {
       if (!tab.text.trim() || !tab.link.trim()) {
@@ -220,40 +210,25 @@ const Navbar = () => {
           </div>
         )}
 
-        <div>
-          {!isLoggedIn ? (
-            <>
-              <button
-                onClick={() => {
-                  setShowingLogin(true);
-                  setShowingSignup(false);
-                }}>
-                Log In
-              </button>
-              <button
-                onClick={() => {
-                  setShowingSignup(true);
-                  setShowingLogin(true);
-                }}>
-                Sign Up
-              </button>
-            </>
-          ) : (
-            <Link to="/account">
-              <div className="profile-icon">
-                <img src={profileIcon} alt="Profile" />
-              </div>
-            </Link>
+        <LoginHandler>
+          {({ handleOpenLogin, handleOpenSignup }) => (
+            <div>
+              {!isLoggedIn ?
+                <>
+                  <button onClick={handleOpenLogin}>Log In</button>
+                  <button onClick={handleOpenSignup}>Sign Up</button>
+                </>
+              :
+                <Link to="/account">
+                  <div className="profile-icon">
+                    <img src={profileIcon} alt="Profile" />
+                  </div>
+                </Link>
+              }
+            </div>
           )}
-        </div>
+        </LoginHandler>
       </div>
-
-      {showingLogin && (
-        <Login
-          onClose={() => setShowingLogin(false)}
-          loginButton={!showingSignup}
-          onLoginSuccess={handleLoginSuccess} />
-      )}
     </nav>
   );
 };
