@@ -14,8 +14,14 @@ class Command(BaseCommand):
     PROJECT_RECORDS_PER_COMPANY = 2
     help = "Seeds the database with company-related data"
 
+    COMMODITY_LIST = [
+        "Gold", "Silver", "Copper", "Zinc", "Nickel", "Lithium", "Cobalt",
+        "Iron Ore", "Bauxite", "Manganese", "Uranium", "Graphite", "Tin",
+        "Platinum", "Coal", "Lead", "Titanium", "Vanadium"
+    ]
+
     def handle(self, *args, **kwargs):
-        print("Seeding database...")
+        self.stdout.write("Seeding database...\n")
 
         self.create_companies()
         self.create_financials()
@@ -26,28 +32,24 @@ class Command(BaseCommand):
         self.create_capital_raises()
         self.create_projects()
 
-        print("Seeding completed!")
+        self.stdout.write(self.style.SUCCESS("\nDatabase seeding completed!"))
 
     def create_companies(self):
-        """Generate unique companies with ASX codes."""
         asx_codes = self.generate_unique_asx_codes(self.COMPANY_COUNT)
         companies = [
             Company(asx_code=asx_codes[i], company_name=fake.company())
             for i in range(self.COMPANY_COUNT)
         ]
-
         Company.objects.bulk_create(companies)
-        print(f"{self.COMPANY_COUNT} Companies seeded successfully!")
+        self.stdout.write(self.style.SUCCESS(f"{self.COMPANY_COUNT} companies seeded successfully."))
 
     def create_financials(self):
-        """Generate multiple financial records per company."""
         companies = list(Company.objects.all())
         financials = []
 
-        for i, company in enumerate(companies):
+        for company in companies:
             for _ in range(self.FINANCIAL_RECORDS_PER_COMPANY):
-                period = random.choice(["2024Q1", "2024Q2", "2024Q3", "2024Q4"])
-
+                period = f"202{random.randint(0, 4)}Q{random.randint(1, 4)}"
                 if not Financial.objects.filter(asx_code=company, period=period).exists():
                     financials.append(Financial(
                         asx_code=company,
@@ -68,58 +70,56 @@ class Command(BaseCommand):
                     ))
 
         Financial.objects.bulk_create(financials)
-        print("\nFinancial records seeded successfully!")
+        self.stdout.write(self.style.SUCCESS("Financial records seeded successfully."))
 
     def create_market_data(self):
-        """Generate market data for each company."""
         companies = list(Company.objects.all())
         market_data = []
 
-        for i, company in enumerate(companies):
+        for company in companies:
             market_data.append(MarketData(
                 asx_code=company,
                 changed=make_aware(datetime.now() - timedelta(days=random.randint(1, 90))),
                 market_cap=round(random.uniform(1e7, 5e7), 2),
                 debt=round(random.uniform(1e6, 4e6), 2),
                 bank_balance=round(random.uniform(1e6, 5e6), 2),
-                enterprise_value=round(random.uniform(2e7, 6e7), 2),
-                ev_resource_per_ounce_ton=round(random.uniform(10, 200), 2),
+                enterprise_value=round(random.uniform(1e8, 5e9), 2),
+                ev_resource_per_ounce_ton=round(random.uniform(50, 500), 2),
             ))
 
         MarketData.objects.bulk_create(market_data)
-        print("\nMarket data records seeded successfully!")
+        self.stdout.write(self.style.SUCCESS("Market data records seeded successfully."))
 
     def create_market_trends(self):
-        """Generate market trend data."""
         companies = list(Company.objects.all())
         trends = []
 
         for company in companies:
-            new_price = 0
+            new_price = round(random.uniform(0.05, 10), 2)
+            previous_price = round(new_price * random.uniform(0.8, 1.2), 2)
+
             trends.append(MarketTrends(
                 asx_code=company,
                 market_cap=round(random.uniform(1e7, 5e7), 2),
                 trade_value=round(random.uniform(1e6, 2e6), 2),
                 total_shares=random.randint(int(1e5), int(1e7)),
-                new_price = round(random.uniform(0.05, 10), 2),
-                previous_price = round(new_price * random.uniform(0.8, 1.2), 2),
-                week_price_change=round(random.uniform(-10, 10), 2),
-                month_price_change=round(random.uniform(-20, 20), 2),
-                year_price_change=round(random.uniform(-50, 50), 2),
+                new_price=new_price,
+                previous_price=previous_price,
+                week_price_change=round(random.uniform(-20, 20), 2),
+                month_price_change=round(random.uniform(-40, 40), 2),
+                year_price_change=round(random.uniform(-100, 200), 2),
             ))
 
         MarketTrends.objects.bulk_create(trends)
-        print("\nMarket trends seeded successfully!")
-
+        self.stdout.write(self.style.SUCCESS("Market trends seeded successfully."))
 
     def create_directors(self):
-        """Generate directors for each company."""
         companies = list(Company.objects.all())
         directors = [
             Directors(
                 asx_code=company,
                 contact=fake.name(),
-                priority_commodities={"commodities": random.sample(["Gold", "Silver", "Copper"], k=2)},
+                priority_commodities={"commodities": random.sample(self.COMMODITY_LIST, k=random.randint(1, 3))},
                 base_remuneration=round(random.uniform(2e5, 1e6), 2),
                 total_remuneration=round(random.uniform(3e5, 2e6), 2)
             )
@@ -127,10 +127,9 @@ class Command(BaseCommand):
         ]
 
         Directors.objects.bulk_create(directors)
-        print("\nDirectors seeded successfully!")
+        self.stdout.write(self.style.SUCCESS("Directors seeded successfully."))
 
     def create_shareholders(self):
-        """Generate shareholder data."""
         companies = list(Company.objects.all())
         shareholders = []
 
@@ -140,23 +139,17 @@ class Command(BaseCommand):
                     asx_code=company,
                     entity=fake.company(),
                     value=round(random.uniform(1e5, 5e7), 2),
-                    project_commodities=fake.word(),
+                    project_commodities=random.choice(self.COMMODITY_LIST),
                     project_area=fake.city(),
                     transaction_type=random.choice(["Buy", "Sell"]),
                     ann_date=make_aware(datetime.now() - timedelta(days=random.randint(1, 365))),
                 ))
 
         Shareholders.objects.bulk_create(shareholders)
-        print("\nShareholders seeded successfully!")
+        self.stdout.write(self.style.SUCCESS("Shareholders seeded successfully."))
 
     def create_capital_raises(self):
-        """Generate capital raises data."""
         companies = list(Company.objects.all())
-        COMMODITY_LIST = [
-            "Gold", "Silver", "Copper", "Zinc", "Nickel", "Lithium", "Cobalt",
-            "Iron Ore", "Bauxite", "Manganese", "Uranium", "Graphite", "Tin",
-            "Platinum", "Rare Earth Elements", "Coal", "Lead", "Titanium", "Vanadium"
-        ]
         capital_raises = [
             CapitalRaises(
                 asx_code=company,
@@ -165,15 +158,14 @@ class Command(BaseCommand):
                 amount=round(random.uniform(1e6, 2e8), 2),
                 price=round(random.uniform(0.01, 5), 2),
                 raise_type=random.choice(["Placement", "Rights Issue"]),
-                priority_commodities={"commodities": random.sample(COMMODITY_LIST, k=random.randint(1, 3))},
+                priority_commodities={"commodities": random.sample(self.COMMODITY_LIST, k=random.randint(1, 3))},
             ) for company in companies
         ]
 
         CapitalRaises.objects.bulk_create(capital_raises)
-        print("\nCapital raises seeded successfully!")
+        self.stdout.write(self.style.SUCCESS("Capital raises seeded successfully."))
 
     def create_projects(self):
-        """Generate mining/exploration projects."""
         companies = list(Company.objects.all())
         projects = []
 
@@ -181,7 +173,7 @@ class Command(BaseCommand):
             for _ in range(self.PROJECT_RECORDS_PER_COMPANY):
                 projects.append(Projects(
                     asx_code=company,
-                    commodity=random.choice(["Gold", "Silver", "Copper"]),
+                    commodity=random.choice(self.COMMODITY_LIST),
                     activity_date_per_day=make_aware(datetime.now() - timedelta(days=random.randint(1, 365))),
                     activity=fake.sentence(),
                     project_name=fake.company(),
@@ -193,10 +185,9 @@ class Command(BaseCommand):
                 ))
 
         Projects.objects.bulk_create(projects)
-        print("\nProjects seeded successfully!")
+        self.stdout.write(self.style.SUCCESS("Projects seeded successfully."))
 
     def generate_unique_asx_codes(self, n):
-        """Generate a set of unique ASX codes with 3 to 5 letters."""
         asx_codes = set()
         while len(asx_codes) < n:
             length = random.choice([3, 4, 5])
