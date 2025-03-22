@@ -38,7 +38,7 @@ const Projects = () => {
 
     try {
         setLoading(true);
-        const response = await axios.get("http://127.0.0.1:8000/data/projects/", {
+        const response = await axios.get("/api/data/projects/", {
             headers: {
                 Authorization: `Bearer ${token}`,
                 "Content-Type": "application/json"

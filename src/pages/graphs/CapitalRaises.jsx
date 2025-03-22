@@ -51,7 +51,7 @@ const CapitalRaises = () => {
     try {
       setLoading(true);
       
-      const response = await axios.get("http://127.0.0.1:8000/data/capital-raises/", {
+      const response = await axios.get("/api/data/capital-raises/", {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json"

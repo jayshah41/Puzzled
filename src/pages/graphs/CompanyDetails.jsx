@@ -41,7 +41,7 @@ const CompanyDetails = () => {
     try {
       setLoading(true);
       
-      const response = await axios.get("http://127.0.0.1:8000/data/company-details/", {
+      const response = await axios.get("/api/data/company-details/", {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
