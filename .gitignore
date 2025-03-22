@@ -49,3 +49,5 @@ staticfiles/
 
 **/*.coverage
 */htmlcov
+coverage/
+__mocks__/*.js
