@@ -88,7 +88,7 @@ const ProductsHero = () => {
         {!isLoggedIn ? (
           <LoginHandler>
             {({ handleOpenLogin }) => (
-              <button className="defulatButton" onClick={handleOpenLogin}>
+              <button className="defaultButton" onClick={handleOpenLogin}>
                 Start now
               </button>
             )}

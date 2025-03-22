@@ -17,7 +17,7 @@ const ProductsJoin = () => {
           <div className="flex flex-col items-center justify-center text-center">
             <h1 className="centre">Join The MakCorp Community</h1>
             <div className="centre">
-              <button className="defulatButton" onClick={handleOpenLogin}>
+              <button className="defaultButton" onClick={handleOpenLogin}>
                 Start now
               </button>
             </div>
