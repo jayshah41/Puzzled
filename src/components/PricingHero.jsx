@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import LoginHandler from './LoginHandler';
 import useSaveContent from '../hooks/useSaveContent';
 import pricingHeaderImage from '../assets/pricing-header-image.png';
 import '../styles/GeneralStyles.css';
@@ -82,9 +83,15 @@ const PricingHero = () => {
         ) : (
           <p>{content}</p>
         )}
-        {!isLoggedIn ?
-        <button className="defulatButton">Start now</button>
-        : null}
+        {!isLoggedIn ? (
+          <LoginHandler>
+            {({ handleOpenLogin }) => (
+              <button className="defulatButton" onClick={handleOpenLogin}>
+                Start now
+              </button>
+            )}
+          </LoginHandler>
+        ) : null}
         </div>
         <img src={pricingHeaderImage} style={{ width: '45vw', paddingLeft: "35px" }}></img>
     </div>
