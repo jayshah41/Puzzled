@@ -230,12 +230,17 @@ class Command(BaseCommand):
             {
                 "component": "ContactUs",
                 "section": "heading",
-                "text_value": "Ready to sign up?"
+                "text_value": "Have a question?"
             },
             {
                 "component": "ContactUs",
                 "section": "content",
-                "text_value": "MakCorp offers unparalleled access to immediate and essential information for the resources sector. Our offering provides our clients with the tools they need to see data, the way they want to. MakCorp prides itself on using interactive technology to help visualize key metrics to improve investment decisions."
+                "text_value": "Having some difficulties using the website? Contact us through the form below, and we will respond back to you as soon as possible!"
+            },
+            {
+                "component": "ContactUs",
+                "section": "message",
+                "text_value": "Message"
             },
             {
                 "component": "ContactUs",
