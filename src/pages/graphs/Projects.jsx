@@ -75,8 +75,6 @@ const Projects = () => {
             },
             params: params
         });
-
-        console.log("API Response:", response.data);
         
         // handling different api formats
         if (Array.isArray(response.data)) {
@@ -258,7 +256,6 @@ const processDrillingResultsByIntersectChart = (data) => {
 };
 
 useEffect(() => {
-    console.log("Fetching projects...");
     fetchProjects();
 }, [fetchProjects]);
 
@@ -274,23 +271,6 @@ const getUniqueValues = (key) => {
 
 // table data state
 const [tableData, setTableData] = useState([]);
-
-/*
-  const [filterTags, setFilterTags] = useState([
-    { label: 'ASX', value: 'Default', onRemove: () => console.log('Remove ASX filter') },
-    { label: 'Company Name', value: 'Default', onRemove: () => console.log('Remove company name filter') },
-    { label: 'Priority Commodity', value: 'Default', onRemove: () => console.log('Remove priority commodity filter') },
-    { label: 'Project Location Country', value: 'Default', onRemove: () => console.log('Remove project location country filter') },
-    { label: 'Project Location Continent', value: 'Default', onRemove: () => console.log('Remove project location continent filter') },
-    { label: 'Project Location State', value: 'Default', onRemove: () => console.log('Remove project location state filter') },
-    { label: 'Project Location City', value: 'Default', onRemove: () => console.log('Remove project location city filter') },
-    { label: 'Project Stage', value: 'Default', onRemove: () => console.log('Remove project stage filter') },
-    { label: 'Industry Type', value: 'Default', onRemove: () => console.log('Remove industry type filter') },
-    { label: 'Market Cap', value: 'Default', onRemove: () => console.log('Remove market cap filter') },
-    { label: 'Commodity Total Resource', value: 'Default', onRemove: () => console.log('Remove commodity total resource filter') },
-    { label: 'Net Project Value', value: 'Default', onRemove: () => console.log('Remove net project value filter') },
-]);
-*/
   
   const allFilterOptions = [
     {

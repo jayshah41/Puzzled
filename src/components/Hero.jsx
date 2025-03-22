@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import useSaveContent from '../hooks/useSaveContent';
 import LoginHandler from './LoginHandler';
-import hero from '../assets/hero-picture.png';
+import useSaveContent from '../hooks/useSaveContent';
+import hero from '../assets/animated-heropic.gif';
 import '../styles/GeneralStyles.css';
 
 const Hero = () => {
@@ -59,7 +59,6 @@ const Hero = () => {
   };
 
   const contentIsValid = () => {
-    console.log(bulletPoints);
     return !!title && !!intro && !(bulletPoints.length === 0 || bulletPoints.every(point => point === ""));
   };
 
@@ -140,7 +139,7 @@ const Hero = () => {
         {!isLoggedIn ? (
           <LoginHandler>
             {({ handleOpenLogin }) => (
-              <button className="defulatButton" onClick={handleOpenLogin}>
+              <button className="defaultButton" onClick={handleOpenLogin}>
                 Start now
               </button>
             )}
