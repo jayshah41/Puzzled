@@ -77,28 +77,36 @@ const applyClientSideFilters = useCallback(() => {
       'ASX': 'asx_code',
       'Activity Date Per Day': 'activity_date_per_day',
       'Project Name': 'project_name',
+    };
+
+    const rangeFieldMapping = {
       'Intersect': 'intersect',
       'Market Cap': 'market_cap',
       'Grade': 'grade',
       'Depth': 'depth'
-    };
+    }
     
     let filtered = [...projects];
     
     filterTags.forEach(tag => {
       if (tag.value && tag.value !== 'Any' && tag.label !== 'No Filters Applied') {
-        const fieldName = fieldMapping[tag.label];
-        if (fieldName) {
-          filtered = filtered.filter(item => {
-            if (typeof item[fieldName] === 'number') {
-              return item[fieldName] == tag.value;
-            } else {
-              return item[fieldName] && item[fieldName].toString() === tag.value.toString();
-            }
-          });
-        }
+          const fieldName = fieldMapping[tag.label];
+          if (fieldName) {
+              filtered = filtered.filter(item => {
+                  return item[fieldName] && item[fieldName].toString() === tag.value.toString();
+              });
+          }
+          
+          const rangeField = rangeFieldMapping[tag.label];
+          if (rangeField) {
+              const [min, max] = tag.value.split(' to ').map(val => parseFloat(val));
+              filtered = filtered.filter(item => {
+                  const value = parseFloat(item[rangeField]);
+                  return value >= min && value <= max;
+              });
+          }
       }
-    });
+  });
     
     setFilteredProjects(filtered);
     processProjects(filtered);
@@ -270,6 +278,44 @@ const processDrillingResultsByIntersectChart = (data) => {
     return uniqueValues.map(value => ({ label: value, value: value }));
   };
 
+  const generateRangeOptions = (field) => {
+    if (!projects || !projects.length) return [];
+    
+    const values = projects.map(item => parseFloat(item[field])).filter(val => !isNaN(val));
+    if (!values.length) return [];
+    
+    const min = Math.min(...values);
+    const max = Math.max(...values);
+    
+    let increment = field.includes('price') ? 
+        Math.ceil((max - min) / 10 * 100) / 100 : 
+        Math.ceil((max - min) / 10);              
+    
+    if (field.includes('price') && increment < 0.01) increment = 0.01;
+    
+    const options = [];
+    options.push({ label: 'Any', value: 'Any' }); 
+    
+    for (let i = min; i < max; i += increment) {
+        const rangeMin = i;
+        const rangeMax = Math.min(i + increment, max);
+        
+        let rangeLabel;
+        if (field.includes('price')) {
+            rangeLabel = `${rangeMin.toFixed(2)} to ${rangeMax.toFixed(2)}`;
+        } else {
+            rangeLabel = `${Math.floor(rangeMin).toLocaleString()} to ${Math.ceil(rangeMax).toLocaleString()}`;
+        }
+        
+        options.push({ 
+            label: rangeLabel, 
+            value: `${rangeMin} to ${rangeMax}` 
+        });
+    }
+    
+    return options;
+};
+
   const [tableData, setTableData] = useState([]);
 
   const allFilterOptions = [
@@ -301,33 +347,25 @@ const processDrillingResultsByIntersectChart = (data) => {
       label: 'Intersect',
       value: 'Any',
       onChange: (value) => handleFilterChange('Intersect', value),
-      options: [
-        { label: 'Any', value: 'Any' }, ...getUniqueValues('intersect')
-      ]
+      options: generateRangeOptions('intersect')
     },
     {
       label: 'Market Cap',
       value: 'Any',
       onChange: (value) => handleFilterChange('Market Cap', value),
-      options: [
-        { label: 'Any', value: 'Any' }, ...getUniqueValues('market_cap')
-      ]
+      options: generateRangeOptions('market_cap')
     },
     {
       label: 'Grade',
       value: 'Any',
       onChange: (value) => handleFilterChange('Grade', value),
-      options: [
-        { label: 'Any', value: 'Any' }, ...getUniqueValues('grade')
-      ]
+      options: generateRangeOptions('grade')
     },
     {
       label: 'Depth',
       value: 'Any',
       onChange: (value) => handleFilterChange('Depth', value),
-      options: [
-        { label: 'Any', value: 'Any' }, ...getUniqueValues('depth')
-      ]
+      options: generateRangeOptions('depth')
     },
   ];
 

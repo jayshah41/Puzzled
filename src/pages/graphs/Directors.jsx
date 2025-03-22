@@ -11,6 +11,8 @@ const Directors = () => {
    const [loading, setLoading] = useState(false);
    const [error, setError] = useState("");
    const [filteredDirectors, setFilteredDirectors] = useState([]);
+
+  
    const [metricSummaries, setMetricSummaries] = useState({
     asx: 0, 
     avgBaseRemun: 0, 
@@ -80,27 +82,38 @@ const fetchDirectors = useCallback(async () => {
       
   const applyClientSideFilters = useCallback(() => {
     if (!directors.length) return;
+
     const fieldMapping = {
       'AXS Code': 'asx_code',
-      'Contact': 'contact',
+      'Contact': 'contact'
+    };
+
+    const rangeFieldMapping = {
       'Base Remuneration': 'base_remuneration',
       'Total Remuneration': 'total_remuneration'
-    };
+    }
+
     let filtered = [...directors];
-    filterTags.forEach(tag => {
-      if (tag.value && tag.value !== 'Default' && tag.label !== 'No Filters Applied') {
-        const fieldName = fieldMapping[tag.label];
-        if (fieldName) {
-          filtered = filtered.filter(item => {
-            if (fieldName === 'value') {
-              return item[fieldName] == tag.value; 
-            } else {
-              return item[fieldName] && item[fieldName].toString() === tag.value.toString();
+
+     filterTags.forEach(tag => {
+            if (tag.value && tag.value !== 'Any' && tag.label !== 'No Filters Applied') {
+                const fieldName = fieldMapping[tag.label];
+                if (fieldName) {
+                    filtered = filtered.filter(item => {
+                        return item[fieldName] && item[fieldName].toString() === tag.value.toString();
+                    });
+                }
+                
+                const rangeField = rangeFieldMapping[tag.label];
+                if (rangeField) {
+                    const [min, max] = tag.value.split(' to ').map(val => parseFloat(val));
+                    filtered = filtered.filter(item => {
+                        const value = parseFloat(item[rangeField]);
+                        return value >= min && value <= max;
+                    });
+                }
             }
-          });
-        }
-      }
-    });
+        });
 
     setFilteredDirectors(filtered);
     processDirectors(filtered);
@@ -371,6 +384,45 @@ const getUniqueValues = (key) => {
   return uniqueValues.map(value => ({ label: value, value: value }));
 }; 
 
+
+const generateRangeOptions = (field) => {
+  if (!directors || !directors.length) return [];
+  
+  const values = directors.map(item => parseFloat(item[field])).filter(val => !isNaN(val));
+  if (!values.length) return [];
+  
+  const min = Math.min(...values);
+  const max = Math.max(...values);
+  
+  let increment = field.includes('price') ? 
+      Math.ceil((max - min) / 10 * 100) / 100 : 
+      Math.ceil((max - min) / 10);              
+  
+  if (field.includes('price') && increment < 0.01) increment = 0.01;
+  
+  const options = [];
+  options.push({ label: 'Any', value: 'Any' }); 
+  
+  for (let i = min; i < max; i += increment) {
+      const rangeMin = i;
+      const rangeMax = Math.min(i + increment, max);
+      
+      let rangeLabel;
+      if (field.includes('price')) {
+          rangeLabel = `${rangeMin.toFixed(2)} to ${rangeMax.toFixed(2)}`;
+      } else {
+          rangeLabel = `${Math.floor(rangeMin).toLocaleString()} to ${Math.ceil(rangeMax).toLocaleString()}`;
+      }
+      
+      options.push({ 
+          label: rangeLabel, 
+          value: `${rangeMin} to ${rangeMax}` 
+      });
+  }
+  
+  return options;
+};
+
 const allFilterOptions = [
   {
     label: 'ASX Code',
@@ -388,13 +440,13 @@ const allFilterOptions = [
     label: 'Base Remuneration',
     value: 'Default',
     onChange: (value) => handleFilterChange('Base Remuneration', value),
-    options: [{ label: 'Any', value: '' }, ...getUniqueValues('base_remuneration')]
+    options: generateRangeOptions('base_remuneration')
   },
   {
     label: 'Total Remuneration',
     value: 'Default',
     onChange: (value) => handleFilterChange('Total Remuneration', value),
-    options: [{ label: 'Any', value: '' }, ...getUniqueValues('total_remuneration')]
+    options: generateRangeOptions('total_remuneration')
   },
 ];
 

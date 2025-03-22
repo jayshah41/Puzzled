@@ -410,7 +410,6 @@ const MarketTrends = () => {
 
     const getUniqueValues = (key) => {
         if (!marketTrends || marketTrends.length === 0) return [];
-        
         const uniqueValues = [...new Set(marketTrends.map(item => item[key]))].filter(Boolean);
         return uniqueValues.map(value => ({ label: value, value: value }));
     };

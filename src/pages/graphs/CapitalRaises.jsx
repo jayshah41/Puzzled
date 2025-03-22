@@ -88,29 +88,37 @@ const CapitalRaises = () => {
     
     const fieldMapping = {
       'ASX': 'asx_code',
-      'Bank Balance': 'bank_balance',
       'Date': 'date',
-      'Amount': 'amount',
-      'Price': 'price',
       'Raise Type': 'raise_type'
     };
-    
+
+    const rangeFieldMapping = {
+      'Bank Balance': 'bank_balance',
+      'Amount': 'amount',
+      'Price': 'price',
+    }
+  
     let filtered = [...capitalRaises];
     
     filterTags.forEach(tag => {
       if (tag.value && tag.value !== 'Any' && tag.label !== 'No Filters Applied') {
-        const fieldName = fieldMapping[tag.label];
-        if (fieldName) {
-          filtered = filtered.filter(item => {
-            if (fieldName === 'amount' || fieldName === 'price') {
-              return item[fieldName] == tag.value;
-            } else {
-              return item[fieldName] && item[fieldName].toString() === tag.value.toString();
-            }
-          });
-        }
+          const fieldName = fieldMapping[tag.label];
+          if (fieldName) {
+              filtered = filtered.filter(item => {
+                  return item[fieldName] && item[fieldName].toString() === tag.value.toString();
+              });
+          }
+          
+          const rangeField = rangeFieldMapping[tag.label];
+          if (rangeField) {
+              const [min, max] = tag.value.split(' to ').map(val => parseFloat(val));
+              filtered = filtered.filter(item => {
+                  const value = parseFloat(item[rangeField]);
+                  return value >= min && value <= max;
+              });
+          }
       }
-    });
+  });
     
     setFilteredCapitalRaises(filtered);
     processCapitalRaises(filtered);
@@ -304,6 +312,44 @@ const CapitalRaises = () => {
     return uniqueValues.map(value => ({ label: value, value: value }));
   };
 
+  const generateRangeOptions = (field) => {
+    if (!capitalRaises || !capitalRaises.length) return [];
+    
+    const values = capitalRaises.map(item => parseFloat(item[field])).filter(val => !isNaN(val));
+    if (!values.length) return [];
+    
+    const min = Math.min(...values);
+    const max = Math.max(...values);
+    
+    let increment = field.includes('price') ? 
+        Math.ceil((max - min) / 10 * 100) / 100 : 
+        Math.ceil((max - min) / 10);              
+    
+    if (field.includes('price') && increment < 0.01) increment = 0.01;
+    
+    const options = [];
+    options.push({ label: 'Any', value: 'Any' }); 
+    
+    for (let i = min; i < max; i += increment) {
+        const rangeMin = i;
+        const rangeMax = Math.min(i + increment, max);
+        
+        let rangeLabel;
+        if (field.includes('price')) {
+            rangeLabel = `${rangeMin.toFixed(2)} to ${rangeMax.toFixed(2)}`;
+        } else {
+            rangeLabel = `${Math.floor(rangeMin).toLocaleString()} to ${Math.ceil(rangeMax).toLocaleString()}`;
+        }
+        
+        options.push({ 
+            label: rangeLabel, 
+            value: `${rangeMin} to ${rangeMax}` 
+        });
+    }
+    
+    return options;
+};
+
   const handleFilterChange = (label, value) => {
     if (value && value !== "Any") {
       setFilterTags(prevTags => {
@@ -328,33 +374,26 @@ const CapitalRaises = () => {
       label: 'Bank Balance',
       value: 'Any',
       onChange: (value) => handleFilterChange('Bank Balance', value),
-      options: [
-        { label: 'Any', value: 'Any' }, ...getUniqueValues('bank_balance')
-      ]
+      options: generateRangeOptions('bank_balance')
     },
     {
       label: 'Date',
       value: 'Any',
       onChange: (value) => handleFilterChange('Date', value),
-      options: [
-        { label: 'Any', value: 'Any' }, ...getUniqueValues('date')
-      ]
+      options: [{ label: 'Any', value: 'Any' }, ...getUniqueValues('date')]
     },
     {
       label: 'Amount',
       value: 'Any',
       onChange: (value) => handleFilterChange('Amount', value),
-      options: [
-        { label: 'Any', value: 'Any' }, ...getUniqueValues('amount')
-      ]
+      options: generateRangeOptions('amount')
+
     },
     {
       label: 'Price',
       value: 'Any',
       onChange: (value) => handleFilterChange('Price', value),
-      options: [
-        { label: 'Any', value: 'Any' }, ...getUniqueValues('price')
-      ]
+      options: generateRangeOptions('price')
     },
     {
       label: 'Raise Type',
