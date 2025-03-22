@@ -235,7 +235,7 @@ class Command(BaseCommand):
             {
                 "component": "ContactUs",
                 "section": "content",
-                "text_value": "MakCorp offers unparalleled access to immediate and essential information for the resources sector. Our offering provides our clients with the tools they need to see data, the way they want to. MakCorp prides itself on using interactive technology to help visualize key metrics to improve investment decisions."
+                "text_value": "You want to sign up but have a few uncertainties? Contact us through the form below, and we will respond back to you as soon as possible!"
             },
             {
                 "component": "ContactUs",
