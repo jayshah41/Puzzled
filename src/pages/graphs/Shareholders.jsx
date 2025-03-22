@@ -17,11 +17,11 @@ const Shareholders = () => {
     totalEntityCount: 0,
     totalProjectAreaCount: 0
   });
-  const [shareholdersByMarketCap, setShareholdersByMarketCap] = useState({
+  const [shareholdersByValue, setShareholdersByValue] = useState({
     labels: [], 
     datasets: [{data: []}]
   });
-  const [asxByMarketCapPercentage, setAsxByMarketCapPercentage] = useState({
+  const [asxByValue, setAsxByValue] = useState({
     labels: [], 
     datasets: [{data: []}]
   });
@@ -131,8 +131,8 @@ const Shareholders = () => {
       totalProjectAreaCount
     });
 
-    processShareholdersByMarketCap(data);
-    processAsxByMarketCapPercentage(data);
+    processShareholdersByValue(data);
+    processAsxByValue(data);
     processPriorityCommodityByValue(data);
 
     setTableData(data.map(item => ({
@@ -154,7 +154,7 @@ const Shareholders = () => {
     });
   };
 
-  const processShareholdersByMarketCap = (data) => {
+  const processShareholdersByValue = (data) => {
     const shareholderGroups = {};
     data.forEach(item => {
       if (!shareholderGroups[item.entity]) {
@@ -171,7 +171,7 @@ const Shareholders = () => {
       .sort((a, b) => b.value - a.value)
       .slice(0, 5);
   
-    setShareholdersByMarketCap({
+    setShareholdersByValue({
       labels: topShareholders.map(shareholder => shareholder.entity),
       datasets: [{
         label: "% Ownership",
@@ -181,7 +181,7 @@ const Shareholders = () => {
     });
   };
   
-  const processAsxByMarketCapPercentage = (data) => {
+  const processAsxByValue = (data) => {
     const asxGroups = {};
     data.forEach(item => {
       if (!asxGroups[item.asx_code]) {
@@ -198,7 +198,7 @@ const Shareholders = () => {
       .sort((a, b) => b.value - a.value)
       .slice(0, 5);
   
-    setAsxByMarketCapPercentage({
+    setAsxByValue({
       labels: topCompanies.map(company => company.asx),
       datasets: [{
         label: "Value",
@@ -231,7 +231,7 @@ const Shareholders = () => {
     setPriorityCommodityByValue({
       labels: topCommodities.map(commodity => commodity.commodity),
       datasets: [{
-        label: "Investment Value",
+        label: "Value",
         data: topCommodities.map(commodity => commodity.value),
         backgroundColor: "#28a745",
       }]
@@ -245,7 +245,7 @@ const Shareholders = () => {
       totalProjectAreaCount: 0
     });
     
-    setShareholdersByMarketCap({
+    setShareholdersByValue({
       labels: ['No Data'],
       datasets: [{
         label: "Shareholders",
@@ -254,7 +254,7 @@ const Shareholders = () => {
       }]
     });
     
-    setAsxByMarketCapPercentage({
+    setAsxByValue({
       labels: ['No Data'],
       datasets: [{
         label: "Market Cap",
@@ -385,12 +385,12 @@ const Shareholders = () => {
     {
       title: 'Top 5 Shareholders By Value',
       type: "bar",
-      data: shareholdersByMarketCap
+      data: shareholdersByValue
     },
     {
-      title: 'Top 5 ASX Companies By Market Cap %',
+      title: 'Top 5 ASX Companies By Value',
       type: "bar",
-      data: asxByMarketCapPercentage
+      data: asxByValue
     },
     {
       title: 'Top 5 Project Commodities By Value',
