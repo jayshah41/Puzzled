@@ -335,8 +335,8 @@ const ContactUsForm = () => {
 
   return (
     <div className="contact-form-card">
-      <h1 className="contact-form-header">Contact us form</h1>
-      <p className="contact-form-subheader">Help us by letting us know what type of investor you are by answering the following questions.</p>
+      <h1 className="contact-form-header">Contact Us Form</h1>
+      <p className="contact-form-subheader">Fill out the form below to ask us any questions or concerns you may have.</p>
       
       {isAdminUser && (
         <button

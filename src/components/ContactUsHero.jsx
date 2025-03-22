@@ -8,8 +8,8 @@ const ContactUsHero = () => {
   const saveContent = useSaveContent();
   const [isEditing, setIsEditing] = useState(false);
 
-  const [heading, setHeading] = useState("Ready to sign up?");
-  const [content, setContent] = useState("You want to sign up but have a few uncertainties? Contact us through the form below, and we will respond back to you as soon as possible!");
+  const [heading, setHeading] = useState("Have a question?");
+  const [content, setContent] = useState("Having some difficulties using the website? Contact us through the form below, and we will respond back to you as soon as possible!");
 
   useEffect(() => {
     fetch('/api/editable-content/?component=ContactUs')

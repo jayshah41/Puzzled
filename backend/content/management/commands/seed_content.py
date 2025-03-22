@@ -230,12 +230,12 @@ class Command(BaseCommand):
             {
                 "component": "ContactUs",
                 "section": "heading",
-                "text_value": "Ready to sign up?"
+                "text_value": "Have a question?"
             },
             {
                 "component": "ContactUs",
                 "section": "content",
-                "text_value": "You want to sign up but have a few uncertainties? Contact us through the form below, and we will respond back to you as soon as possible!"
+                "text_value": "Having some difficulties using the website? Contact us through the form below, and we will respond back to you as soon as possible!"
             },
             {
                 "component": "ContactUs",
