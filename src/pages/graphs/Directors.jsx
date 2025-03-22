@@ -5,17 +5,12 @@ import axios from 'axios';
 import useAuthToken from "../../hooks/useAuthToken";
 
 const Directors = () => {
-  const { getAccessToken, authError } = useAuthToken();
 
+  const { getAccessToken, authError } = useAuthToken();
    const [directors, setDirectors] = useState([]);
    const [loading, setLoading] = useState(false);
    const [error, setError] = useState("");
-
-   const [asxCode, setAsxCode] = useState("");
-   const [contact, setContact] = useState("");
-   const [baseRemuneration, setBaseRemuneration] = useState("");
-   const [totalRemuneration, setTotalRemuneration] = useState("");
-
+   const [filteredDirectors, setFilteredDirectors] = useState([]);
    const [metricSummaries, setMetricSummaries] = useState({
     asx: 0, 
     avgBaseRemun: 0, 
@@ -25,151 +20,108 @@ const Directors = () => {
     sumTotalRemun: 0, 
     medianBaseRemun: 0, 
     directorsPaidRemun: 0, 
-});
+    });
 
-// chart data states
-
-
-//top 20 base & total remuneration by asx code
 const [topASXRemuneration, setTopASXRemuneration] = useState({
     labels: [], 
     datasets: [{ data: [] }]
 });
 
-//top 25 total remuneration by director
 const [topDirectorRemuneration, setTopDirectorRemuneration] = useState({
   labels: [], 
   datasets: [{ data: [] }]
 });
-//end of charts
 
- // table data state
  const [tableData, setTableData] = useState([]);
+ const [filterTags, setFilterTags] = useState([]);
 
- // fetch data from api
-  // const fetchDirectors = useCallback(async () => {
-  // const token = localStorage.getItem("accessToken");
+const fetchDirectors = useCallback(async () => {
+    const token = await getAccessToken();
+     if (!token) {
+         setError("Authentication error: No token found.");
+         setLoading(false);
+         return;
+     }
 
-  //    // handles missing tokens
-  //    if (!token) {
-  //        setError("Authentication error: No token found.");
-  //        setLoading(false);
-  //        return;
-  //    }
+     try {
+      setLoading(true);
 
-  //    try {
-  //     setLoading(true);
-      
-  //     // building parameters from filter states
-  //     const params = {
-  //         asx: asxCode || undefined,
-  //         contact: contact || undefined,
-  //         baseRemuneration: baseRemuneration || undefined,
-  //         totalRemuneration: totalRemuneration || undefined,
-  //     };
-      
-  //     Object.keys(params).forEach(key => 
-  //         params[key] === undefined && delete params[key]
-  //     );
-      
-  //     const response = await axios.get("http://127.0.0.1:8000/data/directors/", {
-  //         headers: {
-  //             Authorization: `Bearer ${token}`,
-  //             "Content-Type": "application/json"
-  //         },
-  //         params: params
-  //     });
+      const response = await axios.get("http://127.0.0.1:8000/data/directors/", {
+          headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json"
+          },
+      });
 
-  //     console.log("API Response:", response.data);
-            
-  //           // handling different api formats
-  //           if (Array.isArray(response.data)) {
-  //               setDirectors(response.data);
-  //               processDirectors(response.data);
-  //           } else if (response.data && typeof response.data === 'object') {
-  //               const dataArray = [response.data];
-  //               setDirectors(dataArray);
-  //               processDirectors(dataArray);
-  //           } else {
-  //               setDirectors([]);
-  //               resetData();
-  //           }
-            
-  //           // handles errors
-  //           setError("");
-  //       } catch (error) {
-  //           console.error("Error fetching directors:", error.response?.data || error);
-  //           setError("Failed to fetch directors data: " + (error.response?.data?.detail || error.message));
-  //           resetData();
-  //       } finally {
-  //           setLoading(false);
-  //       }
-  //   }, [asxCode, contact, baseRemuneration, totalRemuneration]);
-
-  const fetchDirectors = useCallback(async () => {
-    try {
-        setLoading(true);
-
-        // Get the valid access token
-        const token = await getAccessToken();
-        if (!token) {
-            setError(authError || "Authentication error.");
-            setLoading(false);
-            return;
-        }
-
-        // Build query parameters
-        const params = {
-            asx: asxCode || undefined,
-            contact: contact || undefined,
-            baseRemuneration: baseRemuneration || undefined,
-            totalRemuneration: totalRemuneration || undefined,
-        };
-
-        Object.keys(params).forEach((key) => params[key] === undefined && delete params[key]);
-
-        // Make the API request
-        const response = await axios.get("http://127.0.0.1:8000/data/directors/", {
-            headers: {
-                Authorization: `Bearer ${token}`,
-                "Content-Type": "application/json",
-            },
-            params: params,
-        });
-
-        console.log("API Response:", response.data);
-
-        if (Array.isArray(response.data)) {
-            setDirectors(response.data);
-            processDirectors(response.data);
-        } else if (response.data && typeof response.data === "object") {
-            const dataArray = [response.data];
-            setDirectors(dataArray);
-            processDirectors(dataArray);
-        } else {
-            setDirectors([]);
-            resetData();
-        }
-
-        setError("");
-    } catch (error) {
-        console.error("Error fetching directors:", error.response?.data || error);
-        setError("Failed to fetch directors data: " + (error.response?.data?.detail || error.message));
-        resetData();
-    } finally {
-        setLoading(false);
-    }
-}, [getAccessToken, authError, asxCode, contact, baseRemuneration, totalRemuneration]);
-
-
-     // process directors data for metrics and charts 
-     const processDirectors = (data) => {
-      if (!data || data.length === 0) {
-          resetData();
-          return;
+      if (Array.isArray(response.data)) {
+        setDirectors(response.data);
+        setFilteredDirectors(response.data);
+        processDirectors(response.data);
+      } else if (response.data && typeof response.data === 'object') {
+        const dataArray = [response.data];
+        setDirectors(dataArray);
+        setFilteredDirectors(dataArray);
+        processDirectors(dataArray);
+      } else {
+        setDirectors([]);
+        setFilteredDirectors([]);
+        processDirectors([]);
       }
+  
+      setError("");
+    } catch (error) {
+      setError(`Failed to fetch directors data: ${error.response?.data?.detail || error.message}`);
+      resetData();
+    } finally {
+      setLoading(false);
+    }
+  }, []);
       
-      // calculate metric values   
+      
+  const applyClientSideFilters = useCallback(() => {
+    if (!directors.length) return;
+    const fieldMapping = {
+      'AXS Code': 'asx_code',
+      'Contact': 'contact',
+      'Base Remuneration': 'base_remuneration',
+      'Total Remuneration': 'total_remuneration'
+    };
+    let filtered = [...directors];
+    filterTags.forEach(tag => {
+      if (tag.value && tag.value !== 'Default' && tag.label !== 'No Filters Applied') {
+        const fieldName = fieldMapping[tag.label];
+        if (fieldName) {
+          filtered = filtered.filter(item => {
+            if (fieldName === 'value') {
+              return item[fieldName] == tag.value; 
+            } else {
+              return item[fieldName] && item[fieldName].toString() === tag.value.toString();
+            }
+          });
+        }
+      }
+    });
+
+    setFilteredDirectors(filtered);
+    processDirectors(filtered);
+  }, [directors, filterTags]);
+
+  useEffect(() => {
+    if (directors.length) {
+      applyClientSideFilters();
+    }
+  }, [filterTags, applyClientSideFilters]);
+  
+  useEffect(() => {
+    fetchDirectors();
+  }, [fetchDirectors]);
+
+  const processDirectors = (data) => {
+    if (!data || data.length === 0) {
+      resetData();
+      return;
+    }
+      
     const uniqueAsxCount = new Set(data.map(item => item.asx_code).filter(Boolean)).size;
     const validBaseRemunData = data.filter(item => !isNaN(parseFloat(item.base_remuneration)) && parseFloat(item.base_remuneration) > 0);
     const validTotalRemunData = data.filter(item => !isNaN(parseFloat(item.total_remuneration)) && parseFloat(item.total_remuneration) > 0);
@@ -212,22 +164,21 @@ const [topDirectorRemuneration, setTopDirectorRemuneration] = useState({
     
     setMetricSummaries({
       asx: uniqueAsxCount, 
-      avgBaseRemun: avgBaseRemun,
+      avgBaseRemun,
       contact: uniqueContactsCount,
-      avgTotalRemun: avgTotalRemun,
-      medianTotalRemun: medianTotalRemun,
-      sumTotalRemun: sumTotalRemun,
-      medianBaseRemun: medianBaseRemun,
-      directorsPaidRemun: directorsPaidRemun,
+      avgTotalRemun,
+      medianTotalRemun,
+      sumTotalRemun,
+      medianBaseRemun,
+      directorsPaidRemun
     });
 
-      // process data for charts 
       processTopASXRemunerationChart(data); 
       processTopDirectorRemunerationChart(data);
 
       setTableData(data.map(item => ({
-          asx: item.asx_code || 'N/A',
-          contact: item.contact || 'N/A', 
+          asx: item.asx_code || '',
+          contact: item.contact || '', 
           baseRemuneration: formatCurrency(parseFloat(item.base_remuneration) || 0, 0), 
           totalRemuneration: formatCurrency(parseFloat(item.total_remuneration) || 0, 0), 
           marketCap: formatCurrency(parseFloat(item.market_cap) || 0, 0), 
@@ -235,18 +186,14 @@ const [topDirectorRemuneration, setTopDirectorRemuneration] = useState({
   };
 
   const formatCurrency = (value, decimals = 2) => {
-    if (isNaN(value) || value === null) return 'A$0.00';
-    return 'A$' + Number(value).toLocaleString('en-AU', {
+    if (isNaN(value) || value === null) return '$0.00';
+    return '$' + Number(value).toLocaleString('en-AU', {
         minimumFractionDigits: decimals,
         maximumFractionDigits: decimals
     });
   };
 
-  //CHARTS
-  //chart 1
-  
-  
-// 2. Top 20 base & total remuneration by ASX code
+
 const processTopASXRemunerationChart = (data) => {
   if (!data || data.length === 0) {
     setTopASXRemuneration({
@@ -330,7 +277,6 @@ const processTopASXRemunerationChart = (data) => {
   });
 };
 
-// 3. Top 25 total remuneration by director
 const processTopDirectorRemunerationChart = (data) => {
   if (!data || data.length === 0) {
     setTopDirectorRemuneration({
@@ -347,7 +293,6 @@ const processTopDirectorRemunerationChart = (data) => {
     return;
   }
 
-  // Create a mapping of directors to their total remuneration
   const directorRemunerationMap = {};
   data.forEach(item => {
     const director = item.contact || "Unknown";
@@ -360,20 +305,17 @@ const processTopDirectorRemunerationChart = (data) => {
     directorRemunerationMap[director] += totalRemuneration;
   });
 
-  // Convert to array and sort by total remuneration in descending order
   const directorArray = Object.keys(directorRemunerationMap)
     .map(director => ({
       director: director,
       totalRemuneration: directorRemunerationMap[director]
     }))
     .sort((a, b) => b.totalRemuneration - a.totalRemuneration)
-    .slice(0, 25); // Take top 25 directors
+    .slice(0, 25);
 
-  // Extract labels and data
   const directorLabels = directorArray.map(item => item.director);
   const remunerationValues = directorArray.map(item => item.totalRemuneration);
 
-  // Set chart data
   setTopDirectorRemuneration({
     labels: directorLabels,
     datasets: [{
@@ -387,8 +329,6 @@ const processTopDirectorRemunerationChart = (data) => {
   });
 };
 
-
-  // reset data if api call fails
   const resetData = () => {
     setMetricSummaries({
         asx: 0,
@@ -424,199 +364,68 @@ const processTopDirectorRemunerationChart = (data) => {
     setTableData([]);
 };
 
-useEffect(() => {
-  console.log("Fetching directors...");
-  fetchDirectors();
-}, [fetchDirectors]);
 
-const [filterTags, setFilterTags] = useState([]);
-
-/*
 const getUniqueValues = (key) => {
   if (!directors || directors.length === 0) return [];
-  
-  const allValues = directors.map(item => item[key])
-    .filter(val => val !== null && val !== undefined && val !== "");
-  
-  const uniqueValues = [...new Set(allValues)];
-  
-  if (uniqueValues.length > 0 && !isNaN(parseFloat(uniqueValues[0]))) {
-    uniqueValues.sort((a, b) => parseFloat(a) - parseFloat(b));
-  } else {
-    uniqueValues.sort();
-  }
-  
-  return uniqueValues.map(value => ({ label: value, value: value }));
-};
-*/
-
-/*
-const getUniqueValues = (key) => {
-  if (!directors || directors.length === 0) return [];
-  
-  let allValues = [];
-  
-  // Special handling for JSONField (priority_commodities)
-  if (key === 'priority_commodities') {
-    directors.forEach(item => {
-      let commodities = [];
-      
-      if (!item[key]) {
-        return;
-      } else if (Array.isArray(item[key])) {
-        commodities = item[key];
-      } else if (typeof item[key] === 'object') {
-        commodities = Object.values(item[key]);
-      } else if (typeof item[key] === 'string') {
-        try {
-          const parsed = JSON.parse(item[key]);
-          if (Array.isArray(parsed)) {
-            commodities = parsed;
-          } else if (typeof parsed === 'object') {
-            commodities = Object.values(parsed);
-          } else {
-            commodities = item[key].split(',').map(c => c.trim());
-          }
-        } catch (e) {
-          commodities = [item[key]];
-        }
-      } else {
-        // For any other type, use as a single value
-        commodities = [String(item[key])];
-      }
-      
-      // Add each commodity individually after cleaning it
-      commodities.forEach(commodity => {
-        if (commodity !== null && commodity !== undefined && commodity !== "") {
-          // Clean the commodity value - trim spaces, normalize strings
-          const cleanCommodity = String(commodity).trim();
-          if (cleanCommodity) {
-            allValues.push(cleanCommodity);
-          }
-        }
-      });
-    });
-  } else {
-    // Original handling for other fields
-    allValues = directors.map(item => item[key])
-      .filter(val => val !== null && val !== undefined && val !== "");
-  }
-  
-  // Remove duplicates using Set
-  const uniqueValues = [...new Set(allValues)];
-  
-  // Sort values
-  if (uniqueValues.length > 0 && !isNaN(parseFloat(uniqueValues[0]))) {
-    uniqueValues.sort((a, b) => parseFloat(a) - parseFloat(b));
-  } else {
-    uniqueValues.sort();
-  }
-  
-  return uniqueValues.map(value => ({ label: value, value: value }));
-};
-*/
-const getUniqueValues = (key) => {
-  if (!directors || directors.length === 0) return [];
-  
   const uniqueValues = [...new Set(directors.map(item => item[key]))].filter(Boolean);
   return uniqueValues.map(value => ({ label: value, value: value }));
-};
+}; 
 
-
-
-// Filters
 const allFilterOptions = [
   {
-    label: 'ASX',
-    value: 'Any',
-    onChange: (value) => {
-      setFilterTags(prevTags => 
-        prevTags.map(tag => 
-          tag.label === 'ASX' ? {...tag, value} : tag
-        )
-      );
-      if(value !== "Any"){handleAddFilter({label: 'ASX', value})};
-    },
-    options: [
-      { label: 'Any', value: '' }, ...getUniqueValues('asx_code')
-    ]
+    label: 'ASX Code',
+    value: 'Default',
+    onChange: (value) => handleFilterChange('ASX Code', value),
+    options: [{ label: 'Any', value: 'Any' }, ...getUniqueValues('asx_code')]
   },
   {
     label: 'Contact',
-    value: 'Any',
-    onChange: (value) => {
-      setFilterTags(prevTags => 
-        prevTags.map(tag => 
-          tag.label === 'Contact' ? {...tag, value} : tag
-        )
-      );
-      if(value !== "Any"){handleAddFilter({label: 'Contact', value})};
-    },
-    options: [
-      { label: 'Any', value: '' }, ...getUniqueValues('contact')
-    ]
+    value: 'Default',
+    onChange: (value) => handleFilterChange('Contact', value),
+    options: [{ label: 'Any', value: '' }, ...getUniqueValues('contact')]
   },
   {
     label: 'Base Remuneration',
-    value: 'Any',
-    onChange: (value) => {
-      setFilterTags(prevTags => 
-        prevTags.map(tag => 
-          tag.label === 'Base Remuneration' ? {...tag, value} : tag
-        )
-      );
-      if(value !== "Any"){handleAddFilter({label: 'Base Remuneration', value})};
-    },
-    options: [
-      { label: 'Any', value: '' }, ...getUniqueValues('base_remuneration')
-    ]
+    value: 'Default',
+    onChange: (value) => handleFilterChange('Base Remuneration', value),
+    options: [{ label: 'Any', value: '' }, ...getUniqueValues('base_remuneration')]
   },
   {
     label: 'Total Remuneration',
-    value: 'Any',
-    onChange: (value) => {
-      setFilterTags(prevTags => 
-        prevTags.map(tag => 
-          tag.label === 'Total Remuneration' ? {...tag, value} : tag
-        )
-      );
-      if(value !== "Any"){handleAddFilter({label: 'Total Remuneration', value})};
-    },
-    options: [
-      { label: 'Any', value: '' }, ...getUniqueValues('total_remuneration')
-    ]
+    value: 'Default',
+    onChange: (value) => handleFilterChange('Total Remuneration', value),
+    options: [{ label: 'Any', value: '' }, ...getUniqueValues('total_remuneration')]
   },
 ];
 
-const [filterOptions, setFilterOptions] = useState(() => {
-  const currentTagLabels = filterTags.map(tag => tag.label);
-  return allFilterOptions.filter(option => !currentTagLabels.includes(option.label));
-});
-
-
-const handleRemoveFilter = (filterLabel) => {
-  setFilterTags(prevTags => prevTags.filter(tag => tag.label !== filterLabel));
-  
-  const removedOption = allFilterOptions.find(opt => opt.label === filterLabel);
-  if (removedOption) {
-    setFilterOptions(prevOptions => [...prevOptions, removedOption]);
+const handleFilterChange = (label, value) => {
+  if (value && value !== "Any") {
+    setFilterTags(prevTags => {
+      const updatedTags = prevTags.filter(tag => tag.label !== label);
+      return [...updatedTags, { label, value }];
+    });
+  } else {
+    setFilterTags(prevTags => prevTags.filter(tag => tag.label !== label));
   }
 };
 
+const handleRemoveFilter = (filterLabel) => {
+  setFilterTags(prevTags => prevTags.filter(tag => tag.label !== filterLabel));
+};
 
 const handleAddFilter = (filter) => {
-  setFilterTags(prevTags => {
-    const exists = prevTags.some(tag => tag.label === filter.label);
-    if (exists) {
-      return prevTags.map(tag => 
-        tag.label === filter.label ? { ...tag, value: filter.value } : tag
-      );
-    }
-    return [...prevTags, {
-      ...filter,
-      onRemove: () => handleRemoveFilter(filter.label)
-    }];
-  });
+  if (filter.value && filter.value !== "Default") {
+    setFilterTags(prevTags => {
+      const existingIndex = prevTags.findIndex(tag => tag.label === filter.label);
+      if (existingIndex >= 0) {
+        const updatedTags = [...prevTags];
+        updatedTags[existingIndex] = filter;
+        return updatedTags;
+      } else {
+        return [...prevTags, filter];
+      }
+    });
+  }
 };
 
 const generateFilterTags = () => {
@@ -625,7 +434,10 @@ const generateFilterTags = () => {
   ];
 };
 
-//stats
+const applyFilters = () => {
+  applyClientSideFilters();
+};
+
 const generateMetricCards = () => [
   {
     title: 'ASX Code Count',
@@ -661,9 +473,7 @@ const generateMetricCards = () => [
   },
 ];
 
-//chart data
 const generateChartData = () => [
-  
   {
     title: 'Top 20 Base & Total Remuneration by ASX Code',
     type: "bar",
@@ -727,7 +537,6 @@ const generateChartData = () => [
   }
 ];
 
-//table
 const [tableColumns] = useState([
   { header: 'ASX', key: 'asx' },
   { header: 'Title', key: 'contact' },
@@ -744,7 +553,6 @@ return (
       <GraphPage
         title="Directors Dashboard"
         filterTags={generateFilterTags()}
-        filterOptions={filterOptions}
         allFilterOptions={allFilterOptions}
         metricCards={generateMetricCards()}
         chartData={generateChartData()}
@@ -752,6 +560,7 @@ return (
         tableData={tableData}
         handleAddFilter={handleAddFilter}
         handleRemoveFilter={handleRemoveFilter}
+        applyFilters={applyFilters}
       />
     )}
   </div>
