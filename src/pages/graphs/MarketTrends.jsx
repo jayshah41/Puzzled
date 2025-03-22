@@ -3,34 +3,15 @@ import '../../styles/GeneralStyles.css';
 import GraphPage from '../../components/GraphPage.jsx';
 import useAuthToken from "../../hooks/useAuthToken";
 import axios from 'axios';
-//import Projects from './Projects';
-
-
 
 const MarketTrends = () => {
-    // states for api data
     const [marketTrends, setMarketTrends] = useState([]);
+    const [filteredMarketTrends, setFilteredMarketTrends] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
     const { getAccessToken, authError } = useAuthToken();
-    // states for current filters (applied)
-    const [asxCode, setAsxCode] = useState("");
-    const [marketCap, setMarketCap] = useState("");
-    const [tradeValue, setTradeValue] = useState("");
-    const [totalShares, setTotalShares] = useState("");
-    const [newPrice, setNewPrice] = useState("");
-    const [previousPrice, setPreviousPrice] = useState("");
+    const [filterTags, setFilterTags] = useState([]);
 
-    /*
-    // states for pending filters (not yet applied)
-    const [pendingAsxCode, setPendingAsxCode] = useState("");
-    const [pendingMarketCap, setPendingMarketCap] = useState("");
-    const [pendingTradeValue, setPendingTradeValue] = useState("");
-    const [pendingTotalShares, setPendingTotalShares] = useState("");
-    const [pendingNewPrice, setPendingNewPrice] = useState("");
-    const [pendingPreviousPrice, setPendingPreviousPrice] = useState("");
-
-    */
     // metric card states
     const [metricSummaries, setMetricSummaries] = useState({
         asx: 0, 
@@ -71,27 +52,13 @@ const MarketTrends = () => {
 
         try {
             setLoading(true);
-                const params = {
-                asx: asxCode || undefined,
-                marketCap: marketCap || undefined,
-                tradeValue: tradeValue || undefined,
-                totalShares: totalShares || undefined,
-                newPrice: newPrice || undefined,
-                previousPrice: previousPrice || undefined,
-            };
             
-            // remove undefined keys
-            Object.keys(params).forEach(key => 
-                params[key] === undefined && delete params[key]
-            );
-            
-            // sending api requests
+            // sending api requests - fetch all data without filters
             const response = await axios.get("http://127.0.0.1:8000/data/market-trends/", {
                 headers: {
                     Authorization: `Bearer ${token}`,
                     "Content-Type": "application/json"
-                },
-                params: params
+                }
             });
 
             console.log("API Response:", response.data);
@@ -99,13 +66,16 @@ const MarketTrends = () => {
             // handling different api formats
             if (Array.isArray(response.data)) {
                 setMarketTrends(response.data);
+                setFilteredMarketTrends(response.data);
                 processMarketTrends(response.data);
             } else if (response.data && typeof response.data === 'object') {
                 const dataArray = [response.data];
                 setMarketTrends(dataArray);
+                setFilteredMarketTrends(dataArray);
                 processMarketTrends(dataArray);
             } else {
                 setMarketTrends([]);
+                setFilteredMarketTrends([]);
                 resetData();
             }
             
@@ -118,7 +88,48 @@ const MarketTrends = () => {
         } finally {
             setLoading(false);
         }
-    }, [asxCode, marketCap, tradeValue, totalShares, newPrice, previousPrice]);
+    }, []);
+
+    const applyClientSideFilters = useCallback(() => {
+        if (!marketTrends.length) return;
+        
+        const fieldMapping = {
+            'ASX Code': 'asx_code',
+            'Market Cap': 'market_cap',
+            'Trade Value': 'trade_value',
+            'Total Shares': 'total_shares',
+            'New Price': 'new_price',
+            'Previous Price': 'previous_price'
+        };
+        
+        let filtered = [...marketTrends];
+        
+        filterTags.forEach(tag => {
+            if (tag.value && tag.value !== 'Any' && tag.label !== 'No Filters Applied') {
+                const fieldName = fieldMapping[tag.label];
+                if (fieldName) {
+                    filtered = filtered.filter(item => {
+                        // Check if item[fieldName] exists and convert to string for comparison
+                        return item[fieldName] && item[fieldName].toString() === tag.value.toString();
+                    });
+                }
+            }
+        });
+        
+        setFilteredMarketTrends(filtered);
+        processMarketTrends(filtered);
+    }, [marketTrends, filterTags]);
+
+    useEffect(() => {
+        if (marketTrends.length) {
+            applyClientSideFilters();
+        }
+    }, [filterTags, applyClientSideFilters]);
+
+    useEffect(() => {
+        console.log("Fetching market trends...");
+        fetchMarketTrends();
+    }, [fetchMarketTrends]);
 
     // process market trends data for metrics and charts 
     const processMarketTrends = (data) => {
@@ -411,13 +422,6 @@ const MarketTrends = () => {
         setTableData([]);
     };
 
-    useEffect(() => {
-        console.log("Fetching market trends...");
-        fetchMarketTrends();
-    }, [fetchMarketTrends]);
-
-    const [filterTags, setFilterTags] = useState([]);
-
     const getUniqueValues = (key) => {
         if (!marketTrends || marketTrends.length === 0) return [];
         
@@ -425,133 +429,83 @@ const MarketTrends = () => {
         return uniqueValues.map(value => ({ label: value, value: value }));
     };
 
-
     const allFilterOptions = [
         {
-            label: 'ASX',
-            value: 'Any',
-            onChange: (value) => {
-                setFilterTags(prevTags => 
-                  prevTags.map(tag => 
-                    tag.label === 'ASX Code' ? {...tag, value} : tag
-                  )
-                );
-                if(value !== "Any"){handleAddFilter({label: 'ASX Code', value})};
-              },
-            options: [
-                { label: 'Any', value: 'Any' }, ...getUniqueValues('asx_code')
-            ]
+            label: 'ASX Code',
+            value: 'Default',
+            onChange: (value) => handleFilterChange('ASX Code', value),
+            options: [{ label: 'Any', value: 'Any' }, ...getUniqueValues('asx_code')]
         },
         {
             label: 'Market Cap',
-            value: 'Any',
-            onChange: (value) => {
-                setFilterTags(prevTags => 
-                  prevTags.map(tag => 
-                    tag.label === 'Market Cap' ? {...tag, value} : tag
-                  )
-                );
-                if(value !== "Any"){handleAddFilter({label: 'Market Cap', value})};
-              },
-            options: [
-                { label: 'Any', value: 'Any' }, ...getUniqueValues('market_cap')
-            ]
+            value: 'Default',
+            onChange: (value) => handleFilterChange('Market Cap', value),
+            options: [{ label: 'Any', value: 'Any' }, ...getUniqueValues('market_cap')]
         },
         {
             label: 'Trade Value',
-            value: 'Any',
-            onChange: (value) => {
-                setFilterTags(prevTags => 
-                  prevTags.map(tag => 
-                    tag.label === 'Trade Value' ? {...tag, value} : tag
-                  )
-                );
-                if(value !== "Any"){handleAddFilter({label: 'Trade Value', value})};
-              },
-            options: [
-                { label: 'Any', value: 'Any' }, ...getUniqueValues('trade_value')
-            ]
+            value: 'Default',
+            onChange: (value) => handleFilterChange('Trade Value', value),
+            options: [{ label: 'Any', value: 'Any' }, ...getUniqueValues('trade_value')]
         },
         {
             label: 'Total Shares',
-            value: 'Any',
-            onChange: (value) => {
-                setFilterTags(prevTags => 
-                  prevTags.map(tag => 
-                    tag.label === 'Total Shares' ? {...tag, value} : tag
-                  )
-                );
-                if(value !== "Any"){handleAddFilter({label: 'Total Shares', value})};
-              },
-            options: [
-                { label: 'Any', value: 'Any' }, ...getUniqueValues('total_shares')
-            ]
+            value: 'Default',
+            onChange: (value) => handleFilterChange('Total Shares', value),
+            options: [{ label: 'Any', value: 'Any' }, ...getUniqueValues('total_shares')]
         },
         {
             label: 'New Price',
-            value: 'Any',
-            onChange: (value) => {
-                setFilterTags(prevTags => 
-                  prevTags.map(tag => 
-                    tag.label === 'New Price' ? {...tag, value} : tag
-                  )
-                );
-                if(value !== "Any"){handleAddFilter({label: 'New Price', value})};
-              },
-            options: [
-                { label: 'Any', value: 'Any' }, ...getUniqueValues('new_price')
-            ]
+            value: 'Default',
+            onChange: (value) => handleFilterChange('New Price', value),
+            options: [{ label: 'Any', value: 'Any' }, ...getUniqueValues('new_price')]
         },
         {
             label: 'Previous Price',
-            value: 'Any',
-            onChange: (value) => {
-                setFilterTags(prevTags => 
-                  prevTags.map(tag => 
-                    tag.label === 'Previous Price' ? {...tag, value} : tag
-                  )
-                );
-                if(value !== "Any"){handleAddFilter({label: 'Previous Price', value})};
-              },
-            options: [
-                { label: 'Any', value: 'Any' }, ...getUniqueValues('previous_price')
-            ]
-        },
+            value: 'Default',
+            onChange: (value) => handleFilterChange('Previous Price', value),
+            options: [{ label: 'Any', value: 'Any' }, ...getUniqueValues('previous_price')]
+        }
     ];
 
-    
-    const [filterOptions, setFilterOptions] = useState(() => {
-        const currentTagLabels = filterTags.map(tag => tag.label);
-        return allFilterOptions.filter(option => !currentTagLabels.includes(option.label));
-    });
-    
+    const handleFilterChange = (label, value) => {
+        if (value && value !== "Any") {
+            setFilterTags(prevTags => {
+                const updatedTags = prevTags.filter(tag => tag.label !== label);
+                return [...updatedTags, { label, value }];
+            });
+        } else {
+            setFilterTags(prevTags => prevTags.filter(tag => tag.label !== label));
+        }
+    };
 
     const handleRemoveFilter = (filterLabel) => {
         setFilterTags(prevTags => prevTags.filter(tag => tag.label !== filterLabel));
-        
-        const removedOption = allFilterOptions.find(opt => opt.label === filterLabel);
-        if (removedOption) {
-          setFilterOptions(prevOptions => [...prevOptions, removedOption]);
-        }
-      };
-
-    const handleAddFilter = (filter) => {
-        setFilterTags(prevTags => {
-            const exists = prevTags.some(tag => tag.label === filter.label);
-            if (exists) {
-                return prevTags.map(tag => 
-                    tag.label === filter.label ? { ...tag, value: filter.value } : tag
-                );
-            }
-            return [...prevTags, filter];
-        });
-      };
+    };
     
+    const handleAddFilter = (filter) => {
+        if (filter.value && filter.value !== "Default") {
+            setFilterTags(prevTags => {
+                const existingIndex = prevTags.findIndex(tag => tag.label === filter.label);
+                if (existingIndex >= 0) {
+                    const updatedTags = [...prevTags];
+                    updatedTags[existingIndex] = filter;
+                    return updatedTags;
+                } else {
+                    return [...prevTags, filter];
+                }
+            });
+        }
+    };
 
     const generateFilterTags = () => {
-    return filterTags.length > 0 ? filterTags : [
-        { label: 'No Filters Applied', value: 'Click to add filters', onRemove: () => {} }
-    ];
+        return filterTags.length > 0 ? filterTags : [
+            { label: 'No Filters Applied', value: 'Click to add filters', onRemove: () => {} }
+        ];
+    };
+
+    const applyFilters = () => {
+        applyClientSideFilters();
     };
 
     const generateMetricCards = () => [
@@ -561,19 +515,19 @@ const MarketTrends = () => {
         },
         {
             title: 'Daily Average Price Change %',
-            value: metricSummaries.dailyAvgPriceChange
+            value: metricSummaries.dailyAvgPriceChange.toFixed(2)
         },
         {
             title: 'Weekly Average Price Change %',
-            value: metricSummaries.weeklyAvgPriceChange
+            value: metricSummaries.weeklyAvgPriceChange.toFixed(2)
         },
         {
             title: 'Monthly Average Price Change %',
-            value: metricSummaries.monthlyAvgPriceChange
+            value: metricSummaries.monthlyAvgPriceChange.toFixed(2)
         },
         {
             title: 'Yearly Average Price Change %',
-            value: metricSummaries.yearlyAvgPriceChange
+            value: metricSummaries.yearlyAvgPriceChange.toFixed(2)
         },
         {
             title: 'Daily Relative Volume Change',
@@ -624,74 +578,72 @@ const MarketTrends = () => {
                 }
             }
         },
-            {
+        {
             title: 'Daily Top 10 ASX Graph by Volume Change % (Market Trends)',
             type: "bar",  
             data: topTenASXVolumeChange,
             options: {
-            scales: {
-            y: {
-                type: 'linear',
-                display: true,
-                position: 'left',
-                title: {
-                display: true,
-                text: 'Volume Change %'
+                scales: {
+                    y: {
+                        type: 'linear',
+                        display: true,
+                        position: 'left',
+                        title: {
+                            display: true,
+                            text: 'Volume Change %'
+                        }
+                    },
+                    y1: {
+                        type: 'linear',
+                        display: true,
+                        position: 'right',
+                        title: {
+                            display: true,
+                            text: 'Volume'
+                        },
+                        grid: {
+                            drawOnChartArea: false
+                        }
+                    }
                 }
-            },
-          y1: {
-            type: 'linear',
-            display: true,
-            position: 'right',
-            title: {
-              display: true,
-              text: 'Volume'
-            },
-            grid: {
-              drawOnChartArea: false
             }
-          }
         }
-      }
-    }
-  ];
+    ];
   
-  const [tableColumns] = useState([
-    { header: 'ID', key: 'id' },
-    { header: 'Market Cap', key: 'marketCap' },
-    { header: 'Trade Value', key: 'tradeValue' },
-    { header: 'Total Shares', key: 'totalShares' },
-    { header: 'New Price', key: 'newPrice' }, 
-    { header: 'Previous Price', key: 'previousPrice' }, 
-    { header: 'Week Price Change %', key: 'weekPriceChange' }, 
-    { header: 'Month Price Change %', key: 'monthPriceChange' }, 
-    { header: 'Year Price Change %', key: 'yearPriceChange'}, 
-    { header: 'asxCode', key: 'asx' }
-  ]);
-  
+    const [tableColumns] = useState([
+        { header: 'ASX Code', key: 'asx' },
+        { header: 'ID', key: 'id' },
+        { header: 'Market Cap', key: 'marketCap' },
+        { header: 'Trade Value', key: 'tradeValue' },
+        { header: 'Total Shares', key: 'totalShares' },
+        { header: 'New Price', key: 'newPrice' }, 
+        { header: 'Previous Price', key: 'previousPrice' }, 
+        { header: 'Week Price Change %', key: 'weekPriceChange' }, 
+        { header: 'Month Price Change %', key: 'monthPriceChange' }, 
+        { header: 'Year Price Change %', key: 'yearPriceChange'}
+    ]);
 
-  return (
-    <div className="standard-padding">
-      {error && <div className="error-message">{error}</div>}
-      {loading ? (
-        <div className="loading-indicator">Loading market trends data...</div>
-      ) : (
-        <GraphPage
-          title="Market Trends Dashboard"
-          filterTags={generateFilterTags()}
-          filterOptions={filterOptions}
-          allFilterOptions={allFilterOptions}
-          metricCards={generateMetricCards()}
-          chartData={generateChartData()}
-          tableColumns={tableColumns}
-          tableData={tableData}
-          handleAddFilter={handleAddFilter}
-          handleRemoveFilter={handleRemoveFilter}
-        />
-      )}
-    </div>
-  );
+    return (
+        <div className="standard-padding">
+            {error && <div className="error-message">{error}</div>}
+            {loading ? (
+                <div className="loading-indicator">Loading market trends data...</div>
+            ) : (
+                <GraphPage
+                    title="Market Trends Dashboard"
+                    filterTags={generateFilterTags()}
+                    allFilterOptions={allFilterOptions}
+                    metricCards={generateMetricCards()}
+                    chartData={generateChartData()}
+                    tableColumns={tableColumns}
+                    tableData={tableData}
+                    handleAddFilter={handleAddFilter}
+                    handleRemoveFilter={handleRemoveFilter}
+                    applyFilters={applyFilters}
+                />
+            )}
+        </div>
+    );
 };
-
 
 export default MarketTrends;

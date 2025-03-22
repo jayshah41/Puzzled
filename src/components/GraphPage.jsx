@@ -104,12 +104,9 @@ const GraphPage = ({
               );
             })}
           </div>
-          <div className="filter-actions">
-            <button className="button apply-btn" onClick={applyFilters}>Apply changes</button>
-            <button className="button clear-btn" style={{ color: 'black'}} onClick={() => filterTags.forEach(tag => handleRemoveFilter(tag.label))}>
-              Clear filters
-            </button>
-          </div>
+          
+          
+          
         </div>
         
         <div className="metrics-section">
