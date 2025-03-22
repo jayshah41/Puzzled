@@ -1,6 +1,7 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import '../../styles/GeneralStyles.css';
 import GraphPage from '../../components/GraphPage.jsx';
+import useAuthToken from '../../hooks/useAuthToken';
 import axios from 'axios';
 
 const CapitalRaises = () => {
@@ -37,8 +38,11 @@ const [capitalRaiseByASX, setCapitalRaiseByASX] = useState({
 // table data state
 const [tableData, setTableData] = useState([]);
 
+
+const { getAccessToken, authError } = useAuthToken();
+
 const fetchCapitalRaises = useCallback(async () => {
-  const token = localStorage.getItem("accessToken");
+  const token = await getAccessToken();
 
   if (!token) {
       setError("Authentication error: No token found.");

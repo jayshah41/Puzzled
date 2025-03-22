@@ -2,8 +2,12 @@ import React, { useState, useCallback, useEffect } from 'react';
 import '../../styles/GeneralStyles.css';
 import GraphPage from '../../components/GraphPage.jsx';
 import axios from 'axios';
+import useAuthToken from "../../hooks/useAuthToken";
+
+
 
 const Shareholders = () => {
+  const { getAccessToken, authError } = useAuthToken();
   const [shareholders, setShareholders] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -29,8 +33,7 @@ const Shareholders = () => {
   const [filterTags, setFilterTags] = useState([]);
 
   const fetchShareholders = useCallback(async () => {
-    const token = localStorage.getItem("accessToken");
-  
+    const token = await getAccessToken();
     if (!token) {
       setError("Authentication error: No token found.");
       setLoading(false);

@@ -1,10 +1,11 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import '../../styles/GeneralStyles.css';
 import GraphPage from '../../components/GraphPage.jsx';
+import useAuthToken from "../../hooks/useAuthToken";
 import axios from 'axios';
 
 const MarketData = () => {
-
+  const { getAccessToken, authError } = useAuthToken();
   const [marketData, setMarketData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -40,7 +41,7 @@ const MarketData = () => {
 
   const fetchMarketData = useCallback(async () => {
     // retrieves authentication token 
-    const token = localStorage.getItem("accessToken");
+    const token = await getAccessToken();
 
     // handles missing tokens
     if (!token) {

@@ -1,10 +1,12 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import '../../styles/GeneralStyles.css';
 import GraphPage from '../../components/GraphPage.jsx';
+import useAuthToken from "../../hooks/useAuthToken";
 import axios from 'axios';
 
 
 const Financials = () => {
+  const { getAccessToken, authError } = useAuthToken();
 
   // states for api data
   const [financials, setFinancials] = useState([]);
@@ -58,7 +60,7 @@ const Financials = () => {
   // fetch data from api
   const fetchFinancials = useCallback(async () => {
     // retrieves authentication token 
-    const token = localStorage.getItem("accessToken");
+    const token = await getAccessToken();
 
     // handles missing tokens
     if (!token) {

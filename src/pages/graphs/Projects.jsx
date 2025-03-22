@@ -2,9 +2,13 @@ import React, { useState, useCallback, useEffect } from 'react';
 import '../../styles/GeneralStyles.css';
 import GraphPage from '../../components/GraphPage.jsx';
 import axios from 'axios';
+import useAuthToken from "../../hooks/useAuthToken";
+
 
 
 const Projects = () => {
+   const { getAccessToken, authError } = useAuthToken();
+   
    // states for api data
    const [projects, setProjects] = useState([]);
    const [loading, setLoading] = useState(false);
@@ -38,8 +42,7 @@ const Projects = () => {
   // fetch data from api
   const fetchProjects = useCallback(async () => {
     // retrieves authentication token 
-    const token = localStorage.getItem("accessToken");
-
+    const token = await getAccessToken();
     // handles missing tokens
     if (!token) {
         setError("Authentication error: No token found.");

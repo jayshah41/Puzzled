@@ -1,15 +1,18 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import '../../styles/GeneralStyles.css';
 import GraphPage from '../../components/GraphPage.jsx';
+import useAuthToken from "../../hooks/useAuthToken";
 import axios from 'axios';
 //import Projects from './Projects';
+
+
 
 const MarketTrends = () => {
     // states for api data
     const [marketTrends, setMarketTrends] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
-
+    const { getAccessToken, authError } = useAuthToken();
     // states for current filters (applied)
     const [asxCode, setAsxCode] = useState("");
     const [marketCap, setMarketCap] = useState("");
@@ -58,8 +61,7 @@ const MarketTrends = () => {
     // fetch data from api
     const fetchMarketTrends = useCallback(async () => {
         // retrieves authentication token 
-        const token = localStorage.getItem("accessToken");
-
+        const token = await getAccessToken();
         // handles missing tokens
         if (!token) {
             setError("Authentication error: No token found.");
