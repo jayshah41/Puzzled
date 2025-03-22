@@ -1,5 +1,7 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+from rest_framework_simplejwt.authentication import JWTAuthentication
 from .models import MarketTrends
 from django.db.models import Avg
 import requests
@@ -15,12 +17,14 @@ from .models import (
 from .serializers import (
     CompanySerializer, FinancialSerializer, MarketDataSerializer, 
     MarketTrendsSerializer, DirectorsSerializer, ShareholdersSerializer, 
-    CapitalRaisesSerializer, ProjectsSerializer
+    CapitalRaisesSerializer, ProjectsSerializer, AggregatedCompanySerializer
 )
 
 class CompanyViewSet(viewsets.ModelViewSet):
     queryset = Company.objects.all()
     serializer_class = CompanySerializer
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated] 
 
 class FinancialViewSet(viewsets.ModelViewSet):
     queryset = Financial.objects.all()
@@ -62,6 +66,20 @@ class ProjectsViewSet(viewsets.ModelViewSet):
     queryset = Projects.objects.all()
     serializer_class = ProjectsSerializer
 
+class CompanyDetailsView(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        queryset = Company.objects.prefetch_related(
+            'capital_raises',
+            'shareholders',
+            'projects'
+        ).all()
+
+        serializer = AggregatedCompanySerializer(queryset, many=True)
+        return Response(serializer.data)
+    
 @csrf_exempt
 def get_tweets(request, username):
     try:
@@ -75,3 +93,6 @@ def get_tweets(request, username):
             return JsonResponse({"error": "Failed to fetch tweets"}, status=500)
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=500)
+
+
+
