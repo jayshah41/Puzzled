@@ -10,23 +10,28 @@ const Shareholders = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [filteredShareholders, setFilteredShareholders] = useState([]);
+
   const [metricSummaries, setMetricSummaries] = useState({
     totalAsxCount: 0,
     totalEntityCount: 0,
     totalProjectAreaCount: 0
   });
+  
   const [shareholdersByValue, setShareholdersByValue] = useState({
     labels: [], 
     datasets: [{data: []}]
   });
+
   const [asxByValue, setAsxByValue] = useState({
     labels: [], 
     datasets: [{data: []}]
   });
+
   const [projectCommodityByValue, setProjectCommodityByValue] = useState({
     labels: [], 
     datasets: [{data: []}]
   });
+  
   const [tableData, setTableData] = useState([]);
   const [filterTags, setFilterTags] = useState([]);
 
