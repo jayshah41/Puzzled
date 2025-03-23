@@ -521,8 +521,6 @@ const MarketTrends = () => {
         }
     };
 
-
-
     const generateFilterTags = () => {
         return filterTags.length > 0 ? filterTags : [
             { label: 'No Filters Applied', value: 'Click to add filters', onRemove: () => {} }
