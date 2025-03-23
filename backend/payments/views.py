@@ -6,14 +6,13 @@ import stripe
 from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
-from users.models import User  # Adjust import path if necessary
+from users.models import User  
 import json
 
-# ✅ Stripe API key
 stripe.api_key = settings.STRIPE_SECRET_KEY
 
 
-# ✅ CreateCheckoutSessionView
+
 class CreateCheckoutSessionView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -21,22 +20,19 @@ class CreateCheckoutSessionView(APIView):
         user = request.user
         print(f"User requesting subscription: {user.email}, tier_level: {user.tier_level}")
 
-        # ✅ Block if user is already subscribed
         if user.tier_level == 1:
             print("Blocked: User is already subscribed.")
             return Response({'error': 'You are already subscribed!'}, status=status.HTTP_400_BAD_REQUEST)
 
-        # ✅ Get payment option and number of users from frontend
         payment_option = request.data.get('paymentOption')
         num_of_users = request.data.get('numOfUsers')
 
         print(f"Received paymentOption: {payment_option}, numOfUsers: {num_of_users}")
 
-        # ✅ Map paymentOption to Stripe Price IDs (replace with your actual Stripe price IDs)
         price_map = {
-            "$895 Per Month": "price_1R5ki9FdjBkEBqgJRleG2vGT",      # test price id
-            "$1495 Per Quarter": "price_1R5ki9FdjBkEBqgJRleG2vGT",   # test price id
-            "$3995 Per Annum": "price_1R5ki9FdjBkEBqgJRleG2vGT"      # test price id
+            "$895 Per Month": "price_1R5qtiFdjBkEBqgJyHS1Nabe",      
+            "$1495 Per Quarter": "price_1R5qufFdjBkEBqgJUg0a7Tc0",   
+            "$3995 Per Annum": "price_1R5qvtFdjBkEBqgJMjXVZ6Nv"      
         }
 
         stripe_price_id = price_map.get(payment_option)
@@ -47,7 +43,6 @@ class CreateCheckoutSessionView(APIView):
             return Response({'error': 'Invalid payment option selected!'}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            # ✅ Create Stripe Checkout Session
             checkout_session = stripe.checkout.Session.create(
                 payment_method_types=['card'],
                 mode='subscription',
@@ -58,8 +53,8 @@ class CreateCheckoutSessionView(APIView):
                     },
                 ],
                 customer_email=user.email,
-                success_url='http://localhost:3000/success',  # Replace with your frontend success URL
-                cancel_url='http://localhost:3000/cancel',    # Replace with your frontend cancel URL
+                success_url='http://localhost:3000/success',  
+                cancel_url='http://localhost:3000/cancel',    
             )
 
             print(f"Checkout session created: {checkout_session.id}")
@@ -71,7 +66,6 @@ class CreateCheckoutSessionView(APIView):
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-# ✅ CreateCustomerPortalSessionView (Manage/Cancel Subscription)
 class CreateCustomerPortalSessionView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -80,7 +74,6 @@ class CreateCustomerPortalSessionView(APIView):
         print(f"Requesting Customer Portal session for: {user.email}")
 
         try:
-            # Search for the Stripe customer by email
             customers = stripe.Customer.list(email=user.email)
 
             if not customers.data:
@@ -90,10 +83,10 @@ class CreateCustomerPortalSessionView(APIView):
             stripe_customer_id = customers.data[0].id
             print(f"Stripe customer found: {stripe_customer_id}")
 
-            # Create Customer Portal session
+  
             session = stripe.billing_portal.Session.create(
                 customer=stripe_customer_id,
-                return_url='http://localhost:3000/account'  # Replace with your frontend account/dashboard page
+                return_url='http://localhost:3000/account'  
             )
 
             print(f"Customer Portal session created: {session.url}")
@@ -104,7 +97,6 @@ class CreateCustomerPortalSessionView(APIView):
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-# ✅ Stripe Webhook Endpoint
 @csrf_exempt
 def stripe_webhook(request):
     import json
@@ -131,7 +123,6 @@ def stripe_webhook(request):
         print(f"Invalid signature: {e}")
         return JsonResponse({'error': 'Invalid signature'}, status=400)
 
-    # ✅ Handle checkout.session.completed event
     if event['type'] == 'checkout.session.completed':
         session = event['data']['object']
         customer_email = session.get('customer_email')
@@ -150,7 +141,6 @@ def stripe_webhook(request):
         except User.DoesNotExist:
             print(f"User with email {customer_email} does not exist.")
 
-    # ✅ Handle customer.subscription.deleted event
     elif event['type'] == 'customer.subscription.deleted':
         subscription = event['data']['object']
         customer_id = subscription.get('customer')
@@ -174,5 +164,4 @@ def stripe_webhook(request):
         except Exception as e:
             print(f"Error retrieving customer or updating user: {e}")
 
-    # ✅ Return a valid HTTP response to stop 500s!
     return JsonResponse({'status': 'success'}, status=200)
