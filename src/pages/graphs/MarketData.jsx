@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import '../../styles/GeneralStyles.css';
 import GraphPage from '../../components/GraphPage.jsx';
-import useAuthToken from "../../hooks/useAuthToken";
+import useAuthToken from '../../hooks/useAuthToken';
 import axios from 'axios';
 
 const MarketData = () => {
@@ -9,11 +9,13 @@ const MarketData = () => {
   const [marketData, setMarketData] = useState([]);
   const [filteredMarketData, setFilteredMarketData] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState('');
   const [filterTags, setFilterTags] = useState([]);
 
   const [metricSummaries, setMetricSummaries] = useState({
-    totalAsxCount: 0
+    totalAsxCount: 0,
+    averageMarketCap: 0, 
+    averageBankBalance: 0
   });
 
   const [debtByAsxCode, setDebtByAsxCode] = useState({
@@ -37,7 +39,7 @@ const MarketData = () => {
     const token = await getAccessToken();
 
     if (!token) {
-      setError("Authentication error: No token found.");
+      setError('Authentication error: No token found.');
       setLoading(false);
       return;
     }
@@ -45,10 +47,10 @@ const MarketData = () => {
     try {
       setLoading(true);
       
-      const response = await axios.get("/api/data/market-data/", {
+      const response = await axios.get('/api/data/market-data/', {
         headers: {
           Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json"
+          'Content-Type': 'application/json'
         }
       });
       
@@ -67,10 +69,10 @@ const MarketData = () => {
         processMarketData([]);
       }
       
-      setError("");
+      setError('');
     } catch (error) {
-      console.error("Error fetching market data:", error.response?.data || error);
-      setError("Failed to fetch market data: " + (error.response?.data?.detail || error.message));
+      console.error('Error fetching market data:', error.response?.data || error);
+      setError('Failed to fetch market data: ' + (error.response?.data?.detail || error.message));
       resetData();
     } finally {
       setLoading(false);
@@ -79,15 +81,19 @@ const MarketData = () => {
 
   const applyClientSideFilters = useCallback(() => {
     if (!marketData.length) return;
+
     const fieldMapping = {
       'ASX Code': 'asx_code',
-      'Changed': 'changed',
+      'Changed': 'changed'
+    };
+
+    const rangeFieldMapping = {
       'Market Cap': 'market_cap',
       'Debt': 'debt',
       'Bank Balance': 'bank_balance',
       'Enterprise Value': 'enterprise_value',
       'EV Resource': 'ev_resource_per_ounce_ton'
-    };
+    }
     
     let filtered = [...marketData];
     filterTags.forEach(tag => {
@@ -95,12 +101,17 @@ const MarketData = () => {
         const fieldName = fieldMapping[tag.label];
         if (fieldName) {
           filtered = filtered.filter(item => {
-            if (typeof item[fieldName] === 'number') {
-              return item[fieldName] == tag.value; 
-            } else {
-              return item[fieldName] && item[fieldName].toString() === tag.value.toString();
-            }
+            return item[fieldName] && item[fieldName].toString() === tag.value.toString();
           });
+        }
+
+        const rangeField = rangeFieldMapping[tag.label];
+        if (rangeField) {
+            const [min, max] = tag.value.split(' to ').map(val => parseFloat(val));
+            filtered = filtered.filter(item => {
+                const value = parseFloat(item[rangeField]);
+                return value >= min && value <= max;
+            });
         }
       }
     });
@@ -126,9 +137,13 @@ const MarketData = () => {
     }
 
     const totalAsxCount = new Set(data.map(item => item.asx_code)).size;
+    const averageBankBalance = data.reduce((sum, item) => sum + (parseFloat(item.bank_balance) || 0), 0) / (data.length || 1);
+    const averageMarketCap = data.reduce((sum, item) => sum + (parseFloat(item.market_cap) || 0), 0) / (data.length || 1);
 
     setMetricSummaries({
-      totalAsxCount: totalAsxCount
+      totalAsxCount: totalAsxCount,
+      averageBankBalance: formatCurrency(averageBankBalance), 
+      averageMarketCap: formatCurrency(averageBankBalance)
     });
 
     processDebtByAsxCode(data);
@@ -172,9 +187,9 @@ const MarketData = () => {
     setDebtByAsxCode({
       labels: topCompanies.map(company => company.asx),
       datasets: [{
-        label: "Debt",
+        label: 'Debt',
         data: topCompanies.map(company => company.debt),
-        backgroundColor: "#ff6384",
+        backgroundColor: '#ff6384',
       }]
     });
   };
@@ -197,9 +212,9 @@ const MarketData = () => {
     setBankBalanceByAsxCode({
       labels: topCompanies.map(company => company.asx),
       datasets: [{
-        label: "Bank Balance",
+        label: 'Bank Balance',
         data: topCompanies.map(company => company.bankBalance),
-        backgroundColor: "#28a745",
+        backgroundColor: '#28a745',
       }]
     });
   };
@@ -222,42 +237,44 @@ const MarketData = () => {
     setMarketCapByAsxCode({
       labels: topCompanies.map(company => company.asx),
       datasets: [{
-        label: "Market Cap",
+        label: 'Market Cap',
         data: topCompanies.map(company => company.marketCap),
-        backgroundColor: "#5271b9",
+        backgroundColor: '#5271b9',
       }]
     });
   };
 
   const resetData = () => {
     setMetricSummaries({
-      totalAsxCount: 0
+      totalAsxCount: 0, 
+      averageBankBalance: 0, 
+      averageMarketCap: 0
     });
     
     setDebtByAsxCode({
       labels: ['No Data'],
       datasets: [{
-        label: "Debt",
+        label: 'Debt',
         data: [0],
-        backgroundColor: "#rgba(220, 53, 69, 0.2)",
+        backgroundColor: '#ff6384',
       }]
     });
     
     setMarketCapByAsxCode({
       labels: ['No Data'],
       datasets: [{
-        label: "Market Cap",
+        label: 'Market Cap',
         data: [0],
-        backgroundColor: "#rgba(255, 206, 86, 0.2)",
+        backgroundColor: '#28a745',
       }]
     });
     
     setBankBalanceByAsxCode({
       labels: ['No Data'],
       datasets: [{
-        label: "Bank Balance",
+        label: 'Bank Balance',
         data: [0],
-        backgroundColor: "#rgba(40, 167, 69, 0.2)",
+        backgroundColor: '#5271b9',
       }]
     });
     
@@ -268,6 +285,43 @@ const MarketData = () => {
     if (!marketData || marketData.length === 0) return [];
     const uniqueValues = [...new Set(marketData.map(item => item[key]))].filter(Boolean);
     return uniqueValues.map(value => ({ label: value, value: value }));
+  };
+
+  const generateRangeOptions = (field) => {
+    if (!marketData || !marketData.length) return [];
+    
+    const values = marketData.map(item => parseFloat(item[field])).filter(val => !isNaN(val));
+    if (!values.length) return [];
+    
+    const min = Math.min(...values);
+    const max = Math.max(...values);
+    
+    let increment = field.includes('bank_balance') ? 
+        Math.ceil((max - min) / 10 * 100) / 100 : 
+        Math.ceil((max - min) / 10);              
+    
+    if (field.includes('bank_balance') && increment < 0.01) increment = 0.01;
+    
+    const options = [];
+    options.push({ label: 'Any', value: 'Any' }); 
+    
+    for (let i = min; i < max; i += increment) {
+      const rangeMin = i;
+      const rangeMax = Math.min(i + increment, max);
+        
+      let rangeLabel;
+      if (field.includes('bank_balance')) {
+        rangeLabel = `${rangeMin.toFixed(2)} to ${rangeMax.toFixed(2)}`;
+      } else {
+        rangeLabel = `${Math.floor(rangeMin).toLocaleString()} to ${Math.ceil(rangeMax).toLocaleString()}`;
+      }
+
+      options.push({ 
+        label: rangeLabel, 
+        value: `${rangeMin} to ${rangeMax}` 
+      });
+    }
+    return options;
   };
 
   const allFilterOptions = [
@@ -287,36 +341,36 @@ const MarketData = () => {
       label: 'Market Cap',
       value: 'Default',
       onChange: (value) => handleFilterChange('Market Cap', value),
-      options: [{ label: 'Any', value: 'Any' }, ...getUniqueValues('market_cap')]
+      options: generateRangeOptions('market_cap')
     },
     {
       label: 'Debt',
       value: 'Default',
       onChange: (value) => handleFilterChange('Debt', value),
-      options: [{ label: 'Any', value: 'Any' }, ...getUniqueValues('debt')]
+      options: generateRangeOptions('debt')
     },
     {
       label: 'Bank Balance',
       value: 'Default',
       onChange: (value) => handleFilterChange('Bank Balance', value),
-      options: [{ label: 'Any', value: 'Any' }, ...getUniqueValues('bank_balance')]
+      options: generateRangeOptions('bank_balance')
     },
     {
       label: 'Enterprise Value',
       value: 'Default',
       onChange: (value) => handleFilterChange('Enterprise Value', value),
-      options: [{ label: 'Any', value: 'Any' }, ...getUniqueValues('enterprise_value')]
+      options: generateRangeOptions('enterprise_value')
     },
     {
       label: 'EV Resource',
-      value: 'Default',
+      value: 'Default', 
       onChange: (value) => handleFilterChange('EV Resource', value),
-      options: [{ label: 'Any', value: 'Any' }, ...getUniqueValues('ev_resource_per_ounce_ton')]
+      options: generateRangeOptions('ev_resource_per_ounce_ton')
     }
   ];
 
   const handleFilterChange = (label, value) => {
-    if (value && value !== "Any") {
+    if (value && value !== 'Any') {
       setFilterTags(prevTags => {
         const updatedTags = prevTags.filter(tag => tag.label !== label);
         return [...updatedTags, { label, value }];
@@ -331,7 +385,7 @@ const MarketData = () => {
   };
   
   const handleAddFilter = (filter) => {
-    if (filter.value && filter.value !== "Default") {
+    if (filter.value && filter.value !== 'Default') {
       setFilterTags(prevTags => {
         const existingIndex = prevTags.findIndex(tag => tag.label === filter.label);
         if (existingIndex >= 0) {
@@ -359,23 +413,30 @@ const MarketData = () => {
     {
       title: 'Total Number of ASX Codes',
       value: metricSummaries.totalAsxCount
+    }, 
+    {
+      title: 'Average Bank Balance',
+      value: metricSummaries.averageBankBalance
+    }, {
+      title: 'Average Market Cap',
+      value: metricSummaries.averageMarketCap
     }
   ];
 
   const generateChartData = () => [
     {
       title: 'Top 10 Debt By ASX Code',
-      type: "bar", 
+      type: 'bar', 
       data: debtByAsxCode
     },
     {
       title: 'Top 10 Market Cap By ASX Code', 
-      type: "bar",
+      type: 'bar',
       data: marketCapByAsxCode
     },
     {
       title: 'Top 10 Bank Balance By ASX Code',
-      type: "bar",
+      type: 'bar',
       data: bankBalanceByAsxCode
     }
   ];
@@ -391,13 +452,13 @@ const MarketData = () => {
   ]);
 
   return (
-    <div className="standard-padding">
-      {error && <div className="error-message">{error}</div>}
+    <div className='standard-padding'>
+      {error && <div className='error-message'>{error}</div>}
       {loading ? (
-        <div className="loading-indicator">Loading market data...</div>
+        <div className='loading-indicator'>Loading market data...</div>
       ) : (
         <GraphPage
-          title="Market Data"
+          title='Market Data'
           filterTags={generateFilterTags()} 
           allFilterOptions={allFilterOptions}
           metricCards={generateMetricCards()}

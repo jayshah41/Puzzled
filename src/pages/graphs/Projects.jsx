@@ -2,14 +2,14 @@ import React, { useState, useCallback, useEffect } from 'react';
 import '../../styles/GeneralStyles.css';
 import GraphPage from '../../components/GraphPage.jsx';
 import axios from 'axios';
-import useAuthToken from "../../hooks/useAuthToken";
+import useAuthToken from '../../hooks/useAuthToken';
 
 const Projects = () => {
    const { getAccessToken, authError } = useAuthToken();
    const [projects, setProjects] = useState([]);
    const [filteredProjects, setFilteredProjects] = useState([]);
    const [loading, setLoading] = useState(false);
-   const [error, setError] = useState("");
+   const [error, setError] = useState('');
 
    const [filterTags, setFilterTags] = useState([]);
 
@@ -31,17 +31,17 @@ const Projects = () => {
   const fetchProjects = useCallback(async () => {
     const token = await getAccessToken();
     if (!token) {
-        setError("Authentication error: No token found.");
+        setError('Authentication error: No token found.');
         setLoading(false);
         return;
     }
 
     try {
         setLoading(true);
-        const response = await axios.get("/api/data/projects/", {
+        const response = await axios.get('/api/data/projects/', {
             headers: {
                 Authorization: `Bearer ${token}`,
-                "Content-Type": "application/json"
+                'Content-Type': 'application/json'
             }
         });
         
@@ -60,10 +60,10 @@ const Projects = () => {
             resetData();
         }
         
-        setError("");
+        setError('');
     } catch (error) {
-        console.error("Error fetching projects:", error.response?.data || error);
-        setError("Failed to fetch projects data: " + (error.response?.data?.detail || error.message));
+        console.error('Error fetching projects:', error.response?.data || error);
+        setError('Failed to fetch projects data: ' + (error.response?.data?.detail || error.message));
         resetData();
     } finally {
         setLoading(false);
@@ -162,10 +162,10 @@ const processDrillingResultsByGradeChart = (data) => {
       labels: ['No Data'],
       datasets: [{
         type: 'bar',
-        label: "Grade",
+        label: 'Grade',
         data: [0],
-        backgroundColor: "rgba(255, 99, 132, 0.7)",
-        borderColor: "rgb(255, 99, 132)",
+        backgroundColor: 'rgba(255, 99, 132, 1.0)',
+        borderColor: 'rgb(255, 99, 132)',
         borderWidth: 1
       }]
     });
@@ -190,10 +190,10 @@ const processDrillingResultsByGradeChart = (data) => {
     labels: asxCodes,
     datasets: [{
       type: 'bar',
-      label: "Grade",
+      label: 'Grade',
       data: grades,
-      backgroundColor: "rgba(255, 99, 132, 0.7)",
-      borderColor: "rgb(255, 99, 132)",
+      backgroundColor: 'rgba(255, 99, 132, 1.0)',
+      borderColor: 'rgb(255, 99, 132)',
       borderWidth: 1
     }]
   });
@@ -205,10 +205,10 @@ const processDrillingResultsByIntersectChart = (data) => {
       labels: ['No Data'],
       datasets: [{
         type: 'bar',
-        label: "Intersect",
+        label: 'Intersect',
         data: [0],
-        backgroundColor: "rgba(54, 162, 235, 0.7)",
-        borderColor: "rgb(54, 162, 235)",
+        backgroundColor: 'rgba(54, 162, 235, 1.0)',
+        borderColor: 'rgb(54, 162, 235)',
         borderWidth: 1
       }]
     });
@@ -233,10 +233,10 @@ const processDrillingResultsByIntersectChart = (data) => {
     labels: asxCodes,
     datasets: [{
       type: 'bar',
-      label: "Intersect",
+      label: 'Intersect',
       data: intersects,
-      backgroundColor: "rgba(54, 162, 235, 0.7)",
-      borderColor: "rgb(54, 162, 235)",
+      backgroundColor: 'rgba(54, 162, 235, 1.0)',
+      borderColor: 'rgb(54, 162, 235)',
       borderWidth: 1
     }]
   });
@@ -252,9 +252,9 @@ const processDrillingResultsByIntersectChart = (data) => {
         labels: ['No Data'],
         datasets: [{
             type: 'bar',
-            label: "Top Ten Drilling Resulsts By Grade",
+            label: 'Top Ten Drilling Resulsts By Grade',
             data: [0],
-            backgroundColor: ["rgba(75, 192, 75, 0.7)"]
+            backgroundColor: ['rgba(75, 192, 75, 1.0)']
         }]
     });
     
@@ -262,9 +262,9 @@ const processDrillingResultsByIntersectChart = (data) => {
         labels: ['No Data'],
         datasets: [{
             type: 'bar',
-            label: "Top Ten Drilling Results By Intersect",
+            label: 'Top Ten Drilling Results By Intersect',
             data: [0],
-            backgroundColor: ["rgba(75, 75, 192, 0.7)"]
+            backgroundColor: ['rgba(75, 75, 192, 1.0)']
         }]
     });
     
@@ -370,7 +370,7 @@ const processDrillingResultsByIntersectChart = (data) => {
   ];
 
   const handleFilterChange = (label, value) => {
-    if (value && value !== "Any") {
+    if (value && value !== 'Any') {
       setFilterTags(prevTags => {
         const updatedTags = prevTags.filter(tag => tag.label !== label);
         return [...updatedTags, { label, value }];
@@ -385,7 +385,7 @@ const processDrillingResultsByIntersectChart = (data) => {
   };
   
   const handleAddFilter = (filter) => {
-    if (filter.value && filter.value !== "Any") {
+    if (filter.value && filter.value !== 'Any') {
       setFilterTags(prevTags => {
         const existingIndex = prevTags.findIndex(tag => tag.label === filter.label);
         if (existingIndex >= 0) {
@@ -488,13 +488,13 @@ const processDrillingResultsByIntersectChart = (data) => {
   ]);
   
   return (
-    <div className="standard-padding">
-      {error && <div className="error-message">{error}</div>}
+    <div className='standard-padding'>
+      {error && <div className='error-message'>{error}</div>}
       {loading ? (
-        <div className="loading-indicator">Loading projects data...</div>
+        <div className='loading-indicator'>Loading projects data...</div>
       ) : (
         <GraphPage
-          title="Projects"
+          title='Projects'
           filterTags={generateFilterTags()}
           allFilterOptions={allFilterOptions}
           metricCards={generateMetricCards()}

@@ -8,15 +8,8 @@ const CapitalRaises = () => {
   const [capitalRaises, setCapitalRaises] = useState([]);
   const [filteredCapitalRaises, setFilteredCapitalRaises] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState('');
 
-  const [asxCode, setAsxCode] = useState("");
-  const [bankBalance, setBankBalance] = useState("");
-  const [date, setDate] = useState("");
-  const [amount, setAmount] = useState("");
-  const [price, setPrice] = useState("");
-  const [raiseType, setRaiseType] = useState("");
- 
   const [metricSummaries, setMetricSummaries] = useState({
     asx: 0, 
     avgRaiseAmount: 0, 
@@ -43,7 +36,7 @@ const CapitalRaises = () => {
     const token = await getAccessToken();
 
     if (!token) {
-      setError("Authentication error: No token found.");
+      setError('Authentication error: No token found.');
       setLoading(false);
       return;
     }
@@ -51,10 +44,10 @@ const CapitalRaises = () => {
     try {
       setLoading(true);
       
-      const response = await axios.get("/api/data/capital-raises/", {
+      const response = await axios.get('/api/data/capital-raises/', {
         headers: {
           Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json"
+          'Content-Type': 'application/json'
         }
       });
       
@@ -73,10 +66,10 @@ const CapitalRaises = () => {
         resetData();
       }
       
-      setError("");
+      setError('');
     } catch (error) {
-      console.error("Error fetching capital raises:", error.response?.data || error);
-      setError("Failed to fetch capital raises data: " + (error.response?.data?.detail || error.message));
+      console.error('Error fetching capital raises:', error.response?.data || error);
+      setError('Failed to fetch capital raises data: ' + (error.response?.data?.detail || error.message));
       resetData();
     } finally {
       setLoading(false);
@@ -179,10 +172,10 @@ const CapitalRaises = () => {
         labels: ['No Data'],
         datasets: [{
           type: 'bar',
-          label: "Monthly Amount Raised",
+          label: 'Monthly Amount Raised',
           data: [0],
-          backgroundColor: "rgba(75, 192, 192, 0.7)",
-          borderColor: "rgb(75, 192, 192)",
+          backgroundColor: 'rgba(75, 192, 192, 1.0)',
+          borderColor: 'rgb(75, 192, 192)',
           borderWidth: 1
         }]
       });
@@ -216,10 +209,10 @@ const CapitalRaises = () => {
       labels: months,
       datasets: [{
         type: 'bar',
-        label: "Amount Raised",
+        label: 'Amount Raised',
         data: amounts,
-        backgroundColor: "rgba(75, 192, 192, 0.7)",
-        borderColor: "rgb(75, 192, 192)",
+        backgroundColor: 'rgba(75, 192, 192, 1.0)',
+        borderColor: 'rgb(75, 192, 192)',
         borderWidth: 1
       }]
     });
@@ -231,10 +224,10 @@ const CapitalRaises = () => {
         labels: ['No Data'],
         datasets: [{
           type: 'bar',
-          label: "Capital Raised",
+          label: 'Capital Raised',
           data: [0],
-          backgroundColor: "rgba(153, 102, 255, 0.7)",
-          borderColor: "rgb(153, 102, 255)",
+          backgroundColor: 'rgba(153, 102, 255, 1.0)',
+          borderColor: 'rgb(153, 102, 255)',
           borderWidth: 1
         }]
       });
@@ -244,7 +237,7 @@ const CapitalRaises = () => {
     const asxData = {};
     
     data.forEach(item => {
-      const asx = item.asx_code || "Unknown";
+      const asx = item.asx_code || 'Unknown';
       const amount = parseFloat(item.amount) || 0;
       
       if (!asxData[asx]) {
@@ -265,10 +258,10 @@ const CapitalRaises = () => {
       labels: asxCodes,
       datasets: [{
         type: 'bar',
-        label: "Capital Raised",
+        label: 'Capital Raised',
         data: amounts,
-        backgroundColor: "rgba(153, 102, 255, 0.7)",
-        borderColor: "rgb(153, 102, 255)",
+        backgroundColor: 'rgba(153, 102, 255, 1.0)',
+        borderColor: 'rgb(153, 102, 255)',
         borderWidth: 1
       }]
     });
@@ -286,9 +279,9 @@ const CapitalRaises = () => {
       labels: ['No Data'],
       datasets: [{
         type: 'bar',
-        label: "Monthly Amount Raised",
+        label: 'Monthly Amount Raised',
         data: [0],
-        backgroundColor: ["rgba(75, 192, 75, 0.7)"]
+        backgroundColor: ['rgba(75, 192, 75, 1.0)']
       }]
     });
     
@@ -296,9 +289,9 @@ const CapitalRaises = () => {
       labels: ['No Data'],
       datasets: [{
         type: 'bar',
-        label: "Capital Raise By ASX Code",
+        label: 'Capital Raise By ASX Code',
         data: [0],
-        backgroundColor: ["rgba(75, 75, 192, 0.7)"]
+        backgroundColor: ['rgba(75, 75, 192, 1.0)']
       }]
     });
     
@@ -351,7 +344,7 @@ const CapitalRaises = () => {
 };
 
   const handleFilterChange = (label, value) => {
-    if (value && value !== "Any") {
+    if (value && value !== 'Any') {
       setFilterTags(prevTags => {
         const updatedTags = prevTags.filter(tag => tag.label !== label);
         return [...updatedTags, { label, value }];
@@ -410,7 +403,7 @@ const CapitalRaises = () => {
   };
   
   const handleAddFilter = (filter) => {
-    if (filter.value && filter.value !== "Any") {
+    if (filter.value && filter.value !== 'Any') {
       setFilterTags(prevTags => {
         const existingIndex = prevTags.findIndex(tag => tag.label === filter.label);
         if (existingIndex >= 0) {
@@ -522,13 +515,13 @@ const CapitalRaises = () => {
   ]);
   
   return (
-    <div className="standard-padding">
-      {error && <div className="error-message">{error}</div>}
+    <div className='standard-padding'>
+      {error && <div className='error-message'>{error}</div>}
       {loading ? (
-        <div className="loading-indicator">Loading capital raises data...</div>
+        <div className='loading-indicator'>Loading capital raises data...</div>
       ) : (
         <GraphPage
-          title="Capital Raises"
+          title='Capital Raises'
           filterTags={generateFilterTags()}
           allFilterOptions={allFilterOptions}
           metricCards={generateMetricCards()}
