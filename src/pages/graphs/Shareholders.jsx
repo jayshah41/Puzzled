@@ -2,13 +2,13 @@ import React, { useState, useCallback, useEffect } from 'react';
 import '../../styles/GeneralStyles.css';
 import GraphPage from '../../components/GraphPage.jsx';
 import axios from 'axios';
-import useAuthToken from "../../hooks/useAuthToken";
+import useAuthToken from '../../hooks/useAuthToken';
 
 const Shareholders = () => {
   const { getAccessToken, authError } = useAuthToken();
   const [shareholders, setShareholders] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState('');
   const [filteredShareholders, setFilteredShareholders] = useState([]);
   const [metricSummaries, setMetricSummaries] = useState({
     totalAsxCount: 0,
@@ -23,7 +23,7 @@ const Shareholders = () => {
     labels: [], 
     datasets: [{data: []}]
   });
-  const [projectCommodityByValue, setPriorityCommodityByValue] = useState({
+  const [projectCommodityByValue, setProjectCommodityByValue] = useState({
     labels: [], 
     datasets: [{data: []}]
   });
@@ -33,7 +33,7 @@ const Shareholders = () => {
   const fetchShareholders = useCallback(async () => {
     const token = await getAccessToken();
     if (!token) {
-      setError("Authentication error: No token found.");
+      setError('Authentication error: No token found.');
       setLoading(false);
       return;
     }
@@ -41,10 +41,10 @@ const Shareholders = () => {
     try {
       setLoading(true);
       
-      const response = await axios.get("/api/data/shareholders/", {
+      const response = await axios.get('/api/data/shareholders/', {
         headers: {
           Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         }
       });
       
@@ -63,7 +63,7 @@ const Shareholders = () => {
         processShareholders([]);
       }
   
-      setError("");
+      setError('');
     } catch (error) {
       setError(`Failed to fetch shareholder data: ${error.response?.data?.detail || error.message}`);
       resetData();
@@ -138,7 +138,7 @@ const Shareholders = () => {
 
     processShareholdersByValue(data);
     processAsxByValue(data);
-    processPriorityCommodityByValue(data);
+    processProjectCommodityByValue(data);
 
     setTableData(data.map(item => ({
       asxCode: item.asx_code || '',
@@ -179,9 +179,9 @@ const Shareholders = () => {
     setShareholdersByValue({
       labels: topShareholders.map(shareholder => shareholder.entity),
       datasets: [{
-        label: "% Ownership",
+        label: 'Shareholder',
         data: topShareholders.map(shareholder => shareholder.value),
-        backgroundColor: "#5271b9",
+        backgroundColor: '#5271b9',
       }]
     });
   };
@@ -206,14 +206,14 @@ const Shareholders = () => {
     setAsxByValue({
       labels: topCompanies.map(company => company.asx),
       datasets: [{
-        label: "ASX Code",
+        label: 'ASX Code',
         data: topCompanies.map(company => company.value),
-        backgroundColor: "#dc3545",
+        backgroundColor: '#dc3545',
       }]
     });
   };
   
-  const processPriorityCommodityByValue = (data) => {
+  const processProjectCommodityByValue = (data) => {
     const commodityGroups = {};
     data.forEach(item => {
       const commodity = item.project_commodities;
@@ -233,12 +233,12 @@ const Shareholders = () => {
       .sort((a, b) => b.value - a.value)
       .slice(0, 5);
   
-    setPriorityCommodityByValue({
+    setProjectCommodityByValue({
       labels: topCommodities.map(commodity => commodity.commodity),
       datasets: [{
-        label: "Priority Commodity",
+        label: 'Project Commodity',
         data: topCommodities.map(commodity => commodity.value),
-        backgroundColor: "#28a745",
+        backgroundColor: '#28a745',
       }]
     });
   };
@@ -253,27 +253,27 @@ const Shareholders = () => {
     setShareholdersByValue({
       labels: ['No Data'],
       datasets: [{
-        label: "Shareholders",
+        label: 'Shareholders',
         data: [0],
-        backgroundColor: "#rgba(220, 53, 69, 0.2)",
+        backgroundColor: '#5271b9',
       }]
     });
     
     setAsxByValue({
       labels: ['No Data'],
       datasets: [{
-        label: "ASX Code",
+        label: 'ASX Code',
         data: [0],
-        backgroundColor: "#rgba(255, 206, 86, 0.2)",
+        backgroundColor: '#dc3545',
       }]
     });
     
-    setPriorityCommodityByValue({
+    setProjectCommodityByValue({
       labels: ['No Data'],
       datasets: [{
-        label: "Priority Commodity",
+        label: 'Project Commodity',
         data: [0],
-        backgroundColor: "#rgba(40, 167, 69, 0.2)",
+        backgroundColor: '#28a745',
       }]
     });
     
@@ -369,7 +369,7 @@ const Shareholders = () => {
   ];
 
   const handleFilterChange = (label, value) => {
-    if (value && value !== "Any") {
+    if (value && value !== 'Any') {
       setFilterTags(prevTags => {
         const updatedTags = prevTags.filter(tag => tag.label !== label);
         return [...updatedTags, { label, value }];
@@ -384,7 +384,7 @@ const Shareholders = () => {
   };
   
   const handleAddFilter = (filter) => {
-    if (filter.value && filter.value !== "Default") {
+    if (filter.value && filter.value !== 'Default') {
       setFilterTags(prevTags => {
         const existingIndex = prevTags.findIndex(tag => tag.label === filter.label);
         if (existingIndex >= 0) {
@@ -426,17 +426,17 @@ const Shareholders = () => {
   const generateChartData = () => [
     {
       title: 'Top 5 Shareholders By Value',
-      type: "bar",
+      type: 'bar',
       data: shareholdersByValue
     },
     {
       title: 'Top 5 ASX Companies By Value',
-      type: "bar",
+      type: 'bar',
       data: asxByValue
     },
     {
       title: 'Top 5 Project Commodities By Value',
-      type: "bar",
+      type: 'bar',
       data: projectCommodityByValue
     }
   ];
@@ -446,19 +446,19 @@ const Shareholders = () => {
     { header: 'Ann Type', key: 'annType' },
     { header: 'Entity', key: 'entity' },
     { header: 'Value', key: 'value' },
-    { header: 'Priority Commodity', key: 'projectCommodity' },
+    { header: 'Project Commodity', key: 'projectCommodity' },
     { header: 'Project Area', key: 'projectArea' },
     { header: 'Transaction Type', key: 'transactionType' }
   ]);
 
   return (
-    <div className="standard-padding">
-      {error && <div className="error-message">{error}</div>}
+    <div className='standard-padding'>
+      {error && <div className='error-message'>{error}</div>}
       {loading ? (
-        <div className="loading-indicator">Loading shareholder data...</div>
+        <div className='loading-indicator'>Loading shareholder data...</div>
       ) : (
         <GraphPage
-          title="Shareholders"
+          title='Shareholders'
           filterTags={generateFilterTags()} 
           allFilterOptions={allFilterOptions}
           metricCards={generateMetricCards()}

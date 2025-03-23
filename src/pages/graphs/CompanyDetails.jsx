@@ -10,23 +10,28 @@ const CompanyDetails = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [filteredCompanies, setFilteredCompanies] = useState([]);
+
   const [metricSummaries, setMetricSummaries] = useState({
     totalAsxCount: 0,
     totalCompanyCount: 0,
     totalProjectAreaCount: 0
   });
+
   const [topBankBalances, setTopBankBalances] = useState({
     labels: [], 
     datasets: [{data: []}]
   });
+
   const [valueByProjectArea, setValueByProjectArea] = useState({
     labels: [], 
     datasets: [{data: []}]
   });
+
   const [priorityCommodityDistribution, setPriorityCommodityDistribution] = useState({
     labels: [], 
     datasets: [{data: []}]
   });
+
   const [tableData, setTableData] = useState([]);
   const [filterTags, setFilterTags] = useState([]);
 
@@ -261,7 +266,7 @@ const CompanyDetails = () => {
       datasets: [{
         label: 'Bank Balance',
         data: [0],
-        backgroundColor: '#rgba(0, 123, 255, 0.2)',
+        backgroundColor: '#007bff',
       }]
     });
     
@@ -270,7 +275,7 @@ const CompanyDetails = () => {
       datasets: [{
         label: 'Shareholder Value',
         data: [0],
-        backgroundColor: '#rgba(40, 167, 69, 0.2)',
+        backgroundColor: '#ff6384',
       }]
     });
     
@@ -279,7 +284,7 @@ const CompanyDetails = () => {
       datasets: [{
         label: 'Count',
         data: [0],
-        backgroundColor: '#rgba(255, 193, 7, 0.2)',
+        backgroundColor: '#3498db',
       }]
     });
     

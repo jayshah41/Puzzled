@@ -2,14 +2,14 @@ import React, { useState, useCallback, useEffect } from 'react';
 import '../../styles/GeneralStyles.css';
 import GraphPage from '../../components/GraphPage.jsx';
 import axios from 'axios';
-import useAuthToken from "../../hooks/useAuthToken";
+import useAuthToken from '../../hooks/useAuthToken';
 
 const Directors = () => {
 
   const { getAccessToken, authError } = useAuthToken();
    const [directors, setDirectors] = useState([]);
    const [loading, setLoading] = useState(false);
-   const [error, setError] = useState("");
+   const [error, setError] = useState('');
    const [filteredDirectors, setFilteredDirectors] = useState([]);
 
   
@@ -40,7 +40,7 @@ const [topDirectorRemuneration, setTopDirectorRemuneration] = useState({
 const fetchDirectors = useCallback(async () => {
     const token = await getAccessToken();
      if (!token) {
-         setError("Authentication error: No token found.");
+         setError('Authentication error: No token found.');
          setLoading(false);
          return;
      }
@@ -48,10 +48,10 @@ const fetchDirectors = useCallback(async () => {
      try {
       setLoading(true);
 
-      const response = await axios.get("/api/data/directors/", {
+      const response = await axios.get('/api/data/directors/', {
           headers: {
               Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json"
+              'Content-Type': 'application/json'
           },
       });
 
@@ -70,7 +70,7 @@ const fetchDirectors = useCallback(async () => {
         processDirectors([]);
       }
   
-      setError("");
+      setError('');
     } catch (error) {
       setError(`Failed to fetch directors data: ${error.response?.data?.detail || error.message}`);
       resetData();
@@ -214,18 +214,18 @@ const processTopASXRemunerationChart = (data) => {
       datasets: [
         {
           type: 'bar',
-          label: "Total Remuneration",
+          label: 'Total Remuneration',
           data: [0],
-          backgroundColor: "rgba(75, 192, 75, 0.7)",
-          borderColor: "rgb(75, 192, 75)",
+          backgroundColor: 'rgba(75, 192, 75, 1.0)',
+          borderColor: 'rgb(75, 192, 75)',
           borderWidth: 1
         },
         {
           type: 'bar',
-          label: "Base Remuneration",
+          label: 'Base Remuneration',
           data: [0],
-          backgroundColor: "rgba(54, 162, 235, 0.7)",
-          borderColor: "rgb(54, 162, 235)",
+          backgroundColor: 'rgba(54, 162, 235, 1.0)',
+          borderColor: 'rgb(54, 162, 235)',
           borderWidth: 1
         }
       ]
@@ -236,7 +236,7 @@ const processTopASXRemunerationChart = (data) => {
   const asxRemunerationMap = {};
   
   data.forEach(item => {
-    const asx = item.asx_code || "Unknown";
+    const asx = item.asx_code || 'Unknown';
     const totalRemuneration = parseFloat(item.total_remuneration) || 0;
     const baseRemuneration = parseFloat(item.base_remuneration) || 0;
     
@@ -272,18 +272,18 @@ const processTopASXRemunerationChart = (data) => {
     datasets: [
       {
         type: 'bar',
-        label: "Total Remuneration",
+        label: 'Total Remuneration',
         data: totalRemunerationValues,
-        backgroundColor: "rgba(75, 192, 75, 0.7)",
-        borderColor: "rgb(75, 192, 75)",
+        backgroundColor: 'rgba(75, 192, 75, 1.0)',
+        borderColor: 'rgb(75, 192, 75)',
         borderWidth: 1
       },
       {
         type: 'bar',
-        label: "Base Remuneration",
+        label: 'Base Remuneration',
         data: baseRemunerationValues,
-        backgroundColor: "rgba(54, 162, 235, 0.7)",
-        borderColor: "rgb(54, 162, 235)",
+        backgroundColor: 'rgba(54, 162, 235, 1.0)',
+        borderColor: 'rgb(54, 162, 235)',
         borderWidth: 1
       }
     ]
@@ -296,10 +296,10 @@ const processTopDirectorRemunerationChart = (data) => {
       labels: ['No Data'],
       datasets: [{
         type: 'bar',
-        label: "Total Remuneration",
+        label: 'Total Remuneration',
         data: [0],
-        backgroundColor: "rgba(153, 102, 255, 0.7)",
-        borderColor: "rgb(153, 102, 255)",
+        backgroundColor: 'rgba(153, 102, 255, 1.0)',
+        borderColor: 'rgb(153, 102, 255)',
         borderWidth: 1
       }]
     });
@@ -308,7 +308,7 @@ const processTopDirectorRemunerationChart = (data) => {
 
   const directorRemunerationMap = {};
   data.forEach(item => {
-    const director = item.contact || "Unknown";
+    const director = item.contact || 'Unknown';
     const totalRemuneration = parseFloat(item.total_remuneration) || 0;
     
     if (!directorRemunerationMap[director]) {
@@ -333,10 +333,10 @@ const processTopDirectorRemunerationChart = (data) => {
     labels: directorLabels,
     datasets: [{
       type: 'bar',
-      label: "Total Remuneration",
+      label: 'Total Remuneration',
       data: remunerationValues,
-      backgroundColor: "rgba(153, 102, 255, 0.7)",
-      borderColor: "rgb(153, 102, 255)",
+      backgroundColor: 'rgba(153, 102, 255, 1.0)',
+      borderColor: 'rgb(153, 102, 255)',
       borderWidth: 1
     }]
   });
@@ -358,9 +358,9 @@ const processTopDirectorRemunerationChart = (data) => {
         labels: ['No Data'],
         datasets: [{
             type: 'bar',
-            label: "Top 20 Base & Total Remuneration By ASX Code",
+            label: 'Top 20 Base & Total Remuneration By ASX Code',
             data: [0],
-            backgroundColor: ["rgba(75, 75, 192, 0.7)"]
+            backgroundColor: ['rgba(75, 75, 192, 1.0)']
         }]
     });
 
@@ -368,9 +368,9 @@ const processTopDirectorRemunerationChart = (data) => {
       labels: ['No Data'],
       datasets: [{
           type: 'bar',
-          label: "Top 25 Total Remuneration By Director",
+          label: 'Top 25 Total Remuneration By Director',
           data: [0],
-          backgroundColor: ["rgba(75, 75, 192, 0.7)"]
+          backgroundColor: ['rgba(75, 75, 192, 1.0)']
       }]
   });
     
@@ -451,7 +451,7 @@ const allFilterOptions = [
 ];
 
 const handleFilterChange = (label, value) => {
-  if (value && value !== "Any") {
+  if (value && value !== 'Any') {
     setFilterTags(prevTags => {
       const updatedTags = prevTags.filter(tag => tag.label !== label);
       return [...updatedTags, { label, value }];
@@ -466,7 +466,7 @@ const handleRemoveFilter = (filterLabel) => {
 };
 
 const handleAddFilter = (filter) => {
-  if (filter.value && filter.value !== "Default") {
+  if (filter.value && filter.value !== 'Default') {
     setFilterTags(prevTags => {
       const existingIndex = prevTags.findIndex(tag => tag.label === filter.label);
       if (existingIndex >= 0) {
@@ -528,7 +528,7 @@ const generateMetricCards = () => [
 const generateChartData = () => [
   {
     title: 'Top 20 Base & Total Remuneration by ASX Code',
-    type: "bar",
+    type: 'bar',
     data: topASXRemuneration,
     options: {
       scales: {
@@ -559,7 +559,7 @@ const generateChartData = () => [
   },
   {
     title: 'Top 25 Total Remuneration by Director',
-    type: "bar",
+    type: 'bar',
     data: topDirectorRemuneration,
     options: {
       scales: {
@@ -597,13 +597,13 @@ const [tableColumns] = useState([
 ]);
 
 return (
-  <div className="standard-padding">
-    {error && <div className="error-message">{error}</div>}
+  <div className='standard-padding'>
+    {error && <div className='error-message'>{error}</div>}
     {loading ? (
-      <div className="loading-indicator">Loading directors data...</div>
+      <div className='loading-indicator'>Loading directors data...</div>
     ) : (
       <GraphPage
-        title="Directors"
+        title='Directors'
         filterTags={generateFilterTags()}
         allFilterOptions={allFilterOptions}
         metricCards={generateMetricCards()}

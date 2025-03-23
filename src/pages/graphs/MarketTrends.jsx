@@ -1,14 +1,14 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import '../../styles/GeneralStyles.css';
 import GraphPage from '../../components/GraphPage.jsx';
-import useAuthToken from "../../hooks/useAuthToken";
+import useAuthToken from '../../hooks/useAuthToken';
 import axios from 'axios';
 
 const MarketTrends = () => {
     const [marketTrends, setMarketTrends] = useState([]);
     const [filteredMarketTrends, setFilteredMarketTrends] = useState([]);
     const [loading, setLoading] = useState(false);
-    const [error, setError] = useState("");
+    const [error, setError] = useState('');
     const { getAccessToken, authError } = useAuthToken();
     const [filterTags, setFilterTags] = useState([]);
 
@@ -39,17 +39,17 @@ const MarketTrends = () => {
     const fetchMarketTrends = useCallback(async () => {
         const token = await getAccessToken();
         if (!token) {
-            setError("Authentication error: No token found.");
+            setError('Authentication error: No token found.');
             setLoading(false);
             return;
         }
 
         try {
             setLoading(true);
-                const response = await axios.get("/api/data/market-trends/", {
+                const response = await axios.get('/api/data/market-trends/', {
                 headers: {
                     Authorization: `Bearer ${token}`,
-                    "Content-Type": "application/json"
+                    'Content-Type': 'application/json'
                 }
             });
             if (Array.isArray(response.data)) {
@@ -67,10 +67,10 @@ const MarketTrends = () => {
                 resetData();
             }
             
-            setError("");
+            setError('');
         } catch (error) {
-            console.error("Error fetching market trends:", error.response?.data || error);
-            setError("Failed to fetch market trends data: " + (error.response?.data?.detail || error.message));
+            console.error('Error fetching market trends:', error.response?.data || error);
+            setError('Failed to fetch market trends data: ' + (error.response?.data?.detail || error.message));
             resetData();
         } finally {
             setLoading(false);
@@ -187,22 +187,21 @@ const MarketTrends = () => {
                 datasets: [
                     {
                         type: 'bar',
-                        label: "Daily Average Price Change %",
+                        label: 'Daily Average Price Change %',
                         data: [0],
-                        backgroundColor: "rgba(75, 192, 75, 0.7)",
-                        borderColor: "rgb(75, 192, 75)",
+                        backgroundColor: 'rgba(75, 192, 75, 1.0)',
+                        borderColor: 'rgb(75, 192, 75)',
                         borderWidth: 1
-                    },
+                    }, 
                     {
                         type: 'line',
-                        label: "Daily Average Price",
+                        label: 'Daily Average Price',
                         data: [0],
-                        borderColor: "#4361EE",
-                        backgroundColor: "transparent",
+                        borderColor: '#4361EE',
                         borderWidth: 2,
-                        pointBackgroundColor: "#4361EE",
-                        yAxisID: 'y1'
-                    }
+                        pointBackgroundColor: '#4361EE',
+                        yAxisID: 'y1', 
+                    },
                 ]
             });
             return;
@@ -212,7 +211,7 @@ const MarketTrends = () => {
         const asxCurrentPriceMap = {};
         
         data.forEach(item => {
-            const asx = item.asx_code || "Unknown";
+            const asx = item.asx_code || 'Unknown';
             const priceChange = ((item.new_price - item.previous_price) / item.previous_price) * 100 || 0;
             const currentPrice = item.new_price || 0;
             
@@ -244,7 +243,7 @@ const MarketTrends = () => {
         const priceValues = topASX.map(item => item.avgPrice);
         
         const backgroundColors = priceChangeValues.map(val => 
-            val >= 0 ? "rgba(75, 192, 75, 0.7)" : "rgba(255, 99, 132, 0.7)"
+            val >= 0 ? 'rgba(75, 192, 75, 1.0)' : 'rgba(255, 99, 132, 1.0)'
         );
         
         setTopTenCommodityVolChange({
@@ -252,24 +251,23 @@ const MarketTrends = () => {
             datasets: [
                 {
                     type: 'bar',
-                    label: "Daily Average Price Change %",
+                    label: 'Daily Average Price Change %',
                     data: priceChangeValues,
                     backgroundColor: backgroundColors,
                     borderColor: priceChangeValues.map(val => 
-                        val >= 0 ? "rgb(75, 192, 75)" : "rgb(255, 99, 132)"
+                        val >= 0 ? 'rgb(75, 192, 75)' : 'rgb(255, 99, 132)'
                     ),
                     borderWidth: 1
-                },
+                }, 
                 {
                     type: 'line',
-                    label: "Daily Average Price",
+                    label: 'Daily Average Price',
                     data: priceValues,
-                    borderColor: "#4361EE",
-                    backgroundColor: "transparent",
+                    borderColor: '#4361EE',
                     borderWidth: 2,
-                    pointBackgroundColor: "#4361EE",
-                    yAxisID: 'y1'
-                }
+                    pointBackgroundColor: '#4361EE',
+                    yAxisID: 'y1', 
+                },
             ]
         });
     };
@@ -281,20 +279,20 @@ const MarketTrends = () => {
                 datasets: [
                     {
                         type: 'bar',
-                        label: "Average Volume Change %",
+                        label: 'Average Volume Change %',
                         data: [0],
-                        backgroundColor: "rgba(75, 75, 192, 0.7)",
-                        borderColor: "rgb(75, 75, 192)",
+                        backgroundColor: 'rgba(75, 75, 192, 1.0)',
+                        borderColor: 'rgb(75, 75, 192)',
                         borderWidth: 1
                     },
                     {
                         type: 'line',
-                        label: "Average Volume",
+                        label: 'Average Volume',
                         data: [0],
-                        borderColor: "#F72585",
-                        backgroundColor: "transparent",
+                        borderColor: '#F72585',
+                        backgroundColor: 'transparent',
                         borderWidth: 2,
-                        pointBackgroundColor: "#F72585",
+                        pointBackgroundColor: '#F72585',
                         yAxisID: 'y1'
                     }
                 ]
@@ -307,7 +305,7 @@ const MarketTrends = () => {
         const asxCurrentVolumeMap = {};
         
         data.forEach(item => {
-            const asx = item.asx_code || "Unknown";
+            const asx = item.asx_code || 'Unknown';
             const currentVolume = parseFloat(item.trade_value) || 0;
             const previousVolume = parseFloat(item.previous_trade_value || (currentVolume * 0.9)) || 0;
             const volumeChange = previousVolume > 0 ? ((currentVolume - previousVolume) / previousVolume) * 100 : 0;
@@ -342,7 +340,7 @@ const MarketTrends = () => {
         const volumeValues = topASX.map(item => item.avgVolume);
         
         const backgroundColors = volumeChangeValues.map(val => 
-            val >= 0 ? "rgba(75, 75, 192, 0.7)" : "rgba(192, 75, 75, 0.7)"
+            val >= 0 ? 'rgba(75, 75, 192, 1.0)' : 'rgba(192, 75, 75, 1.0)'
         );
         
         setTopTenASXVolumeChange({
@@ -350,22 +348,22 @@ const MarketTrends = () => {
             datasets: [
                 {
                     type: 'bar',
-                    label: "Average Volume Change %",
+                    label: 'Average Volume Change %',
                     data: volumeChangeValues,
                     backgroundColor: backgroundColors,
                     borderColor: volumeChangeValues.map(val => 
-                        val >= 0 ? "rgb(75, 75, 192)" : "rgb(192, 75, 75)"
+                        val >= 0 ? 'rgb(75, 75, 192)' : 'rgb(192, 75, 75)'
                     ),
                     borderWidth: 1
                 },
                 {
                     type: 'line',
-                    label: "Average Volume",
+                    label: 'Average Volume',
                     data: volumeValues,
-                    borderColor: "#F72585",
-                    backgroundColor: "transparent",
+                    borderColor: '#F72585',
+                    backgroundColor: 'transparent',
                     borderWidth: 2,
-                    pointBackgroundColor: "#F72585",
+                    pointBackgroundColor: '#F72585',
                     yAxisID: 'y1'
                 }
             ]
@@ -389,9 +387,9 @@ const MarketTrends = () => {
             labels: ['No Data'],
             datasets: [{
                 type: 'bar',
-                label: "Daily Average Price Change %",
+                label: 'Daily Average Price Change %',
                 data: [0],
-                backgroundColor: ["rgba(75, 192, 75, 0.7)"]
+                backgroundColor: ['rgba(75, 192, 75, 1.0)']
             }]
         });
         
@@ -399,9 +397,9 @@ const MarketTrends = () => {
             labels: ['No Data'],
             datasets: [{
                 type: 'bar',
-                label: "Average Volume Change %",
+                label: 'Average Volume Change %',
                 data: [0],
-                backgroundColor: ["rgba(75, 75, 192, 0.7)"]
+                backgroundColor: ['rgba(75, 75, 192, 1.0)']
             }]
         });
         
@@ -492,7 +490,7 @@ const MarketTrends = () => {
     ];
 
     const handleFilterChange = (label, value) => {
-        if (value && value !== "Any") {
+        if (value && value !== 'Any') {
             setFilterTags(prevTags => {
                 const updatedTags = prevTags.filter(tag => tag.label !== label);
                 return [...updatedTags, { label, value }];
@@ -507,7 +505,7 @@ const MarketTrends = () => {
     };
     
     const handleAddFilter = (filter) => {
-        if (filter.value && filter.value !== "Default") {
+        if (filter.value && filter.value !== 'Default') {
             setFilterTags(prevTags => {
                 const existingIndex = prevTags.findIndex(tag => tag.label === filter.label);
                 if (existingIndex >= 0) {
@@ -576,7 +574,7 @@ const MarketTrends = () => {
     const generateChartData = () => [
         {
             title: 'Daily Top 10 ASX Graph by Price Change % (Market Trends)',
-            type: "bar", 
+            type: 'bar', 
             data: topTenCommodityVolChange,
             options: {
                 scales: {
@@ -606,7 +604,7 @@ const MarketTrends = () => {
         },
         {
             title: 'Daily Top 10 ASX Graph by Volume Change % (Market Trends)',
-            type: "bar",  
+            type: 'bar',  
             data: topTenASXVolumeChange,
             options: {
                 scales: {
@@ -650,13 +648,13 @@ const MarketTrends = () => {
     ]);
 
     return (
-        <div className="standard-padding">
-            {error && <div className="error-message">{error}</div>}
+        <div className='standard-padding'>
+            {error && <div className='error-message'>{error}</div>}
             {loading ? (
-                <div className="loading-indicator">Loading market trends data...</div>
+                <div className='loading-indicator'>Loading market trends data...</div>
             ) : (
                 <GraphPage
-                    title="Market Trends Dashboard"
+                    title='Market Trends'
                     filterTags={generateFilterTags()}
                     allFilterOptions={allFilterOptions}
                     metricCards={generateMetricCards()}

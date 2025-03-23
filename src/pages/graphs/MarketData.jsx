@@ -256,7 +256,7 @@ const MarketData = () => {
       datasets: [{
         label: 'Debt',
         data: [0],
-        backgroundColor: '#rgba(220, 53, 69, 0.2)',
+        backgroundColor: '#ff6384',
       }]
     });
     
@@ -265,7 +265,7 @@ const MarketData = () => {
       datasets: [{
         label: 'Market Cap',
         data: [0],
-        backgroundColor: '#rgba(255, 206, 86, 0.2)',
+        backgroundColor: '#28a745',
       }]
     });
     
@@ -274,7 +274,7 @@ const MarketData = () => {
       datasets: [{
         label: 'Bank Balance',
         data: [0],
-        backgroundColor: '#rgba(40, 167, 69, 0.2)',
+        backgroundColor: '#5271b9',
       }]
     });
     
