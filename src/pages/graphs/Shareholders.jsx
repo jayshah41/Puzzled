@@ -4,8 +4,6 @@ import GraphPage from '../../components/GraphPage.jsx';
 import axios from 'axios';
 import useAuthToken from "../../hooks/useAuthToken";
 
-
-
 const Shareholders = () => {
   const { getAccessToken, authError } = useAuthToken();
   const [shareholders, setShareholders] = useState([]);
@@ -78,25 +76,32 @@ const Shareholders = () => {
     if (!shareholders.length) return;
     const fieldMapping = {
       'ASX Code': 'asx_code',
-      'Ann Type': 'ann_date',
+      'Ann Date': 'ann_date',
       'Entity': 'entity',
-      'Value': 'value',
       'Project Commodities': 'project_commodities',
       'Project Area': 'project_area',
       'Transaction Type': 'transaction_type'
     };
+
+    const rangeFieldMapping = {      
+      'Value': 'value'
+    }
     let filtered = [...shareholders];
     filterTags.forEach(tag => {
       if (tag.value && tag.value !== 'Default' && tag.label !== 'No Filters Applied') {
         const fieldName = fieldMapping[tag.label];
         if (fieldName) {
           filtered = filtered.filter(item => {
-            if (fieldName === 'value') {
-              return item[fieldName] == tag.value; 
-            } else {
-              return item[fieldName] && item[fieldName].toString() === tag.value.toString();
-            }
+            return item[fieldName] && item[fieldName].toString() === tag.value.toString();
           });
+        }
+        const rangeField = rangeFieldMapping[tag.label];
+        if (rangeField) {
+            const [min, max] = tag.value.split(' to ').map(val => parseFloat(val));
+            filtered = filtered.filter(item => {
+                const value = parseFloat(item[rangeField]);
+                return value >= min && value <= max;
+            });
         }
       }
     });
@@ -201,7 +206,7 @@ const Shareholders = () => {
     setAsxByValue({
       labels: topCompanies.map(company => company.asx),
       datasets: [{
-        label: "Value",
+        label: "ASX Code",
         data: topCompanies.map(company => company.value),
         backgroundColor: "#dc3545",
       }]
@@ -231,7 +236,7 @@ const Shareholders = () => {
     setPriorityCommodityByValue({
       labels: topCommodities.map(commodity => commodity.commodity),
       datasets: [{
-        label: "Value",
+        label: "Priority Commodity",
         data: topCommodities.map(commodity => commodity.value),
         backgroundColor: "#28a745",
       }]
@@ -257,7 +262,7 @@ const Shareholders = () => {
     setAsxByValue({
       labels: ['No Data'],
       datasets: [{
-        label: "Market Cap",
+        label: "ASX Code",
         data: [0],
         backgroundColor: "#rgba(255, 206, 86, 0.2)",
       }]
@@ -279,6 +284,43 @@ const Shareholders = () => {
     if (!shareholders || shareholders.length === 0) return [];
     const uniqueValues = [...new Set(shareholders.map(item => item[key]))].filter(Boolean);
     return uniqueValues.map(value => ({ label: value, value: value }));
+  };
+
+  const generateRangeOptions = (field) => {
+    if (!shareholders || !shareholders.length) return [];
+    
+    const values = shareholders.map(item => parseFloat(item[field])).filter(val => !isNaN(val));
+    if (!values.length) return [];
+    
+    const min = Math.min(...values);
+    const max = Math.max(...values);
+    
+    let increment = field.includes('bank_balance') ? 
+        Math.ceil((max - min) / 10 * 100) / 100 : 
+        Math.ceil((max - min) / 10);              
+    
+    if (field.includes('bank_balance') && increment < 0.01) increment = 0.01;
+    
+    const options = [];
+    options.push({ label: 'Any', value: 'Any' }); 
+    
+    for (let i = min; i < max; i += increment) {
+      const rangeMin = i;
+      const rangeMax = Math.min(i + increment, max);
+        
+      let rangeLabel;
+      if (field.includes('bank_balance')) {
+        rangeLabel = `${rangeMin.toFixed(2)} to ${rangeMax.toFixed(2)}`;
+      } else {
+        rangeLabel = `${Math.floor(rangeMin).toLocaleString()} to ${Math.ceil(rangeMax).toLocaleString()}`;
+      }
+
+      options.push({ 
+        label: rangeLabel, 
+        value: `${rangeMin} to ${rangeMax}` 
+      });
+    }
+    return options;
   };
 
   const allFilterOptions = [
@@ -304,7 +346,7 @@ const Shareholders = () => {
       label: 'Value',
       value: 'Default',
       onChange: (value) => handleFilterChange('Value', value),
-      options: [{ label: 'Any', value: 'Any' }, ...getUniqueValues('value')]
+      options: generateRangeOptions('value')
     },
     {
       label: 'Project Commodities',
@@ -416,7 +458,7 @@ const Shareholders = () => {
         <div className="loading-indicator">Loading shareholder data...</div>
       ) : (
         <GraphPage
-          title="Shareholder Dashboard"
+          title="Shareholders"
           filterTags={generateFilterTags()} 
           allFilterOptions={allFilterOptions}
           metricCards={generateMetricCards()}

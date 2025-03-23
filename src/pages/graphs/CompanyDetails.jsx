@@ -2,13 +2,13 @@ import React, { useState, useCallback, useEffect } from 'react';
 import '../../styles/GeneralStyles.css';
 import GraphPage from '../../components/GraphPage.jsx';
 import axios from 'axios';
-import useAuthToken from "../../hooks/useAuthToken";
+import useAuthToken from '../../hooks/useAuthToken';
 
 const CompanyDetails = () => {
   const { getAccessToken, authError } = useAuthToken();
   const [companies, setCompanies] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState('');
   const [filteredCompanies, setFilteredCompanies] = useState([]);
   const [metricSummaries, setMetricSummaries] = useState({
     totalAsxCount: 0,
@@ -33,7 +33,7 @@ const CompanyDetails = () => {
   const fetchCompanyData = useCallback(async () => {
     const token = await getAccessToken();
     if (!token) {
-      setError("Authentication error: No token found.");
+      setError('Authentication error: No token found.');
       setLoading(false);
       return;
     }
@@ -41,10 +41,10 @@ const CompanyDetails = () => {
     try {
       setLoading(true);
       
-      const response = await axios.get("/api/data/company-details/", {
+      const response = await axios.get('/api/data/company-details/', {
         headers: {
           Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         }
       });
       
@@ -63,7 +63,7 @@ const CompanyDetails = () => {
         processCompanyData([]);
       }
   
-      setError("");
+      setError('');
     } catch (error) {
       setError(`Failed to fetch company data: ${error.response?.data?.detail || error.message}`);
       resetData();
@@ -79,21 +79,31 @@ const CompanyDetails = () => {
       'Company Name': 'company_name',
       'Priority Commodity': 'priority_commodity',
       'Project Area': 'project_area',
+    };
+
+    const rangeFieldMapping = {
       'Bank Balance': 'bank_balance',
       'Value': 'value'
-    };
+    }
+
     let filtered = [...companies];
+
     filterTags.forEach(tag => {
       if (tag.value && tag.value !== 'Default' && tag.label !== 'No Filters Applied') {
         const fieldName = fieldMapping[tag.label];
         if (fieldName) {
           filtered = filtered.filter(item => {
-            if (fieldName === 'bank_balance' || fieldName === 'value') {
-              return item[fieldName] == tag.value; 
-            } else {
-              return item[fieldName] && item[fieldName].toString() === tag.value.toString();
-            }
+            return item[fieldName] && item[fieldName].toString() === tag.value.toString();
           });
+        }
+
+        const rangeField = rangeFieldMapping[tag.label];
+        if (rangeField) {
+            const [min, max] = tag.value.split(' to ').map(val => parseFloat(val));
+            filtered = filtered.filter(item => {
+                const value = parseFloat(item[rangeField]);
+                return value >= min && value <= max;
+            });
         }
       }
     });
@@ -159,9 +169,9 @@ const CompanyDetails = () => {
     setTopBankBalances({
       labels: sortedData.map(item => item.asx_code),
       datasets: [{
-        label: "Bank Balance",
+        label: 'Bank Balance',
         data: sortedData.map(item => item.bank_balance),
-        backgroundColor: "#007bff",
+        backgroundColor: '#007bff',
       }]
     });
   };
@@ -189,33 +199,52 @@ const CompanyDetails = () => {
     setValueByProjectArea({
       labels: topAreas.map(area => area.area),
       datasets: [{
-        label: "Shareholder Value",
+        label: 'Shareholder Value',
         data: topAreas.map(area => area.value),
-        backgroundColor: "#28a745",
+        backgroundColor: [
+          '#ff6384', 
+          '#36a2eb', 
+          '#ffce56', 
+          '#4bc0c0', 
+          '#9966ff'  
+        ],
+        hoverOffset: 4
       }]
     });
   };
   
   const processPriorityCommodityDistribution = (data) => {
-    const commodityCounts = {};
+    const commodityGroups = {};
+    
     data.forEach(item => {
       const commodity = item.priority_commodity;
       if (!commodity) return;
       
-      commodityCounts[commodity] = (commodityCounts[commodity] || 0) + 1;
+      if (!commodityGroups[commodity]) {
+        commodityGroups[commodity] = {
+          commodity: commodity,
+          value: parseFloat(item.value) || 0
+        };
+      } else {
+        commodityGroups[commodity].value += parseFloat(item.value) || 0;
+      }
     });
-  
-    const topCommodities = Object.entries(commodityCounts)
-      .sort(([, a], [, b]) => b - a)
-      .slice(0, 10)
-      .map(([commodity, count]) => ({ commodity, count }));
-  
+    
+    const topCommodities = Object.values(commodityGroups)
+      .sort((a, b) => b.value - a.value)
+      .slice(0, 5);
+    
     setPriorityCommodityDistribution({
-      labels: topCommodities.map(item => item.commodity),
+      labels: topCommodities.map(commodity => commodity.commodity),
       datasets: [{
-        label: "Count",
-        data: topCommodities.map(item => item.count),
-        backgroundColor: "#ffc107",
+        label: 'Commodity Value',
+        data: topCommodities.map(commodity => commodity.value),
+        backgroundColor: [
+          '#3498db',
+          '#e74c3c', 
+          '#2ecc71'
+        ],
+        hoverOffset: 4
       }]
     });
   };
@@ -230,27 +259,27 @@ const CompanyDetails = () => {
     setTopBankBalances({
       labels: ['No Data'],
       datasets: [{
-        label: "Bank Balance",
+        label: 'Bank Balance',
         data: [0],
-        backgroundColor: "#rgba(0, 123, 255, 0.2)",
+        backgroundColor: '#rgba(0, 123, 255, 0.2)',
       }]
     });
     
     setValueByProjectArea({
       labels: ['No Data'],
       datasets: [{
-        label: "Shareholder Value",
+        label: 'Shareholder Value',
         data: [0],
-        backgroundColor: "#rgba(40, 167, 69, 0.2)",
+        backgroundColor: '#rgba(40, 167, 69, 0.2)',
       }]
     });
     
     setPriorityCommodityDistribution({
       labels: ['No Data'],
       datasets: [{
-        label: "Count",
+        label: 'Count',
         data: [0],
-        backgroundColor: "#rgba(255, 193, 7, 0.2)",
+        backgroundColor: '#rgba(255, 193, 7, 0.2)',
       }]
     });
     
@@ -261,6 +290,43 @@ const CompanyDetails = () => {
     if (!companies || companies.length === 0) return [];
     const uniqueValues = [...new Set(companies.map(item => item[key]))].filter(Boolean);
     return uniqueValues.map(value => ({ label: value, value: value }));
+  };
+
+  const generateRangeOptions = (field) => {
+    if (!companies || !companies.length) return [];
+    
+    const values = companies.map(item => parseFloat(item[field])).filter(val => !isNaN(val));
+    if (!values.length) return [];
+    
+    const min = Math.min(...values);
+    const max = Math.max(...values);
+    
+    let increment = field.includes('bank_balance') ? 
+        Math.ceil((max - min) / 10 * 100) / 100 : 
+        Math.ceil((max - min) / 10);              
+    
+    if (field.includes('bank_balance') && increment < 0.01) increment = 0.01;
+    
+    const options = [];
+    options.push({ label: 'Any', value: 'Any' }); 
+    
+    for (let i = min; i < max; i += increment) {
+      const rangeMin = i;
+      const rangeMax = Math.min(i + increment, max);
+        
+      let rangeLabel;
+      if (field.includes('bank_balance')) {
+        rangeLabel = `${rangeMin.toFixed(2)} to ${rangeMax.toFixed(2)}`;
+      } else {
+        rangeLabel = `${Math.floor(rangeMin).toLocaleString()} to ${Math.ceil(rangeMax).toLocaleString()}`;
+      }
+
+      options.push({ 
+        label: rangeLabel, 
+        value: `${rangeMin} to ${rangeMax}` 
+      });
+    }
+    return options;
   };
 
   const allFilterOptions = [
@@ -292,18 +358,18 @@ const CompanyDetails = () => {
       label: 'Bank Balance',
       value: 'Default',
       onChange: (value) => handleFilterChange('Bank Balance', value),
-      options: [{ label: 'Any', value: 'Any' }, ...getUniqueValues('bank_balance')]
+      options:  generateRangeOptions('bank_balance')
     },
     {
       label: 'Value',
       value: 'Default',
       onChange: (value) => handleFilterChange('Value', value),
-      options: [{ label: 'Any', value: 'Any' }, ...getUniqueValues('value')]
+      options: generateRangeOptions('value')
     }
   ];
 
   const handleFilterChange = (label, value) => {
-    if (value && value !== "Any") {
+    if (value && value !== 'Any') {
       setFilterTags(prevTags => {
         const updatedTags = prevTags.filter(tag => tag.label !== label);
         return [...updatedTags, { label, value }];
@@ -318,7 +384,7 @@ const CompanyDetails = () => {
   };
   
   const handleAddFilter = (filter) => {
-    if (filter.value && filter.value !== "Default") {
+    if (filter.value && filter.value !== 'Default') {
       setFilterTags(prevTags => {
         const existingIndex = prevTags.findIndex(tag => tag.label === filter.label);
         if (existingIndex >= 0) {
@@ -360,17 +426,17 @@ const CompanyDetails = () => {
   const generateChartData = () => [
     {
       title: 'Top 10 Bank Balances',
-      type: "bar",
+      type: 'bar',
       data: topBankBalances
     },
     {
-      title: 'Top 5 Values by Project Area',
-      type: "bar",
+      title: 'Top 5 Values of Project Area',
+      type: 'pie',
       data: valueByProjectArea
     },
     {
-      title: 'Top 10 Priority Commodities',
-      type: "bar",
+      title: 'Priority Commodity distribution',
+      type: 'pie',
       data: priorityCommodityDistribution
     }
   ];
@@ -385,13 +451,13 @@ const CompanyDetails = () => {
   ]);
 
   return (
-    <div className="standard-padding">
-      {error && <div className="error-message">{error}</div>}
+    <div className='standard-padding'>
+      {error && <div className='error-message'>{error}</div>}
       {loading ? (
-        <div className="loading-indicator">Loading company data...</div>
+        <div className='loading-indicator'>Loading company data...</div>
       ) : (
         <GraphPage
-          title="Company Details"
+          title='Company Details'
           filterTags={generateFilterTags()} 
           allFilterOptions={allFilterOptions}
           metricCards={generateMetricCards()}
