@@ -4,6 +4,7 @@ import GraphPage from '../../components/GraphPage.jsx';
 import useAuthToken from '../../hooks/useAuthToken';
 import axios from 'axios';
 
+
 const CapitalRaises = () => {
   const [capitalRaises, setCapitalRaises] = useState([]);
   const [filteredCapitalRaises, setFilteredCapitalRaises] = useState([]);
@@ -536,5 +537,6 @@ const CapitalRaises = () => {
     </div>
   );
 };
+
 
 export default CapitalRaises;

@@ -1,24 +1,146 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import useSaveContent from '../hooks/useSaveContent';
+import LoginHandler from './LoginHandler';
 import makcorpLogoWithText from '../assets/makcorpLogoWithText.png';
 import profileIcon from '../assets/profileIcon.png';
+import '../styles/GeneralStyles.css';
+import '../styles/GeneralStyles.css';
 import '../styles/Navbar.css';
-import { Link } from 'react-router-dom';
-import Login from './Login';
 
 const Navbar = () => {
-  
-  const [showingLogin, setShowingLogin] = useState(false);
-  const [showingSignup, setShowingSignup] = useState(false);
+  const userTierLevel = parseInt(localStorage.getItem("user_tier_level"), 10) || 0;
+  const isAdminUser = userTierLevel === 2;
+  const hasGraphAccess = userTierLevel >= 1;
+  const saveContent = useSaveContent();
+
+  const [isEditing, setIsEditing] = useState(false);
+  const [tabs, setTabs] = useState([]);
+  const [graphLinks, setGraphLinks] = useState([]);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [showGraphsDropdown, setShowGraphsDropdown] = useState(false);
 
   useEffect(() => {
-    const token = localStorage.getItem("accessToken");
+    fetch('/api/editable-content/?component=Navbar')
+      .then((response) => response.json())
+      .then((data) => {
+        const fetchedTabs = data
+          .filter(item => item.section.startsWith('tab'))
+          .map((item) => JSON.parse(item.text_value))
+          .filter(tab => tab.accessLevel <= userTierLevel);
+        const fetchedGraphLinks = data
+          .filter(item => item.section.startsWith('graph'))
+          .map((item) => JSON.parse(item.text_value))
+          .filter(graph => graph.accessLevel <= userTierLevel);
+        setTabs(fetchedTabs);
+        setGraphLinks(fetchedGraphLinks);
+      })
+      .catch((error) => {
+        console.error('Error fetching content:', error);
+      });
+  }, [userTierLevel]);
+
+  const handleSave = () => {
+    const tabContentData = tabs.map((tab, index) => ({
+      component: 'Navbar',
+      section: `tab${index}`,
+      text_value: JSON.stringify(tab),
+    }));
+
+    const graphContentData = graphLinks.map((graph, index) => ({
+      component: 'Navbar',
+      section: `graph${index}`,
+      text_value: JSON.stringify(graph),
+    }));
+
+    saveContent([...tabContentData, ...graphContentData]);
+  };
+
+  const toggleTabVisibility = (index) => {
+    setTabs((prevTabs) =>
+      prevTabs.map((tab, i) =>
+        i === index ? { ...tab, showing: !tab.showing } : tab
+      )
+    );
+  };
+
+  const toggleGraphVisibility = (index) => {
+    setGraphLinks((prevGraphLinks) =>
+      prevGraphLinks.map((graph, i) =>
+        i === index ? { ...graph, showing: !graph.showing } : graph
+      )
+    );
+  };
+
+  const links = tabs.map((tab, index) => (
+    isEditing ? (
+      <div key={index} style={{ display: 'flex', alignItems: 'center', flexDirection: 'column' }}>
+        <input
+          type="text"
+          value={tab.text}
+          onChange={(e) =>
+            setTabs((prevTabs) =>
+              prevTabs.map((t, i) =>
+                i === index ? { ...t, text: e.target.value } : t
+              )
+            )
+          }
+          style={{ width: '7vw' }}
+        />
+        <button onClick={() => toggleTabVisibility(index)}>
+          {tab.showing ? '-' : '+'}
+        </button>
+      </div>
+    ) : (
+      tab.showing && (
+        <div key={index}>
+          <Link to={tab.link}>{tab.text}</Link>
+        </div>
+      )
+    )
+  ));
+
+  const graphLinksUI = graphLinks.map((graph, index) => (
+    isEditing ? (
+      <div key={index} style={{ display: 'flex', alignItems: 'center', marginBottom: '8px' }}>
+        <input
+          type="text"
+          value={graph.text}
+          onChange={(e) =>
+            setGraphLinks((prevGraphLinks) =>
+              prevGraphLinks.map((g, i) =>
+                i === index ? { ...g, text: e.target.value } : g
+              )
+            )
+          }
+          style={{ marginRight: '8px' }}
+        />
+        <button
+          onClick={() => toggleGraphVisibility(index)}
+          style={{ marginLeft: '8px' }}
+        >
+          {graph.showing ? '-' : '+'}
+        </button>
+      </div>
+    ) : (
+      graph.showing && (
+        <Link key={index} to={graph.link}>
+          {graph.text}
+        </Link>
+      )
+    )
+  ));
+
+  const areAnyGraphsVisible = hasGraphAccess && graphLinks.some(graph => graph.showing);
+
+  useEffect(() => {
+    const token = localStorage.getItem('accessToken');
     setIsLoggedIn(!!token);
   }, []);
 
   useEffect(() => {
     const handleStorageChange = () => {
-      const token = localStorage.getItem("accessToken");
+      const token = localStorage.getItem('accessToken');
       setIsLoggedIn(!!token);
     };
 
@@ -28,70 +150,91 @@ const Navbar = () => {
       window.removeEventListener('storage', handleStorageChange);
     };
   }, []);
-  
-  const handleLoginSuccess = () => {
-    setIsLoggedIn(true);
-    setShowingLogin(false);
-    console.log("Login successful. isLoggedIn:", true); 
+
+  const contentIsValid = (tabs, graphLinks) => {
+    for (const tab of tabs) {
+      if (!tab.text.trim() || !tab.link.trim()) {
+        return false;
+      }
+    }
+    for (const graph of graphLinks) {
+      if (!graph.text.trim() || !graph.link.trim()) {
+        return false;
+      }
+    }
+    return true;
   };
-  const [showGraphsDropdown, setShowGraphsDropdown] = useState(false);
 
   return (
     <nav className="navbar sticky">
       <div className="navbar-container">
-        <div className="flex items-center">
-          <Link to="/"><img src={makcorpLogoWithText} alt="MakCorp Logo" height="80px" style={{ padding: '10px' }} /></Link>
-        </div>
-
-        <Link to="/">Home</Link>
-        <Link to="/pricing">Pricing</Link>
-        <Link to="/products">Products</Link>
-        <Link to="/contact-us">Contact us</Link>
-        {isLoggedIn ?
-
-        <div className="dropdown">
-          <button 
-            className="dropbtn" 
-            onMouseEnter={() => setShowGraphsDropdown(true)}
+        <div className="centre">
+          <Link to="/">
+            <img
+              src={makcorpLogoWithText}
+              alt="MakCorp Logo"
+              height="80px"
+              style={{ padding: '10px' }}
+            />
+          </Link>
+        
+        {isAdminUser ? (
+          <button className="edit-button"
+          style={{ marginLeft: "20px" }}
+            onClick={() => {
+              if (isEditing) {
+                if (contentIsValid(tabs, graphLinks)) {
+                  handleSave();
+                  setIsEditing(false);
+                } else {
+                  alert('Please ensure all fields are filled out before saving.');
+                }
+              } else {
+                setIsEditing(true);
+              }
+            }}
           >
-            Dashboards
+            {isEditing ? 'Save Changes' : 'Edit'}
           </button>
-          {showGraphsDropdown && (
-            <div className="dropdown-content">
-              <Link to="/graphs/company-details">Company Details</Link>
-              <Link to="/graphs/market-data">Market Data</Link>
-              <Link to="/graphs/market-trends">Market Trends</Link>
-              <Link to="/graphs/directors">Directors</Link>
-              <Link to="/graphs/shareholders">Shareholders</Link>
-              <Link to="/graphs/capital-raises">Capital Raises</Link>
-              <Link to="/graphs/projects">Projects</Link>
-              <Link to="/graphs/financials">Financials</Link>
+        ) : null}
+        </div>
+        {links}
+        {(isEditing || (isLoggedIn && areAnyGraphsVisible)) && (
+          <div className="dropdown">
+            <button
+              className="dropbtn navbar-button"
+              onMouseEnter={() => setShowGraphsDropdown(true)}>
+              Graphs
+            </button>
+            {showGraphsDropdown && (
+              <div className="dropdown-content">
+                {graphLinksUI}
+              </div>
+            )}
+          </div>
+        )}
+
+        <LoginHandler>
+          {({ handleOpenLogin, handleOpenSignup }) => (
+            <div>
+              {!isLoggedIn ?
+                <>
+                  <button className="navbar-button" onClick={handleOpenLogin}>Log In</button>
+                  <button className="navbar-button" onClick={handleOpenSignup}>Sign Up</button>
+                </>
+              :
+                <Link to="/account">
+                  <div className="profile-icon">
+                    <img src={profileIcon} alt="Profile" />
+                  </div>
+                </Link>
+              }
             </div>
           )}
-        </div>
-        : null}
-
-        <div>
-          {!isLoggedIn ? (
-            <>
-              <button onClick={() => {setShowingLogin(true); setShowingSignup(false);}}>Log In</button>
-              <button onClick={() => {setShowingSignup(true); setShowingLogin(true);}}>Sign Up</button>
-            </>
-          ) : (
-            <Link to="/account">
-              <div className="profile-icon">
-                <img src={profileIcon} alt="Profile" />
-              </div>
-            </Link>
-          )}
-        </div>
-       </div>  
-
-      {showingLogin && <Login onClose={() => setShowingLogin(false)} loginButton={!showingSignup} onLoginSuccess={handleLoginSuccess} />}
+        </LoginHandler>
+      </div>
     </nav>
   );
 };
 
 export default Navbar;
-
-

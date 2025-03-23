@@ -676,4 +676,5 @@ const MarketTrends = () => {
     );
 };
 
+
 export default MarketTrends;

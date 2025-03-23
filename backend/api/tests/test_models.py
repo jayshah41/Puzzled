@@ -154,3 +154,39 @@ class ProjectsModelTest(TestCase):
         """Test if project data is saved correctly"""
         self.assertEqual(self.project.commodity, "Gold")
         self.assertEqual(self.project.project_name, "Gold Mine A")
+
+class ModelStrMethodTest(TestCase):
+
+    def setUp(self):
+        self.company = Company.objects.create(asx_code='ABC', company_name='Test Corp')
+
+    def test_str_methods(self):
+        self.assertEqual(str(self.company), 'Test Corp')
+
+        financial = Financial.objects.create(asx_code=self.company, period='2024-Q1')
+        self.assertEqual(str(financial), 'ABC - 2024-Q1')
+
+        market_data = MarketData.objects.create(asx_code=self.company, changed=datetime(2024, 1, 1))
+        self.assertEqual(str(market_data), 'ABC - 2024-01-01 00:00:00')
+
+        market_trends = MarketTrends.objects.create(asx_code=self.company)
+        self.assertEqual(str(market_trends), 'ABC - None')
+
+        director = Directors.objects.create(asx_code=self.company, contact='John Doe')
+        self.assertEqual(str(director), 'John Doe')
+
+        shareholder = Shareholders.objects.create(
+            asx_code=self.company,
+            entity='Big Fund',
+            project_commodities='Gold',
+            project_area='WA',
+            transaction_type='Buy'
+        )
+        self.assertEqual(str(shareholder), 'Big Fund')
+
+        capital_raise = CapitalRaises.objects.create(asx_code=self.company, bank_balance=100000.0, raise_type='IPO')
+        self.assertEqual(str(capital_raise), 'ABC - 100000.0')
+
+        project = Projects.objects.create(asx_code=self.company, commodity='Gold', activity='Drilling', project_name='Golden Project')
+        self.assertEqual(str(project), 'Gold')
+

@@ -5,6 +5,7 @@ import '../styles/SubscriptionStyles.css';
 const SubscriptionPlans = () => {
   const [paymentOption, setPaymentOption] = useState("$3995 Per Annum");
   const [numOfUsers, setNumOfUsers] = useState("one");
+  const [tierLevel, setTierLevel] = useState("2");
   
   const colourMap = {
     "$895 Per Month": "#cd7f32",
@@ -12,13 +13,31 @@ const SubscriptionPlans = () => {
     "$3995 Per Annum": "#ffd700"
   };
 
-  const pricingMap = {
-    "$895 Per Month,one": "$895 Per Month",
-    "$1495 Per Quarter,one": "$1495 Per Quarter",
-    "$3995 Per Annum,one": "$3995 Per Annum",
-    "$895 Per Month,five": "$1295 Per Month",
-    "$1495 Per Quarter,five": "$2995 Per Quarter",
-    "$3995 Per Annum,five": "$9995 Per Annum"
+  const getColour = () => {
+    if (tierLevel === "1") return "#000000";
+    return colourMap[paymentOption];
+  };
+
+  const calculatePrice = (paymentOption, numOfUsers) => {
+    const basePrices = {
+      "$895 Per Month": 895,
+      "$1495 Per Quarter": 1495,
+      "$3995 Per Annum": 3995
+    };
+
+    const userMultipliers = {
+      "one": 1,
+      "five": {
+        "$895 Per Month": 1295 / 895,
+        "$1495 Per Quarter": 2995 / 1495,
+        "$3995 Per Annum": 9995 / 3995
+      }
+    };
+
+    const basePrice = basePrices[paymentOption];
+    const multiplier = numOfUsers === "one" ? userMultipliers["one"] : userMultipliers["five"][paymentOption];
+
+    return `$${Math.round(basePrice * multiplier)} Per ${paymentOption.split(' ')[2]}`;
   };
 
   const handlePaymentChange = (event) => {
@@ -28,6 +47,10 @@ const SubscriptionPlans = () => {
   const handleNumOfUsersChange = (event) => {
     setNumOfUsers(event.target.value);
   };
+  
+  const handleTierLevelChange = (event) => {
+    setTierLevel(event.target.value);
+  };
 
   const titleCase = (s) => {
     return s.toLowerCase()
@@ -36,11 +59,11 @@ const SubscriptionPlans = () => {
             .join(' ');
   };
 
-  const currentPrice = pricingMap[`${paymentOption},${numOfUsers}`];
-  const info = [currentPrice, 'Company: All data', 'Market Data: All Data', 'Projects: All Data', 'Shareholders: All Data', 'Directors: All Data', 'Financials: All Data', 'Capital Raises: All Data'];
+  const currentPrice = tierLevel === "1" ? "Free" : calculatePrice(paymentOption, numOfUsers);
+  const info = ['Company: All data', 'Market Data: All Data', 'Projects: All Data', 'Shareholders: All Data', 'Directors: All Data', 'Financials: All Data', 'Capital Raises: All Data'];
   const features = info.map((feature, index) => (
     <li key={index} className="feature-item">
-      <span className="checkmark">✓</span>
+      <span className="checkmark">{tierLevel==="1" ? "✗" : "✓"}</span>
       {feature}
     </li>
   ));
@@ -48,20 +71,45 @@ const SubscriptionPlans = () => {
   return (
     <div className="container standard-padding">
       <div className="pricing-card">
-        <div className="pricing-header" style={{ backgroundColor: colourMap[paymentOption] }}>
-        <h3 style={{ margin: 'auto' }}>Tier 2 Pricing {`(${titleCase(numOfUsers)} User${numOfUsers == 'five' ? 's' : ''})`}</h3>
+        <div className="pricing-header" style={{ backgroundColor: getColour() }}>
+        <h3 style={{ margin: 'auto' }}>Tier {tierLevel} Pricing {tierLevel==="2" ? `(${titleCase(numOfUsers)} User${numOfUsers == 'five' ? 's' : ''})` : null}</h3>
         </div>
         <div className="pricing-content">
           <div className="price">
             {currentPrice.split(' ')[0]}
           </div>
           <ul className="feature-list">
+          <li key="price" className="feature-item"><span className="checkmark">✓</span>{currentPrice}</li>
+          <li key="news" className="feature-item"><span className="checkmark">✓</span>News</li>
             {features}
           </ul>
         </div>
       </div>
       
       <div className="controls-container">
+      <div className="control-section">
+          <h3>Select the tier level</h3>
+          <label className="radio-option">
+            <input 
+              type="radio"
+              value="1"
+              checked={tierLevel === "1"} 
+              onChange={handleTierLevelChange} 
+            />
+            One
+          </label>
+          <label className="radio-option">
+            <input 
+              type="radio"
+              value="2"
+              checked={tierLevel === "2"} 
+              onChange={handleTierLevelChange} 
+            />
+            Two
+          </label>
+        </div>
+      {tierLevel === "2" ?
+        <>
         <div className="control-section">
           <h3>Select your payment period</h3>
           <label className="radio-option">
@@ -114,6 +162,8 @@ const SubscriptionPlans = () => {
             Five
           </label>
         </div>
+        </>
+        : null}
       </div>
     </div>
   )

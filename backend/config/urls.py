@@ -16,7 +16,9 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from app.views import RegisterView, LoginView, ProfileView
+from users.views import RegisterView, LoginView, ProfileView, UpdateProfileView, DeleteAccountView, UpdateTierView
+from rest_framework_simplejwt.views import TokenRefreshView
+from content.views import EditableContentView, EditableContentUpdateView, NewsCardViewSet, SendEmailView
 from rest_framework_simplejwt.views import TokenRefreshView, TokenObtainPairView
 
 
@@ -25,7 +27,19 @@ urlpatterns = [
     path('register/', RegisterView.as_view(), name='register'),
     path('login/', LoginView.as_view(), name='login'),
     path('profile/', ProfileView.as_view(), name='profile'),
-    path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('update-profile/', UpdateProfileView.as_view(), name='update-profile'),
+    path('delete-account/', DeleteAccountView.as_view(), name='delete-account'),
+    path('update-tier/', UpdateTierView.as_view(), name='update-tier'),
+    path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'), ##########################
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('data/', include('api.urls')),
+    path('editable-content/', EditableContentView.as_view(), name='editable-content'),
+    path('editable-content/update/', EditableContentUpdateView.as_view(), name='editable-content-update'),
+    path('news-cards/update-order/', NewsCardViewSet.as_view({'patch': 'update_order'}), name='newscard-update-order'),
+    path('news-cards/<int:pk>/', NewsCardViewSet.as_view({'get': 'retrieve', 'put': 'update', 'patch': 'partial_update', 'delete': 'destroy'}), name='newscard-detail'),
+    path('news-cards/', NewsCardViewSet.as_view({'get': 'list', 'post': 'create'}), name='newscard-list'),
+    path('news-cards/update-order/', NewsCardViewSet.as_view({'patch': 'update_order'}), name='newscard-direct-update-order'),
+    path('news-cards/<int:pk>/', NewsCardViewSet.as_view({'get': 'retrieve', 'put': 'update', 'patch': 'partial_update', 'delete': 'destroy'}), name='newscard-direct-detail'),
+    path('news-cards/', NewsCardViewSet.as_view({'get': 'list', 'post': 'create'}), name='newscard-direct-list'),
+    path('send-email/', SendEmailView.as_view(), name='send-email')
 ]

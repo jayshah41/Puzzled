@@ -1,0 +1,88 @@
+.social-feed-container {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 60px;
+    max-width: 1400px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
+
+.social-feed-hero {
+    margin: 25px;
+    text-align: center;
+}
+
+.social-feed-hero h1 {
+    font-size: 2.4rem;
+    font-weight: bold;
+    color: #222;
+    margin-bottom: 1rem;
+}
+
+.social-feed-hero p {
+    font-size: 1.2rem;
+    color: #555;
+    line-height: 1.6;
+    max-width: 750px;
+    margin: 0 auto;
+}
+
+.twitter-feed, .youtube-feed {
+    flex: 1; 
+    max-width: 50%;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 2rem;
+}
+
+.twitter-feed h2, .youtube-feed h2 {
+    font-size: 1.5rem;
+    color: #333;
+    margin-bottom: 1.5rem;
+}
+
+.twitter-cards, .youtube-videos {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.twitter-card, .youtube-card {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 2rem;
+}
+
+.twitter-details, .youtube-details {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+}
+
+.twitter-category, .youtube-category {
+    color: #4a90e2;
+    font-weight: 600;
+}
+
+.twitter-date, .youtube-date {
+    color: #666;
+}
+
+.read-more-btn {
+    display: inline-block;
+    background-color: #4a90e2;
+    color: white;
+    padding: 0.7rem 1.5rem;
+    border-radius: 4px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: background-color 0.3s ease;
+}
+
+.read-more-btn:hover {
+    background-color: #3570b8;
+}

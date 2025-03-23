@@ -3,7 +3,7 @@
     justify-content: center;
     align-items: center;
     position: fixed;
-    z-index: 1;
+    z-index: 100;
     left: 0;
     top: 0;
     width: 100%;
@@ -133,3 +133,133 @@
 .close-button:hover {
     color: #000;
 }
+
+
+.status-message {
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    text-align: center;
+  }
+  
+  .status-message.success {
+    background-color: #d4edda;
+    color: #155724;
+  }
+  
+  .status-message.error {
+    background-color: #f8d7da;
+    color: #721c24;
+  }
+  
+.form-section {
+    margin-bottom: 20px;
+  }
+  
+  .form-section h2 {
+    font-size: 18px;
+    color: #1d3557;
+    margin-bottom: 10px;
+  }
+  
+  .form-section p {
+    font-size: 14px;
+    color: #555;
+    margin-bottom: 10px;
+  }
+  
+  .form-section select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    background-color: #f9f9f9;
+    color: #555;
+    cursor: pointer;
+  }
+  
+  .form-section select:focus {
+    outline: none;
+    border-color: #1d3557;
+  }
+  
+  .delete-button {
+    background-color: #dc3545;
+    color: white;
+  }
+  
+  .delete-button:hover {
+    background-color: #c82333;
+  }
+  
+  .logout-button {
+    background-color: #6c757d;
+    color: white;
+    margin-top: 20px;
+  }
+  
+  .logout-button:hover {
+    background-color: #5a6268;
+  }
+  
+  .error-message {
+    color: #dc3545;
+    font-size: 14px;
+    margin-bottom: 10px;
+    text-align: center;
+  }
+  
+  .form-section input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    background-color: #f9f9f9;
+    color: #555;
+  }
+  
+  .form-section input:focus {
+    outline: none;
+    border-color: #1d3557;
+  }
+  
+  .auth-button {
+    width: 100%;
+    padding: 10px;
+    background-color: #1d3557;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-bottom: 10px;
+  }
+  
+  .auth-button:hover {
+    background-color: #14213d;
+  }
+  
+  .close-button {
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: #555;
+    float: right;
+    margin-top: -10px;
+    margin-right: -10px;
+    cursor: pointer;
+  }
+  
+  .close-button:hover {
+    color: #000;
+  }
+  .success-message {
+    background-color: #d4edda;
+    color: #155724;
+    padding: 10px;
+    margin-bottom: 15px;
+    border-radius: 4px;
+    text-align: center;
+    font-weight: 500;
+  }
