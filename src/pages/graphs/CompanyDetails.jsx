@@ -79,49 +79,68 @@ const CompanyDetails = () => {
   
   const applyClientSideFilters = useCallback(() => {
     if (!companies.length) return;
+    
     const fieldMapping = {
       'ASX Code': 'asx_code',
       'Company Name': 'company_name',
       'Priority Commodity': 'priority_commodity',
       'Project Area': 'project_area',
     };
-
+  
     const rangeFieldMapping = {
       'Bank Balance': 'bank_balance',
       'Value': 'value'
-    }
-
+    };
+  
     let filtered = [...companies];
-
+    
+    const filtersByLabel = {};
     filterTags.forEach(tag => {
-      if (tag.value && tag.value !== 'Default' && tag.label !== 'No Filters Applied') {
-        const fieldName = fieldMapping[tag.label];
-        if (fieldName) {
-          filtered = filtered.filter(item => {
-            return item[fieldName] && item[fieldName].toString() === tag.value.toString();
+      if (tag.label === 'No Filters Applied') return;
+      
+      if (!filtersByLabel[tag.label]) {
+        filtersByLabel[tag.label] = [];
+      }
+      filtersByLabel[tag.label].push(tag.value);
+    });
+    
+    if (Object.keys(filtersByLabel).length === 0) {
+      setFilteredCompanies(companies);
+      processCompanyData(companies);
+      return;
+    }
+  
+    Object.entries(filtersByLabel).forEach(([label, values]) => {
+      if (values.includes('Any')) return; 
+      
+      const fieldName = fieldMapping[label];
+      
+      if (fieldName) {
+        filtered = filtered.filter(item => {
+          if (!item[fieldName]) return false;
+          const itemValue = String(item[fieldName]);
+          return values.some(value => String(value) === itemValue);
+        });
+      }
+  
+      const rangeField = rangeFieldMapping[label];
+      if (rangeField) {
+        filtered = filtered.filter(item => {
+          const value = parseFloat(item[rangeField]);
+          if (isNaN(value)) return false;
+          
+          return values.some(rangeStr => {
+            if (!rangeStr.includes(' to ')) return false;
+            const [min, max] = rangeStr.split(' to ').map(val => parseFloat(val));
+            return value >= min && value <= max;
           });
-        }
-
-        const rangeField = rangeFieldMapping[tag.label];
-        if (rangeField) {
-            const [min, max] = tag.value.split(' to ').map(val => parseFloat(val));
-            filtered = filtered.filter(item => {
-                const value = parseFloat(item[rangeField]);
-                return value >= min && value <= max;
-            });
-        }
+        });
       }
     });
     
     setFilteredCompanies(filtered);
     processCompanyData(filtered);
   }, [companies, filterTags]);
-  
-  useEffect(() => {
-    if (companies.length) {
-      applyClientSideFilters();
-    }
-  }, [filterTags, applyClientSideFilters]);
   
   useEffect(() => {
     fetchCompanyData();
@@ -334,59 +353,113 @@ const CompanyDetails = () => {
     return options;
   };
 
+  const getSelectedValuesForFilter = (filterLabel) => {
+    const values = filterTags
+      .filter(tag => tag.label === filterLabel)
+      .map(tag => tag.value);
+    
+    return values.length > 0 ? values : ['Any'];
+  };
+
   const allFilterOptions = [
     {
       label: 'ASX Code',
       value: 'Default',
       onChange: (value) => handleFilterChange('ASX Code', value),
-      options: [{ label: 'Any', value: 'Any' }, ...getUniqueValues('asx_code')]
+      options: [{ label: 'Any', value: 'Any' }, ...getUniqueValues('asx_code')],
+      selectedValues: getSelectedValuesForFilter('ASX Code')
     },
     {
       label: 'Company Name',
       value: 'Default',
       onChange: (value) => handleFilterChange('Company Name', value),
-      options: [{ label: 'Any', value: 'Any' }, ...getUniqueValues('company_name')]
+      options: [{ label: 'Any', value: 'Any' }, ...getUniqueValues('company_name')],
+      selectedValues: getSelectedValuesForFilter('Company Name')
     },
     {
       label: 'Priority Commodity',
       value: 'Default',
       onChange: (value) => handleFilterChange('Priority Commodity', value),
-      options: [{ label: 'Any', value: 'Any' }, ...getUniqueValues('priority_commodity')]
+      options: [{ label: 'Any', value: 'Any' }, ...getUniqueValues('priority_commodity')],
+      selectedValues: getSelectedValuesForFilter('Priority Commodity')
     },
     {
       label: 'Project Area',
       value: 'Default',
       onChange: (value) => handleFilterChange('Project Area', value),
-      options: [{ label: 'Any', value: 'Any' }, ...getUniqueValues('project_area')]
+      options: [{ label: 'Any', value: 'Any' }, ...getUniqueValues('project_area')],
+      selectedValues: getSelectedValuesForFilter('Project Area')
     },
     {
       label: 'Bank Balance',
       value: 'Default',
       onChange: (value) => handleFilterChange('Bank Balance', value),
-      options:  generateRangeOptions('bank_balance')
+      options:  generateRangeOptions('bank_balance'),
+      selectedValues: getSelectedValuesForFilter('Bank Balance')
     },
     {
       label: 'Value',
       value: 'Default',
       onChange: (value) => handleFilterChange('Value', value),
-      options: generateRangeOptions('value')
+      options: generateRangeOptions('value'),
+      selectedValues: getSelectedValuesForFilter('Value')
     }
   ];
 
-  const handleFilterChange = (label, value) => {
-    if (value && value !== 'Any') {
-      setFilterTags(prevTags => {
-        const updatedTags = prevTags.filter(tag => tag.label !== label);
-        return [...updatedTags, { label, value }];
+   useEffect(() => {
+    fetchCompanyData();
+  }, [fetchCompanyData]);
+
+  useEffect(() => {
+    if (companies.length > 0) {
+      applyClientSideFilters();
+    }
+  }, [filterTags, applyClientSideFilters]);
+
+  const handleFilterChange = (label, values) => {
+    setFilterTags(prevTags => {
+      const tagsWithoutCurrentLabel = prevTags.filter(tag => tag.label !== label);
+      
+      if (!values || values.length === 0 || values.includes('Any')) {
+        return tagsWithoutCurrentLabel;
+      }
+      
+      const newTags = values.map(value => {
+        const option = allFilterOptions
+          .find(opt => opt.label === label)?.options
+          .find(opt => opt.value === value);
+        
+        return {
+          label,
+          value,
+          values, 
+          displayValue: option?.label || value
+        };
       });
-    } else {
-      setFilterTags(prevTags => prevTags.filter(tag => tag.label !== label));
+      
+      return [...tagsWithoutCurrentLabel, ...newTags];
+    });
+  };
+    
+  const handleRemoveFilter = (label, value) => {
+    setFilterTags(prevTags => {
+      const updatedTags = prevTags.filter(tag => !(tag.label === label && tag.value === value));
+      return updatedTags;
+    });
+
+    const currentFilter = allFilterOptions.find(opt => opt.label === label);
+    if (currentFilter) {
+      const currentValues = filterTags
+        .filter(tag => tag.label === label && tag.value !== value)
+        .map(tag => tag.value);
+      if (currentValues.length === 0) {
+        currentFilter.onChange(["Any"]);
+      } else {
+        currentFilter.onChange(currentValues);
+      }
     }
   };
-
-  const handleRemoveFilter = (filterLabel) => {
-    setFilterTags(prevTags => prevTags.filter(tag => tag.label !== filterLabel));
-  };
+    
   
   const handleAddFilter = (filter) => {
     if (filter.value && filter.value !== 'Default') {
@@ -404,11 +477,16 @@ const CompanyDetails = () => {
   };
   
   const generateFilterTags = () => {
-    return filterTags.length > 0 ? filterTags : [
-      { label: 'No Filters Applied', value: 'Click to add filters', onRemove: () => {} }
-    ];
+    if (filterTags.length === 0) {
+      return [{ label: 'No Filters Applied', value: 'Click to add filters' }];
+    }
+    
+    return filterTags.map(tag => ({
+      ...tag,
+      onRemove: () => handleRemoveFilter(tag.label, tag.value)
+    }));
   };
-
+  
   const applyFilters = () => {
     applyClientSideFilters();
   };
