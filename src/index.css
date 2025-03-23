@@ -3,7 +3,7 @@
   line-height: 1.5;
   font-weight: 400;
   background-color: #E1E7FF !important;
-
+  max-width: none;
   color-scheme: light dark;
   color: #213547 !important;
 
@@ -11,6 +11,8 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  width: 99vw;
 }
 
 a {
@@ -24,9 +26,7 @@ a:hover {
 
 body {
   margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
+  width: 100%;
   min-height: 100vh;
 }
 
@@ -43,7 +43,6 @@ button {
   font-weight: 500;
   font-family: inherit;
   background-color: #1a1a1a;
-  cursor: pointer;
   transition: border-color 0.25s;
 }
 button:hover {

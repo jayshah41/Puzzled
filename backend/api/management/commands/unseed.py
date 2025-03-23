@@ -1,7 +1,8 @@
 from django.core.management.base import BaseCommand
 from django.db import connection
 from api.models import Company, Financial, MarketData, MarketTrends, Directors, Shareholders, CapitalRaises, Projects
-from app.models import User
+from users.models import User
+from content.models import EditableContent, NewsCard
 
 class Command(BaseCommand):
     """Automation command to unseed the database."""
@@ -12,11 +13,11 @@ class Command(BaseCommand):
         """Unseed the database and reset indices."""
         print("Unseeding database...")
 
-        models = [Company, Financial, MarketData, MarketTrends, 
-                  Directors, Shareholders, CapitalRaises, Projects,
-                  
-                  User #from app (authentication)
-                  ]
+        models = [
+            Company, Financial, MarketData, MarketTrends, 
+            Directors, Shareholders, CapitalRaises, Projects,
+            User, EditableContent, NewsCard
+        ]
         
         for model in models:
             model.objects.all().delete()

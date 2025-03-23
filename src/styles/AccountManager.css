@@ -1,0 +1,71 @@
+.container {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 5vw;
+    margin: auto;
+    max-width: 1100px;
+  }
+
+.form-section {
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 20px;
+  max-width: 500px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  box-sizing: border-box;
+}
+
+.form-section form {
+  display: flex;
+  flex-direction: column;
+}
+
+input {
+  box-sizing: border-box;
+}
+
+button.auth-button:hover {
+  background-color: #003a79;
+}
+
+button.delete-button {
+  background-color: #dc3545;
+}
+
+button.delete-button:hover {
+  background-color: #a71d2a;
+}
+
+button.logout-button {
+  background-color: #007bff;
+  width: 50vw;
+  margin: 75px auto;
+  padding: 20px;
+  border-radius: 20px;
+  font-size: 21px;
+  display: block;
+}
+
+button.logout-button:hover {
+  background-color: #3076c0;
+}
+
+.error-message {
+  color: #dc3545;
+  text-align: center;
+  margin-bottom: 15px;
+}
+
+.status-message {
+  text-align: center;
+  margin-bottom: 15px;
+}
+
+.status-message.success {
+  color: #28a745;
+}
+
+.status-message.error {
+  color: #dc3545;
+}

@@ -7,6 +7,7 @@ import random
 class Command(BaseCommand):
 
     def handle(self, *args, **options):
+        User.objects.all().delete()
         fake = Faker()
         self.stdout.write("Seeding users...")
 
@@ -14,7 +15,7 @@ class Command(BaseCommand):
             {
                 "email": "steve@makcorp.com.au",
                 "username": "steve",
-                "password": "puzzled",
+                "password": make_password("puzzled"),
                 "first_name": "Steve",
                 "last_name": "Rosewell",
                 "phone_number": "+61 (4) 0555 1055",
@@ -26,7 +27,7 @@ class Command(BaseCommand):
             {
                 "email": "johndoe@example.com",
                 "username": "johndoe",
-                "password": "puzzled",
+                "password": make_password("puzzled"),
                 "first_name": "John",
                 "last_name": "Doe",
                 "phone_number": "07422783642",
@@ -38,7 +39,7 @@ class Command(BaseCommand):
             {
                 "email": "janedoe@example.com",
                 "username": "janedoe",
-                "password": "puzzled",
+                "password": make_password("puzzled"),
                 "first_name": "Jane",
                 "last_name": "Doe",
                 "phone_number": "07952354725",
@@ -49,39 +50,31 @@ class Command(BaseCommand):
             }
         ]
 
-        for data in users_data:
-            user, created = User.objects.get_or_create(
+        predefined_users = [
+            User(
                 email=data["email"],
-                defaults={
-                    "username": data["username"],
-                    "password": make_password(data["password"]),
-                    "first_name": data["first_name"],
-                    "last_name": data["last_name"],
-                    "phone_number": data["phone_number"],
-                    "country": data["country"],
-                    "state": data["state"],
-                    "commodities": data["commodities"],
-                    "tier_level": data["tier_level"],
-                }
+                username=data["username"],
+                password=data["password"],
+                first_name=data["first_name"],
+                last_name=data["last_name"],
+                phone_number=data["phone_number"],
+                country=data["country"],
+                state=data["state"],
+                commodities=data["commodities"],
+                tier_level=data["tier_level"]
             )
-            if created:
-                self.stdout.write(self.style.SUCCESS(f"Created user: {user.email}"))
-            else:
-                self.stdout.write(self.style.WARNING(f"User already exists: {user.email}"))
+            for data in users_data
+        ]
+        User.objects.bulk_create(predefined_users)
+        self.stdout.write(self.style.SUCCESS("Predefined users created successfully."))
 
-        self.stdout.write(self.style.SUCCESS('Creating additional 5 admin users (tier 2)...'))
-        for i in range(5):
-            email = f"admin{i+1}@example.com"
-            username = f"admin{i+1}"
-            
-            if User.objects.filter(email=email).exists():
-                self.stdout.write(self.style.WARNING(f'User {email} already exists, skipping...'))
-                continue
-                
-            user = User.objects.create_user(
-                email=email,
-                username=username,
-                password="puzzling",
+        additional_users = []
+
+        for i in range(7):
+            additional_users.append(User(
+                email=f"admin{i+1}@example.com",
+                username=f"admin{i+1}",
+                password=make_password("puzzling"),
                 first_name=f"admin{i+1}",
                 last_name="Admin",
                 phone_number=fake.phone_number(),
@@ -91,24 +84,15 @@ class Command(BaseCommand):
                 tier_level=2,
                 is_staff=True,
                 is_superuser=True
-            )
-            self.stdout.write(self.style.SUCCESS(f"Created admin user: {user.email}"))
-        
-        self.stdout.write(self.style.SUCCESS('Creating additional 19 tier 1 (paid) users...'))
-        for i in range(19):
+            ))
+
+        for i in range(7):
             first_name = fake.first_name()
             last_name = fake.last_name()
-            email = f"{first_name.lower()}.{last_name.lower()}@example.com"
-            username = f"{first_name.lower()}_{last_name.lower()}"
-            
-            if User.objects.filter(email=email).exists():
-                self.stdout.write(self.style.WARNING(f'User {email} already exists, skipping...'))
-                continue
-                
-            user = User.objects.create_user(
-                email=email,
-                username=username,
-                password="puzzling",
+            additional_users.append(User(
+                email=f"{first_name.lower()}.{last_name.lower()}@example.com",
+                username=f"{first_name.lower()}_{last_name.lower()}",
+                password=make_password("puzzling"),
                 first_name=first_name,
                 last_name=last_name,
                 phone_number=fake.phone_number(),
@@ -116,24 +100,15 @@ class Command(BaseCommand):
                 state=fake.state(),
                 commodities=random.sample(['Gold', 'Silver', 'Oil', 'Wheat', 'Corn', 'Coffee'], k=random.randint(1, 3)),
                 tier_level=1
-            )
-            self.stdout.write(self.style.SUCCESS(f"Created paid user: {user.email}"))
-        
-        self.stdout.write(self.style.SUCCESS('Creating additional 9 tier 0 (basic) users...'))
-        for i in range(9):
+            ))
+
+        for i in range(7):
             first_name = fake.first_name()
             last_name = fake.last_name()
-            email = f"{first_name.lower()}.{last_name.lower()}@example.com"
-            username = f"{first_name.lower()}_{last_name.lower()}"
-            
-            if User.objects.filter(email=email).exists():
-                self.stdout.write(self.style.WARNING(f'User {email} already exists, skipping...'))
-                continue
-                
-            user = User.objects.create_user(
-                email=email,
-                username=username,
-                password="puzzling",
+            additional_users.append(User(
+                email=f"{first_name.lower()}.{last_name.lower()}@example.com",
+                username=f"{first_name.lower()}_{last_name.lower()}",
+                password=make_password("puzzling"),
                 first_name=first_name,
                 last_name=last_name,
                 phone_number=fake.phone_number(),
@@ -141,7 +116,9 @@ class Command(BaseCommand):
                 state=fake.state(),
                 commodities=random.sample(['Gold', 'Silver'], k=random.randint(1, 2)),
                 tier_level=0
-            )
-            self.stdout.write(self.style.SUCCESS(f"Created basic user: {user.email}"))
-            
+            ))
+
+        User.objects.bulk_create(additional_users)
+        self.stdout.write(self.style.SUCCESS("Additional users created successfully."))
+
         self.stdout.write(self.style.SUCCESS("Successfully seeded all users!"))
