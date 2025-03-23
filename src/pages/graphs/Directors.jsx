@@ -388,36 +388,74 @@ const getUniqueValues = (key) => {
 const generateRangeOptions = (field) => {
   if (!directors || !directors.length) return [];
   
-  const values = directors.map(item => parseFloat(item[field])).filter(val => !isNaN(val));
+  const values = directors
+    .map(item => parseFloat(item[field]))
+    .filter(val => !isNaN(val));
+    
   if (!values.length) return [];
   
   const min = Math.min(...values);
   const max = Math.max(...values);
-  
-  let increment = field.includes('price') ? 
-      Math.ceil((max - min) / 10 * 100) / 100 : 
-      Math.ceil((max - min) / 10);              
-  
-  if (field.includes('price') && increment < 0.01) increment = 0.01;
-  
   const options = [];
-  options.push({ label: 'Any', value: 'Any' }); 
   
-  for (let i = min; i < max; i += increment) {
-      const rangeMin = i;
-      const rangeMax = Math.min(i + increment, max);
+  options.push({ label: 'Any', value: 'Any' });
+  
+  const roundedMin = Math.floor(min);
+  const roundedMax = Math.ceil(max);
+  
+  if (roundedMax < 100) {
+    let currentValue = roundedMin;
+    
+    while (currentValue < roundedMax) {
+      const rangeMin = currentValue;
+      const rangeMax = currentValue + 1;
       
-      let rangeLabel;
-      if (field.includes('price')) {
-          rangeLabel = `${rangeMin.toFixed(2)} to ${rangeMax.toFixed(2)}`;
-      } else {
-          rangeLabel = `${Math.floor(rangeMin).toLocaleString()} to ${Math.ceil(rangeMax).toLocaleString()}`;
-      }
-      
-      options.push({ 
-          label: rangeLabel, 
-          value: `${rangeMin} to ${rangeMax}` 
+      options.push({
+        label: `${rangeMin} to ${rangeMax}`,
+        value: `${rangeMin} to ${rangeMax}`
       });
+      
+      currentValue = rangeMax;
+    }
+  } 
+  else {
+    const magnitude = Math.pow(10, Math.floor(Math.log10(roundedMax)));
+    let increment = Math.max(1, Math.round(magnitude / 10));
+    
+    if ((roundedMax - roundedMin) / increment > 20) {
+      increment = Math.max(1, Math.round(magnitude / 5));
+    } else if ((roundedMax - roundedMin) / increment < 5) {
+      increment = Math.max(1, Math.round(magnitude / 20));
+    }
+    
+    let currentValue = Math.floor(roundedMin / increment) * increment;
+    
+    while (currentValue < roundedMax) {
+      const rangeMin = currentValue;
+      const rangeMax = currentValue + increment;
+      
+      const formatNumber = (num) => {
+        if (num >= 1000000000) {
+          return `${(num / 1000000000).toFixed(2)}B`.replace(/\.00B$/, 'B');
+        } else if (num >= 1000000) {
+          const formatted = (num / 1000000).toFixed(2);
+          return `${formatted.replace(/\.?0+$/, '')}M`;
+        } else if (num >= 1000) {
+          return `${Math.round(num / 1000)}K`;
+        } else {
+          return Math.round(num);
+        }
+      };
+      
+      const rangeLabel = `${formatNumber(rangeMin)} to ${formatNumber(rangeMax)}`;
+      
+      options.push({
+        label: rangeLabel,
+        value: `${rangeMin} to ${rangeMax}`
+      });
+      
+      currentValue = rangeMax;
+    }
   }
   
   return options;
