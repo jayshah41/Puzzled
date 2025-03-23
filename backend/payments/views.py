@@ -107,15 +107,23 @@ class CreateCustomerPortalSessionView(APIView):
 # ✅ Stripe Webhook Endpoint
 @csrf_exempt
 def stripe_webhook(request):
+    import json
+    from django.http import JsonResponse
+    from django.conf import settings
+
     payload = request.body
     sig_header = request.META.get('HTTP_STRIPE_SIGNATURE')
     endpoint_secret = settings.STRIPE_WEBHOOK_SECRET
 
-    print("Webhook received.")
+    print("Webhook received...")
 
     try:
-        event = stripe.Webhook.construct_event(payload, sig_header, endpoint_secret)
-        print(f"Webhook verified: {event['type']}")
+        event = stripe.Webhook.construct_event(
+            payload=payload,
+            sig_header=sig_header,
+            secret=endpoint_secret
+        )
+        print(f"Webhook verified. Event: {event['type']}")
     except ValueError as e:
         print(f"Invalid payload: {e}")
         return JsonResponse({'error': 'Invalid payload'}, status=400)
@@ -123,18 +131,48 @@ def stripe_webhook(request):
         print(f"Invalid signature: {e}")
         return JsonResponse({'error': 'Invalid signature'}, status=400)
 
-    # ✅ Handle checkout.session.completed event (Upgrade user)
+    # ✅ Handle checkout.session.completed event
     if event['type'] == 'checkout.session.completed':
         session = event['data']['object']
         customer_email = session.get('customer_email')
 
-        print(f"Checkout session completed for: {customer_email}")
+        print(f"Checkout session completed for {customer_email}")
+
+        if not customer_email:
+            print("No customer email found in session.")
+            return JsonResponse({'error': 'No customer email found'}, status=400)
 
         try:
             user = User.objects.get(email=customer_email)
             user.tier_level = 1
             user.save()
-
             print(f"User {user.email} upgraded to tier 1.")
         except User.DoesNotExist:
-            print(f"User not found for email: {customer_email}")
+            print(f"User with email {customer_email} does not exist.")
+
+    # ✅ Handle customer.subscription.deleted event
+    elif event['type'] == 'customer.subscription.deleted':
+        subscription = event['data']['object']
+        customer_id = subscription.get('customer')
+
+        print(f"Subscription deleted for customer_id {customer_id}")
+
+        try:
+            customer = stripe.Customer.retrieve(customer_id)
+            customer_email = customer.get('email')
+
+            if not customer_email:
+                print("No customer email found in Stripe customer.")
+                return JsonResponse({'error': 'No customer email found'}, status=400)
+
+            user = User.objects.get(email=customer_email)
+            user.tier_level = 0
+            user.save()
+            print(f"User {user.email} downgraded to tier 0.")
+        except User.DoesNotExist:
+            print(f"User with email {customer_email} does not exist.")
+        except Exception as e:
+            print(f"Error retrieving customer or updating user: {e}")
+
+    # ✅ Return a valid HTTP response to stop 500s!
+    return JsonResponse({'status': 'success'}, status=200)
