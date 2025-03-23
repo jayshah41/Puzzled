@@ -41,5 +41,6 @@ urlpatterns = [
     path('news-cards/update-order/', NewsCardViewSet.as_view({'patch': 'update_order'}), name='newscard-direct-update-order'),
     path('news-cards/<int:pk>/', NewsCardViewSet.as_view({'get': 'retrieve', 'put': 'update', 'patch': 'partial_update', 'delete': 'destroy'}), name='newscard-direct-detail'),
     path('news-cards/', NewsCardViewSet.as_view({'get': 'list', 'post': 'create'}), name='newscard-direct-list'),
-    path('send-email/', SendEmailView.as_view(), name='send-email')
+    path('send-email/', SendEmailView.as_view(), name='send-email'),
+    path('payments/', include('payments.urls')),
 ]
