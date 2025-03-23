@@ -93,8 +93,6 @@ const MarketTrends = () => {
                 },
                 params: params
             });
-
-            console.log("API Response:", response.data);
             
             // handling different api formats
             if (Array.isArray(response.data)) {
@@ -412,7 +410,6 @@ const MarketTrends = () => {
     };
 
     useEffect(() => {
-        console.log("Fetching market trends...");
         fetchMarketTrends();
     }, [fetchMarketTrends]);
 

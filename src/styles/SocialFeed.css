@@ -8,6 +8,26 @@
     padding: 0 1rem;
 }
 
+.social-feed-hero {
+    margin: 25px;
+    text-align: center;
+}
+
+.social-feed-hero h1 {
+    font-size: 2.4rem;
+    font-weight: bold;
+    color: #222;
+    margin-bottom: 1rem;
+}
+
+.social-feed-hero p {
+    font-size: 1.2rem;
+    color: #555;
+    line-height: 1.6;
+    max-width: 750px;
+    margin: 0 auto;
+}
+
 .twitter-feed, .youtube-feed {
     flex: 1; 
     max-width: 50%;

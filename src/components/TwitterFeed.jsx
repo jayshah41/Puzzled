@@ -9,7 +9,7 @@ const TwitterFeed = ({ username }) => {
 
     const fetchTweets = async () => {
         try {
-            const response = await fetch(`/api/data/tweets/${username}/`);
+            const response = await fetch(`http://127.0.0.1:8000/data/tweets/${username}/`);
             
             if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
 

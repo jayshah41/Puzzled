@@ -9,6 +9,7 @@ const Login = ({ onClose, loginButton, onLoginSuccess }) => {
     const [formData, setFormData] = useState({
         email: "",
         password: "",
+        username: "",
         firstName: "",
         lastName: "",
         phoneNumber: "",
@@ -17,6 +18,9 @@ const Login = ({ onClose, loginButton, onLoginSuccess }) => {
         commodities: ["", "", ""]
     });
     const [error, setError] = useState("");
+    const [successMessage, setSuccessMessage] = useState("");
+
+
 
     const commodityOptions = [
         "Aluminum", "Coal", "Cobalt", "Copper", "Gold", "Graphite",
@@ -80,7 +84,6 @@ const Login = ({ onClose, loginButton, onLoginSuccess }) => {
     const handleSignup = async (e) => {
         e.preventDefault();
         setError("");
-
         try {
             const response = await fetch("/api/register/", {
                 method: "POST",
@@ -88,6 +91,7 @@ const Login = ({ onClose, loginButton, onLoginSuccess }) => {
                 body: JSON.stringify({
                     first_name: formData.firstName,
                     last_name: formData.lastName,
+                    username: formData.username, 
                     email: formData.email,
                     phone_number: formData.phoneNumber,
                     country: formData.country,
@@ -100,7 +104,8 @@ const Login = ({ onClose, loginButton, onLoginSuccess }) => {
 
             if (!response.ok) throw new Error("Signup failed, try again");
 
-            alert("Account created successfully! Please log in.");
+            setSuccessMessage("Account created successfully! You can now log in.");
+
             setIsLogin(true);
 
         } catch (error) {
@@ -141,6 +146,8 @@ const Login = ({ onClose, loginButton, onLoginSuccess }) => {
                 </div>
 
                 {error && <p className="error-message">{error}</p>}
+                {successMessage && <p className="success-message">{successMessage}</p>}
+
 
                 {isLogin ? (
                     <form className="auth-form" onSubmit={handleLogin}>
@@ -165,6 +172,8 @@ const Login = ({ onClose, loginButton, onLoginSuccess }) => {
                         <p>User Information</p>
                         <input type="text" placeholder="First Name" className="auth-input" name="firstName" value={formData.firstName} onChange={handleChange} required />
                         <input type="text" placeholder="Last Name" className="auth-input" name="lastName" value={formData.lastName} onChange={handleChange} required />
+                        <input type="text" placeholder="Username" className="auth-input" name="username" value={formData.username} onChange={handleChange} required />
+
                         <input type="email" placeholder="Email address" className="auth-input" name="email" value={formData.email} onChange={handleChange} required />
                         <input type="text" placeholder="Phone Number" className="auth-input" name="phoneNumber" value={formData.phoneNumber} onChange={handleChange} required />
                         <input type="text" placeholder="Country" className="auth-input" name="country" value={formData.country} onChange={handleChange} required />

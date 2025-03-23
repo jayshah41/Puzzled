@@ -69,9 +69,6 @@ const ServicesCardContainer = ({ isEditing }) => {
           }),
         })
           .then(response => response.json())
-          .then(data => {
-            console.log(`Title ${index + 1} saved successfully:`, data);
-          })
           .catch(error => {
             console.error(`There was an error saving the title ${index + 1}`, error);
           }),
@@ -88,9 +85,6 @@ const ServicesCardContainer = ({ isEditing }) => {
           }),
         })
           .then(response => response.json())
-          .then(data => {
-            console.log(`Content ${index + 1} saved successfully:`, data);
-          })
           .catch(error => {
             console.error(`There was an error saving the content ${index + 1}`, error);
           })
