@@ -18,7 +18,6 @@ class UserSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError({"password": "Password is required."})
 
         instance = self.Meta.model(**validated_data)  
-        instance.set_password(password)  
         instance.save()
 
         return instance
