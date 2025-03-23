@@ -189,14 +189,16 @@ const MarketTrends = () => {
                         type: 'bar',
                         label: 'Daily Average Price Change %',
                         data: [0],
+                        order: 2,
                         backgroundColor: 'rgba(75, 192, 75, 1.0)',
                         borderColor: 'rgb(75, 192, 75)',
-                        borderWidth: 1
+                        borderWidth: 1,
                     }, 
                     {
                         type: 'line',
                         label: 'Daily Average Price',
                         data: [0],
+                        order: 1,
                         borderColor: '#4361EE',
                         borderWidth: 2,
                         pointBackgroundColor: '#4361EE',
@@ -253,6 +255,7 @@ const MarketTrends = () => {
                     type: 'bar',
                     label: 'Daily Average Price Change %',
                     data: priceChangeValues,
+                    order: 2,  
                     backgroundColor: backgroundColors,
                     borderColor: priceChangeValues.map(val => 
                         val >= 0 ? 'rgb(75, 192, 75)' : 'rgb(255, 99, 132)'
@@ -263,6 +266,7 @@ const MarketTrends = () => {
                     type: 'line',
                     label: 'Daily Average Price',
                     data: priceValues,
+                    order: 1,  
                     borderColor: '#4361EE',
                     borderWidth: 2,
                     pointBackgroundColor: '#4361EE',
@@ -281,19 +285,21 @@ const MarketTrends = () => {
                         type: 'bar',
                         label: 'Average Volume Change %',
                         data: [0],
+                        order: 2,
                         backgroundColor: 'rgba(75, 75, 192, 1.0)',
                         borderColor: 'rgb(75, 75, 192)',
-                        borderWidth: 1
+                        borderWidth: 1, 
                     },
                     {
                         type: 'line',
                         label: 'Average Volume',
                         data: [0],
+                        order: 1,
                         borderColor: '#F72585',
                         backgroundColor: 'transparent',
                         borderWidth: 2,
                         pointBackgroundColor: '#F72585',
-                        yAxisID: 'y1'
+                        yAxisID: 'y1', 
                     }
                 ]
             });
@@ -350,6 +356,7 @@ const MarketTrends = () => {
                     type: 'bar',
                     label: 'Average Volume Change %',
                     data: volumeChangeValues,
+                    order: 2, 
                     backgroundColor: backgroundColors,
                     borderColor: volumeChangeValues.map(val => 
                         val >= 0 ? 'rgb(75, 75, 192)' : 'rgb(192, 75, 75)'
@@ -360,6 +367,7 @@ const MarketTrends = () => {
                     type: 'line',
                     label: 'Average Volume',
                     data: volumeValues,
+                    order: 1,
                     borderColor: '#F72585',
                     backgroundColor: 'transparent',
                     borderWidth: 2,
@@ -591,7 +599,7 @@ const MarketTrends = () => {
                         position: 'right',
                         title: {
                             display: true,
-                            text: 'Price (A$)'
+                            text: 'Price ($)'
                         },
                         grid: {
                             drawOnChartArea: false
