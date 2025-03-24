@@ -17,9 +17,11 @@ class UserSerializer(serializers.ModelSerializer):
         if not password:
             raise serializers.ValidationError({"password": "Password is required."})
 
-        instance = self.Meta.model(**validated_data)  
-        instance.save()
+        instance = self.Meta.model(**validated_data)
 
+        instance.set_password(password)
+
+        instance.save()
         return instance
         
     def update(self, instance, validated_data):
