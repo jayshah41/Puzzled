@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Bar, Line, Pie, Doughnut, Radar, Scatter, Bubble } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, PointElement, LineElement, ArcElement, RadialLinearScale } from 'chart.js';
 import '../styles/Graphs.css';
+import MultiSelectDropdown from './MultiSelectDropdown';
 
 ChartJS.register(
   CategoryScale,
@@ -26,9 +27,7 @@ const GraphPage = ({
   tableColumns = [],
   tableData = [],
   handleRemoveFilter, 
-  handleAddFilter, 
-  applyFilters, 
-  //clearAllFilters
+  handleAddFilter
 }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const rowsPerPage = 10;
@@ -45,12 +44,24 @@ const GraphPage = ({
       <h2 className="dashboard-title">{title} Dashboard</h2>
       
       <div className="filter-tags">
-        {filterTags.map((tag, index) => (
-          <div key={index} className="filter-tag">
-            <span>{tag.label}: {tag.value}</span>
-            <button className="close-btn" onClick={() => handleRemoveFilter(tag.label)} style={{color:'black'}}>×</button>
+        {filterTags.length === 0 ? (
+          <div className="filter-tag">
+            <span>No Filters Applied</span>
           </div>
-        ))}
+        ) : (
+          filterTags.map((tag, index) => (
+            <div key={index} className="filter-tag">
+              <span>{tag.label}: {tag.displayValue || tag.value}</span>
+              <button 
+                className="close-btn" 
+                onClick={() => handleRemoveFilter(tag.label, tag.value)} 
+                style={{color:'black'}}
+              >
+                ×
+              </button>
+            </div>
+          ))
+        )}
         <div className="filter-add-container">
           {filterOptions.length > 0 ? (
             <select 
@@ -73,7 +84,7 @@ const GraphPage = ({
               ))}
             </select>
           ) : (
-            <span className="no-filters-message">No more filters available</span>
+            <span className="no-filters-message"></span>
           )}
         </div>
       </div>
@@ -83,33 +94,19 @@ const GraphPage = ({
           <h3>Filters</h3>
           <div className="filter-options">
             {allFilterOptions.map((filter, index) => {
-              const currentTag = filterTags.find(tag => tag.label === filter.label);
-              const currentValue = currentTag ? currentTag.value : filter.value;
               
               return (
                 <div key={index} className="filter-column">
-                  <label>{filter.label}</label>
-                  <select 
-                    className="filter-select" 
-                    onChange={(e) => filter.onChange(e.target.value)}
-                    value={currentValue}  
-                  >
-                    {filter.options.map((option, i) => (
-                      <option key={i} value={option.value}>
-                        {option.label}
-                      </option>
-                    ))}
-                  </select>
+                  <MultiSelectDropdown
+                    label={filter.label}
+                    options={filter.options}
+                    selectedValues={filter.selectedValues || ['Any']}
+                    onChange={(value) => filter.onChange(value)}
+                  />
                 </div>
               );
             })}
-          </div>
-          <div className="filter-actions">
-            <button className="button apply-btn" onClick={applyFilters}>Apply changes</button>
-            <button className="button clear-btn" style={{ color: 'black'}} onClick={() => filterTags.forEach(tag => handleRemoveFilter(tag.label))}>
-              Clear filters
-            </button>
-          </div>
+          </div>          
         </div>
         
         <div className="metrics-section">
