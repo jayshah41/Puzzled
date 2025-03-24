@@ -200,12 +200,10 @@ const Navbar = () => {
         </div>
         {links}
         {(isEditing || (isLoggedIn && areAnyGraphsVisible)) && (
-          <div className="dropdown">
-            <button
-              className="dropbtn navbar-button"
-              onMouseEnter={() => setShowGraphsDropdown(true)}>
-              Graphs
-            </button>
+          <div className="dropdown"
+            onMouseEnter={() => setShowGraphsDropdown(true)}
+            onMouseLeave={() => setShowGraphsDropdown(false)}>
+            <button className="dropbtn navbar-button">Graphs</button>
             {showGraphsDropdown && (
               <div className="dropdown-content">
                 {graphLinksUI}
