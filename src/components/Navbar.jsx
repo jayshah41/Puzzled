@@ -18,6 +18,7 @@ const Navbar = () => {
   const [tabs, setTabs] = useState([]);
   const [graphLinks, setGraphLinks] = useState([]);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [graphsTitle, setGraphsTitle] = useState("Graphs");
   const [showGraphsDropdown, setShowGraphsDropdown] = useState(false);
 
   useEffect(() => {
@@ -32,6 +33,13 @@ const Navbar = () => {
           .filter(item => item.section.startsWith('graph'))
           .map((item) => JSON.parse(item.text_value))
           .filter(graph => graph.accessLevel <= userTierLevel);
+        
+        const graphsTitleItem = data.find(item => item.section === 'dropdownHeading');
+        if (graphsTitleItem) {
+          const graphsData = JSON.parse(graphsTitleItem.text_value);
+          setGraphsTitle(graphsData.text);
+        }
+
         setTabs(fetchedTabs);
         setGraphLinks(fetchedGraphLinks);
       })
@@ -53,7 +61,18 @@ const Navbar = () => {
       text_value: JSON.stringify(graph),
     }));
 
-    saveContent([...tabContentData, ...graphContentData]);
+    const graphsTitleData = {
+      component: 'Navbar',
+      section: 'dropdownHeading',
+      text_value: JSON.stringify({
+        text: graphsTitle,
+        link: "",
+        showing: true,
+        accessLevel: 1
+      }),
+    };
+
+    saveContent([...tabContentData, ...graphContentData, graphsTitleData]);
   };
 
   const toggleTabVisibility = (index) => {
@@ -151,7 +170,7 @@ const Navbar = () => {
     };
   }, []);
 
-  const contentIsValid = (tabs, graphLinks) => {
+  const contentIsValid = (tabs, graphLinks, graphsTitle) => {
     for (const tab of tabs) {
       if (!tab.text.trim() || !tab.link.trim()) {
         return false;
@@ -162,6 +181,10 @@ const Navbar = () => {
         return false;
       }
     }
+    if (!graphsTitle.trim()) {
+      return false;
+    }
+    
     return true;
   };
 
@@ -183,7 +206,7 @@ const Navbar = () => {
           style={{ marginLeft: "20px" }}
             onClick={() => {
               if (isEditing) {
-                if (contentIsValid(tabs, graphLinks)) {
+                if (contentIsValid(tabs, graphLinks, graphsTitle)) {
                   handleSave();
                   setIsEditing(false);
                 } else {
@@ -203,7 +226,18 @@ const Navbar = () => {
           <div className="dropdown"
             onMouseEnter={() => setShowGraphsDropdown(true)}
             onMouseLeave={() => setShowGraphsDropdown(false)}>
-            <button className="dropbtn navbar-button">Graphs</button>
+            {isEditing ? (
+              <div style={{ display: 'flex', alignItems: 'center' }}>
+                <input
+                  type="text"
+                  value={graphsTitle}
+                  onChange={(e) => setGraphsTitle(e.target.value)}
+                  style={{ marginRight: '8px', width: '100px' }}
+                />
+              </div>
+            ) : (
+              <button className="dropbtn navbar-button">{graphsTitle}</button>
+            )}
             {showGraphsDropdown && (
               <div className="dropdown-content">
                 {graphLinksUI}
