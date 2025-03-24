@@ -15,8 +15,24 @@ const Navbar = () => {
   const saveContent = useSaveContent();
 
   const [isEditing, setIsEditing] = useState(false);
-  const [tabs, setTabs] = useState([]);
-  const [graphLinks, setGraphLinks] = useState([]);
+  const [tabs, setTabs] = useState([
+    { text: "Home", link: "/", showing: true, accessLevel: -1 },
+    { text: "Pricing", link: "/pricing", showing: true, accessLevel: -1 },
+    { text: "Products", link: "/products", showing: true, accessLevel: -1 },
+    { text: "Contact Us", link: "/contact-us", showing: true, accessLevel: -1 },
+    { text: "News", link: "/news", showing: true, accessLevel: 0 },
+    { text: "Socials", link: "/social-media", showing: true, accessLevel: 0 }
+  ]);
+  const [graphLinks, setGraphLinks] = useState([
+    { text: "Company Details", link: "/graphs/company-details", showing: true, accessLevel: 1 },
+    { text: "Market Data", link: "/graphs/market-data", showing: true, accessLevel: 1 },
+    { text: "Market Trends", link: "/graphs/market-trends", showing: true, accessLevel: 1 },
+    { text: "Directors", link: "/graphs/directors", showing: true, accessLevel: 1 },
+    { text: "Shareholders", link: "/graphs/shareholders", showing: true, accessLevel: 1 },
+    { text: "Capital Raises", link: "/graphs/capital-raises", showing: true, accessLevel: 1 },
+    { text: "Projects", link: "/graphs/projects", showing: true, accessLevel: 1 },
+    { text: "Financials", link: "/graphs/financials", showing: true, accessLevel: 1 }
+  ]);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [graphsTitle, setGraphsTitle] = useState("Graphs");
   const [showGraphsDropdown, setShowGraphsDropdown] = useState(false);
