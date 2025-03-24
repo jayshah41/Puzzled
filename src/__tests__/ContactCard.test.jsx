@@ -156,4 +156,43 @@ describe('ContactCard Component', () => {
       </div>
     `);
   });
+
+  test('updates contacts array correctly when edited', () => {
+    // Mock contacts array for testing array manipulation
+    const mockContacts = [
+      { ...mockContact },
+      { name: 'Jane Doe', role: 'CTO', phone: '987-654-3210', email: 'jane@example.com' }
+    ];
+    
+    // Store the original email value to verify later
+    const originalEmail = mockContacts[0].email;
+    
+    let capturedContacts;
+    const mockSetContactsWithCapture = jest.fn(updater => {
+      // Capture the updated contacts by calling the updater function
+      capturedContacts = updater(mockContacts);
+      return capturedContacts; // Return the result as setContacts would
+    });
+    
+    render(
+      <ContactCard 
+        contact={mockContacts[0]} 
+        index={0} 
+        setContacts={mockSetContactsWithCapture} 
+        isEditing={true} 
+      />
+    );
+    
+    const nameInput = screen.getByDisplayValue('John Doe');
+    fireEvent.change(nameInput, { target: { value: 'John Smith' } });
+    expect(mockSetContactsWithCapture).toHaveBeenCalled();
+    expect(capturedContacts).toHaveLength(2);
+    expect(capturedContacts[0].name).toBe('John Smith');
+    expect(capturedContacts[1].name).toBe('Jane Doe');
+    
+    const emailInput = screen.getByDisplayValue('john@example.com');
+    fireEvent.change(emailInput, { target: { value: 'smith@example.com' } });
+    expect(capturedContacts[0].email).toBe('smith@example.com');
+    expect(originalEmail).toBe('john@example.com');
+  });
 });
