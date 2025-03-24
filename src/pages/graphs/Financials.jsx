@@ -109,23 +109,47 @@ const Financials = () => {
     
     let filtered = [...financials];
     
+    const filtersByLabel = {};
     filterTags.forEach(tag => {
-      if (tag.value && tag.value !== 'Default' && tag.label !== 'No Filters Applied') {
-        const fieldName = fieldMapping[tag.label];
-        if (fieldName) {
-          filtered = filtered.filter(item => {
-            return item[fieldName] && item[fieldName].toString() === tag.value.toString();
+      if (tag.label === 'No Filters Applied') return;
+      
+      if (!filtersByLabel[tag.label]) {
+        filtersByLabel[tag.label] = [];
+      }
+      filtersByLabel[tag.label].push(tag.value);
+    });
+    
+    if (Object.keys(filtersByLabel).length === 0) {
+      setFilteredFinancials(financials);
+      processFinancialData(financials);
+      return;
+    }
+  
+    Object.entries(filtersByLabel).forEach(([label, values]) => {
+      if (values.includes('Any')) return; 
+      
+      const fieldName = fieldMapping[label];
+      
+      if (fieldName) {
+        filtered = filtered.filter(item => {
+          if (!item[fieldName]) return false;
+          const itemValue = String(item[fieldName]);
+          return values.some(value => String(value) === itemValue);
+        });
+      }
+  
+      const rangeField = rangeFieldMapping[label];
+      if (rangeField) {
+        filtered = filtered.filter(item => {
+          const value = parseFloat(item[rangeField]);
+          if (isNaN(value)) return false;
+          
+          return values.some(rangeStr => {
+            if (!rangeStr.includes(' to ')) return false;
+            const [min, max] = rangeStr.split(' to ').map(val => parseFloat(val));
+            return value >= min && value <= max;
           });
-        }
-
-        const rangeField = rangeFieldMapping[tag.label];
-        if (rangeField) {
-            const [min, max] = tag.value.split(' to ').map(val => parseFloat(val));
-            filtered = filtered.filter(item => {
-                const value = parseFloat(item[rangeField]);
-                return value >= min && value <= max;
-            });
-        }
+        });
       }
     });
     
@@ -134,7 +158,7 @@ const Financials = () => {
   }, [financials, filterTags]);
 
   useEffect(() => {
-    if (financials.length) {
+    if (financials.length > 0) {
       applyClientSideFilters();
     }
   }, [filterTags, applyClientSideFilters]);
@@ -419,112 +443,164 @@ const Financials = () => {
     return options;
   };
 
+  const getSelectedValuesForFilter = (filterLabel) => {
+    const values = filterTags
+      .filter(tag => tag.label === filterLabel)
+      .map(tag => tag.value);
+    
+    return values.length > 0 ? values : ['Any'];
+  };
+
   const allFilterOptions = [
     {
       label: 'ASX Code',
       value: 'Default',
       onChange: (value) => handleFilterChange('ASX Code', value),
-      options: [{ label: 'Any', value: 'Any' }, ...getUniqueValues('asx_code')]
+      options: [{ label: 'Any', value: 'Any' }, ...getUniqueValues('asx_code')],
+      selectedValues: getSelectedValuesForFilter('ASX Code')
     },
     {
       label: 'Ann Type',
       value: 'Default',
-      onChange: (value) => handleFilterChange('Ann Type', value),
-      options: [{ label: 'Any', value: 'Any' }, ...getUniqueValues('ann_date')]
+      onChange: (value) => handleFilterChange('Ann Date', value),
+      options: [{ label: 'Any', value: 'Any' }, ...getUniqueValues('ann_date')],
+      selectedValues: getSelectedValuesForFilter('Ann Date')
     },
     {
       label: 'Period',
       value: 'Default',
       onChange: (value) => handleFilterChange('Period', value),
-      options: [{ label: 'Any', value: 'Any' }, ...getUniqueValues('period')]
+      options: [{ label: 'Any', value: 'Any' }, ...getUniqueValues('period')],
+      selectedValues: getSelectedValuesForFilter('Period')
     },
     {
       label: 'Net Operating Cash Flow',
       value: 'Default',
       onChange: (value) => handleFilterChange('Net Operating Cash Flow', value),
-      options: generateRangeOptions('net_operating_cash_flow')
+      options: generateRangeOptions('net_operating_cash_flow'),
+      selectedValues: getSelectedValuesForFilter('Net Operating Cash Flow')
     },
     {
       label: 'Exploration Spend',
       value: 'Default',
       onChange: (value) => handleFilterChange('Exploration Spend', value),
-      options: generateRangeOptions('exploration_spend')
+      options: generateRangeOptions('exploration_spend'), 
+      selectedValues: getSelectedValuesForFilter('Exploration Spend')
     },
     {
       label: 'Development Production Spend',
       value: 'Default',
       onChange: (value) => handleFilterChange('Development Production Spend', value),
-      options: generateRangeOptions('development_production_spend')
+      options: generateRangeOptions('development_production_spend'),
+      selectedValues: getSelectedValuesForFilter('Development Production Spend')
     },
     {
       label: 'Staff Costs',
       value: 'Default',
       onChange: (value) => handleFilterChange('Staff Costs', value),
-      options: generateRangeOptions('staff_costs')
+      options: generateRangeOptions('staff_costs'), 
+      selectedValues: getSelectedValuesForFilter('Staff Costs')
     },
     {
       label: 'Admin Costs',
       value: 'Default',
       onChange: (value) => handleFilterChange('Admin Costs', value),
-      options: generateRangeOptions('admin_costs')
+      options: generateRangeOptions('admin_costs'), 
+      selectedValues: getSelectedValuesForFilter('Admin Costs')
     },
     {
       label: 'Other Costs',
       value: 'Default',
       onChange: (value) => handleFilterChange('Other Costs', value),
-      options: generateRangeOptions('other_costs')
+      options: generateRangeOptions('other_costs'), 
+      selectedValues: getSelectedValuesForFilter('Other Costs')
     },
     {
       label: 'Net Cash Invest',
       value: 'Default',
       onChange: (value) => handleFilterChange('Net Cash Invest', value),
-      options: generateRangeOptions('net_cash_invest')
+      options: generateRangeOptions('net_cash_invest'), 
+      selectedValues: getSelectedValuesForFilter('Net Cash Invest')
     },
     {
       label: 'Cash Flow Total',
       value: 'Default',
       onChange: (value) => handleFilterChange('Cash Flow Total', value),
-      options: generateRangeOptions('cashflow_total')
+      options: generateRangeOptions('cashflow_total'), 
+      selectedValues: getSelectedValuesForFilter('Cash Flow Total')
     },
     {
       label: 'Bank Balance',
       value: 'Default',
       onChange: (value) => handleFilterChange('Bank Balance', value),
-      options: generateRangeOptions('bank_balance')
+      options: generateRangeOptions('bank_balance'), 
+      selectedValues: getSelectedValuesForFilter('Bank Balance')
     },
     {
       label: 'Debt',
       value: 'Default',
       onChange: (value) => handleFilterChange('Debt', value),
-      options: generateRangeOptions('debt')
+      options: generateRangeOptions('debt'), 
+      selectedValues: getSelectedValuesForFilter('Debt')
     },
     {
       label: 'Market Cap',
       value: 'Default',
       onChange: (value) => handleFilterChange('Market Cap', value),
-      options: generateRangeOptions('market_cap')
+      options: generateRangeOptions('market_cap'), 
+      selectedValues: getSelectedValuesForFilter('Market Cap')
     },
     {
       label: 'Forecast Net Operating',
       value: 'Default',
       onChange: (value) => handleFilterChange('Forecast Net Operating', value),
-      options: generateRangeOptions('forecast_net_operating')
+      options: generateRangeOptions('forecast_net_operating'), 
+      selectedValues: getSelectedValuesForFilter('Forecast Net Operating')
     }
   ];
 
-  const handleFilterChange = (label, value) => {
-    if (value && value !== 'Any') {
-      setFilterTags(prevTags => {
-        const updatedTags = prevTags.filter(tag => tag.label !== label);
-        return [...updatedTags, { label, value }];
+  const handleFilterChange = (label, values) => {
+    setFilterTags(prevTags => {
+      const tagsWithoutCurrentLabel = prevTags.filter(tag => tag.label !== label);
+      
+      if (!values || values.length === 0 || values.includes('Any')) {
+        return tagsWithoutCurrentLabel;
+      }
+      
+      const newTags = values.map(value => {
+        const option = allFilterOptions
+          .find(opt => opt.label === label)?.options
+          .find(opt => opt.value === value);
+        
+        return {
+          label,
+          value,
+          values, 
+          displayValue: option?.label || value
+        };
       });
-    } else {
-      setFilterTags(prevTags => prevTags.filter(tag => tag.label !== label));
-    }
+      
+      return [...tagsWithoutCurrentLabel, ...newTags];
+    });
   };
 
-  const handleRemoveFilter = (filterLabel) => {
-    setFilterTags(prevTags => prevTags.filter(tag => tag.label !== filterLabel));
+  const handleRemoveFilter = (label, value) => {
+    setFilterTags(prevTags => {
+      const updatedTags = prevTags.filter(tag => !(tag.label === label && tag.value === value));
+      return updatedTags;
+    });
+
+    const currentFilter = allFilterOptions.find(opt => opt.label === label);
+    if (currentFilter) {
+      const currentValues = filterTags
+        .filter(tag => tag.label === label && tag.value !== value)
+        .map(tag => tag.value);
+      if (currentValues.length === 0) {
+        currentFilter.onChange(["Any"]);
+      } else {
+        currentFilter.onChange(currentValues);
+      }
+    }
   };
   
   const handleAddFilter = (filter) => {
@@ -543,9 +619,14 @@ const Financials = () => {
   };
 
   const generateFilterTags = () => {
-    return filterTags.length > 0 ? filterTags : [
-      { label: 'No Filters Applied', value: 'Click to add filters', onRemove: () => {} }
-    ];
+    if (filterTags.length === 0) {
+      return [{ label: 'No Filters Applied', value: 'Click to add filters' }];
+    }
+    
+    return filterTags.map(tag => ({
+      ...tag,
+      onRemove: () => handleRemoveFilter(tag.label, tag.value)
+    }));
   };
   
   const generateMetricCards = () => [

@@ -94,32 +94,56 @@ const CapitalRaises = () => {
   
     let filtered = [...capitalRaises];
     
+    const filtersByLabel = {};
     filterTags.forEach(tag => {
-      if (tag.value && tag.value !== 'Any' && tag.label !== 'No Filters Applied') {
-          const fieldName = fieldMapping[tag.label];
-          if (fieldName) {
-              filtered = filtered.filter(item => {
-                  return item[fieldName] && item[fieldName].toString() === tag.value.toString();
-              });
-          }
-          
-          const rangeField = rangeFieldMapping[tag.label];
-          if (rangeField) {
-              const [min, max] = tag.value.split(' to ').map(val => parseFloat(val));
-              filtered = filtered.filter(item => {
-                  const value = parseFloat(item[rangeField]);
-                  return value >= min && value <= max;
-              });
-          }
+      if (tag.label === 'No Filters Applied') return;
+      
+      if (!filtersByLabel[tag.label]) {
+        filtersByLabel[tag.label] = [];
       }
-  });
+      filtersByLabel[tag.label].push(tag.value);
+    });
+    
+    if (Object.keys(filtersByLabel).length === 0) {
+      setFilteredCapitalRaises(capitalRaises);
+      processCapitalRaises(capitalRaises);
+      return;
+    }
+  
+    Object.entries(filtersByLabel).forEach(([label, values]) => {
+      if (values.includes('Any')) return; 
+      
+      const fieldName = fieldMapping[label];
+      
+      if (fieldName) {
+        filtered = filtered.filter(item => {
+          if (!item[fieldName]) return false;
+          const itemValue = String(item[fieldName]);
+          return values.some(value => String(value) === itemValue);
+        });
+      }
+  
+      const rangeField = rangeFieldMapping[label];
+      if (rangeField) {
+        filtered = filtered.filter(item => {
+          const value = parseFloat(item[rangeField]);
+          if (isNaN(value)) return false;
+          
+          return values.some(rangeStr => {
+            if (!rangeStr.includes(' to ')) return false;
+            const [min, max] = rangeStr.split(' to ').map(val => parseFloat(val));
+            return value >= min && value <= max;
+          });
+        });
+      }
+    });
     
     setFilteredCapitalRaises(filtered);
     processCapitalRaises(filtered);
   }, [capitalRaises, filterTags]);
 
   useEffect(() => {
-    if (capitalRaises.length) {
+    if (capitalRaises.length > 0) {
       applyClientSideFilters();
     }
   }, [filterTags, applyClientSideFilters]);
@@ -382,15 +406,37 @@ const CapitalRaises = () => {
     return options;
   };
 
-  const handleFilterChange = (label, value) => {
-    if (value && value !== 'Any') {
-      setFilterTags(prevTags => {
-        const updatedTags = prevTags.filter(tag => tag.label !== label);
-        return [...updatedTags, { label, value }];
+  const handleFilterChange = (label, values) => {
+    setFilterTags(prevTags => {
+      const tagsWithoutCurrentLabel = prevTags.filter(tag => tag.label !== label);
+      
+      if (!values || values.length === 0 || values.includes('Any')) {
+        return tagsWithoutCurrentLabel;
+      }
+      
+      const newTags = values.map(value => {
+        const option = allFilterOptions
+          .find(opt => opt.label === label)?.options
+          .find(opt => opt.value === value);
+        
+        return {
+          label,
+          value,
+          values, 
+          displayValue: option?.label || value
+        };
       });
-    } else {
-      setFilterTags(prevTags => prevTags.filter(tag => tag.label !== label));
-    }
+      
+      return [...tagsWithoutCurrentLabel, ...newTags];
+    });
+  };
+
+  const getSelectedValuesForFilter = (filterLabel) => {
+    const values = filterTags
+      .filter(tag => tag.label === filterLabel)
+      .map(tag => tag.value);
+    
+    return values.length > 0 ? values : ['Any'];
   };
 
   const allFilterOptions = [
@@ -398,47 +444,64 @@ const CapitalRaises = () => {
       label: 'ASX',
       value: 'Any',
       onChange: (value) => handleFilterChange('ASX', value),
-      options: [
-        { label: 'Any', value: 'Any' }, ...getUniqueValues('asx_code')
-      ]
+      options: [{ label: 'Any', value: 'Any' }, ...getUniqueValues('asx_code')], 
+      selectedValues: getSelectedValuesForFilter('ASX')
     },
     {
       label: 'Bank Balance',
       value: 'Any',
       onChange: (value) => handleFilterChange('Bank Balance', value),
-      options: generateRangeOptions('bank_balance')
+      options: generateRangeOptions('bank_balance'), 
+      selectedValues: getSelectedValuesForFilter('Bank Balance')
     },
     {
       label: 'Date',
       value: 'Any',
       onChange: (value) => handleFilterChange('Date', value),
-      options: [{ label: 'Any', value: 'Any' }, ...getUniqueValues('date')]
+      options: [{ label: 'Any', value: 'Any' }, ...getUniqueValues('date')], 
+      selectedValues: getSelectedValuesForFilter('Date')
     },
     {
       label: 'Amount',
       value: 'Any',
       onChange: (value) => handleFilterChange('Amount', value),
-      options: generateRangeOptions('amount')
+      options: generateRangeOptions('amount'), 
+      selectedValues: getSelectedValuesForFilter('Amount')
 
     },
     {
       label: 'Price',
       value: 'Any',
       onChange: (value) => handleFilterChange('Price', value),
-      options: generateRangeOptions('price')
+      options: generateRangeOptions('price'), 
+      selectedValues: getSelectedValuesForFilter('Price')
     },
     {
       label: 'Raise Type',
       value: 'Any',
       onChange: (value) => handleFilterChange('Raise Type', value),
-      options: [
-        { label: 'Any', value: 'Any' }, ...getUniqueValues('raise_type')
-      ]
+      options: [{ label: 'Any', value: 'Any' }, ...getUniqueValues('raise_type')],
+      selectedValues: getSelectedValuesForFilter('Raise Type')
     },
   ];
 
-  const handleRemoveFilter = (filterLabel) => {
-    setFilterTags(prevTags => prevTags.filter(tag => tag.label !== filterLabel));
+  const handleRemoveFilter = (label, value) => {
+    setFilterTags(prevTags => {
+      const updatedTags = prevTags.filter(tag => !(tag.label === label && tag.value === value));
+      return updatedTags;
+    });
+
+    const currentFilter = allFilterOptions.find(opt => opt.label === label);
+    if (currentFilter) {
+      const currentValues = filterTags
+        .filter(tag => tag.label === label && tag.value !== value)
+        .map(tag => tag.value);
+      if (currentValues.length === 0) {
+        currentFilter.onChange(["Any"]);
+      } else {
+        currentFilter.onChange(currentValues);
+      }
+    }
   };
   
   const handleAddFilter = (filter) => {
@@ -461,9 +524,14 @@ const CapitalRaises = () => {
   };
 
   const generateFilterTags = () => {
-    return filterTags.length > 0 ? filterTags : [
-      { label: 'No Filters Applied', value: 'Click to add filters', onRemove: () => {} }
-    ];
+    if (filterTags.length === 0) {
+      return [{ label: 'No Filters Applied', value: 'Click to add filters' }];
+    }
+    
+    return filterTags.map(tag => ({
+      ...tag,
+      onRemove: () => handleRemoveFilter(tag.label, tag.value)
+    }));
   };
 
   const generateMetricCards = () => [
