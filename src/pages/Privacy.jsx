@@ -1,0 +1,17 @@
+import React from 'react';
+import '../styles/GeneralStyles.css';
+
+const Privacy = () => {
+  return (
+    <div className="standard-padding">
+    <h1>Privacy</h1>
+      <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed euismod, nunc et euismod ultricies, dui erat volutpat velit, at bibendum sem velit nec ante. Nulla facilisi. Suspendisse potenti. Curabitur venenatis, metus a interdum sodales, velit elit egestas est, sed auctor dolor felis at nulla. Donec auctor, ante id suscipit volutpat, felis arcu fermentum nulla, id placerat ipsum urna non neque. Aliquam erat volutpat. Integer pharetra sollicitudin sapien, in suscipit risus vestibulum a. Proin dapibus magna a eros venenatis, at pretium lorem consequat. Nam vel sapien mauris. Fusce hendrerit sem eu felis feugiat, vel euismod orci auctor.</p>
+      <p>Aenean scelerisque felis id odio blandit, non gravida sem auctor. Sed vel velit vitae ligula lacinia egestas non at nulla. Vivamus placerat, metus a suscipit porttitor, dui orci vehicula magna, non ultricies risus urna non lorem. Integer ut leo sed libero laoreet lacinia. Nam pharetra velit non est pharetra, in auctor eros faucibus. Sed bibendum risus et turpis varius, ac iaculis ipsum facilisis. Mauris sodales euismod ex, ac aliquam erat vehicula sed. Suspendisse vel felis et lacus ullamcorper interdum non at metus. Curabitur sollicitudin ante ac tortor scelerisque, et ultricies enim ullamcorper. Ut pretium lorem a ante suscipit, at tincidunt ante convallis.</p>
+      <p>Duis a quam sed urna vehicula tincidunt. Aliquam suscipit sapien sit amet felis consequat viverra. Vivamus suscipit, odio ut aliquet tempus, mauris odio facilisis velit, non tincidunt felis libero sit amet nisi. In hac habitasse platea dictumst. Integer finibus libero sed bibendum congue. Fusce gravida, libero at auctor sollicitudin, nulla metus suscipit mauris, sed eleifend urna orci eget nisl. Donec volutpat ultricies fermentum. Ut malesuada eros id magna fermentum malesuada. Morbi euismod turpis et ex tempus, vitae interdum erat fermentum. Sed tristique, tortor eget dictum tincidunt, felis odio sollicitudin turpis, sed luctus mi lorem et arcu.</p>
+      <p>Nullam vestibulum, augue eget venenatis bibendum, dui nulla sodales lacus, vel tincidunt nulla velit ac risus. Morbi sit amet mi nulla. Curabitur nec tristique urna. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum nec mi ut libero gravida volutpat. Ut facilisis, metus eu hendrerit rhoncus, neque nisl consequat justo, at lacinia turpis eros ac justo. Cras sollicitudin nisi vel bibendum dapibus. Nam sit amet gravida est. Etiam vehicula tortor at nunc malesuada, ac laoreet eros interdum.</p>
+      <p>Cras sed vulputate dui, ac volutpat urna. Curabitur euismod risus in erat posuere, ac ullamcorper ligula tempor. Maecenas sollicitudin lacus orci, vitae tincidunt nulla maximus non. Mauris eget augue in turpis dignissim fringilla. Ut vehicula, elit nec auctor dictum, velit mauris fringilla elit, vel scelerisque purus libero ut turpis. Integer pharetra ante dui, non placerat felis lacinia in. Aliquam posuere purus sit amet velit auctor tincidunt. Sed viverra, nisl eu volutpat malesuada, erat arcu maximus justo, nec tincidunt libero odio in nulla.</p>
+    </div>
+  )
+}
+
+export default Privacy
