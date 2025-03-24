@@ -29,7 +29,7 @@ describe('Footer Component', () => {
       { text: 'Home', path: '/' },
       { text: 'Pricing', path: '/pricing' },
       { text: 'Products', path: '/products' },
-      { text: 'Contact Us', path: '/contact' }
+      { text: 'Contact Us', path: '/contact-us' }
     ];
     
     menuLinks.forEach(link => {

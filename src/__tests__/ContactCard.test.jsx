@@ -4,6 +4,9 @@ import '@testing-library/jest-dom';
 import ContactCard from '../components/ContactCard';
 
 jest.mock('../components/Socials', () => () => <div data-testid="mocked-socials">Mocked Socials</div>);
+jest.mock('../components/MessageDisplay', () => ({ message }) => (
+  <div data-testid="message-display">{message}</div>
+));
 
 describe('ContactCard Component', () => {
   const mockContact = {
@@ -54,6 +57,45 @@ describe('ContactCard Component', () => {
     expect(screen.getByDisplayValue('john@example.com')).toBeInTheDocument();
   });
 
+  test('displays MessageDisplay component when in editing mode', () => {
+    render(<ContactCard contact={mockContact} index={0} setContacts={mockSetContacts} isEditing={true} />);
+    
+    expect(screen.getByTestId('message-display')).toBeInTheDocument();
+  });
+
+  test('shows error message when name is emptied', () => {
+    render(<ContactCard contact={mockContact} index={0} setContacts={mockSetContacts} isEditing={true} />);
+    
+    const nameInput = screen.getByDisplayValue('John Doe');
+    fireEvent.change(nameInput, { target: { value: '' } });
+    
+    expect(mockSetContacts).toHaveBeenCalled();
+    const messageDisplay = screen.getByTestId('message-display');
+    expect(messageDisplay.textContent).toBe("Name cannot be empty");
+  });
+
+  test('shows error message when role is emptied', () => {
+    render(<ContactCard contact={mockContact} index={0} setContacts={mockSetContacts} isEditing={true} />);
+    
+    const roleInput = screen.getByDisplayValue('CEO');
+    fireEvent.change(roleInput, { target: { value: '' } });
+    
+    expect(mockSetContacts).toHaveBeenCalled();
+    const messageDisplay = screen.getByTestId('message-display');
+    expect(messageDisplay.textContent).toBe("Role cannot be empty");
+  });
+
+  test('shows error message when email is emptied', () => {
+    render(<ContactCard contact={mockContact} index={0} setContacts={mockSetContacts} isEditing={true} />);
+    
+    const emailInput = screen.getByDisplayValue('john@example.com');
+    fireEvent.change(emailInput, { target: { value: '' } });
+    
+    expect(mockSetContacts).toHaveBeenCalled();
+    const messageDisplay = screen.getByTestId('message-display');
+    expect(messageDisplay.textContent).toBe("Email cannot be empty");
+  });
+
   test('updates contact information when edited', () => {
     render(<ContactCard contact={mockContact} index={0} setContacts={mockSetContacts} isEditing={true} />);
     
@@ -98,17 +140,21 @@ describe('ContactCard Component', () => {
     
     const image = screen.getByAltText('John Doe');
     expect(image).toHaveStyle({
-      width: '70%'
+      width: '70%',
+      borderRadius: '1000px',
+      margin: 'auto',
+      marginTop: '25px'
     });
     expect(image).toHaveAttribute('src', '/path/to/image.jpg');
   });
 
-  test('renders role with gray color when not editing', () => {
+  test('renders role with grey color and auto margin', () => {
     render(<ContactCard contact={mockContact} index={0} setContacts={mockSetContacts} isEditing={false} />);
     
     const role = screen.getByText('CEO');
     expect(role).toHaveStyle({
-      color: 'grey'
+      color: 'grey',
+      margin: 'auto'
     });
   });
 
@@ -143,18 +189,9 @@ describe('ContactCard Component', () => {
     
     const parentDiv = mockedSocials.parentElement;
     expect(parentDiv.tagName).toBe('DIV');
-    
-    expect(parentDiv).toMatchInlineSnapshot(`
-      <div
-        style="margin-bottom: 25px;"
-      >
-        <div
-          data-testid="mocked-socials"
-        >
-          Mocked Socials
-        </div>
-      </div>
-    `);
+    expect(parentDiv).toHaveStyle({
+      marginBottom: '25px'
+    });
   });
 
   test('updates contacts array correctly when edited', () => {

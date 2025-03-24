@@ -6,9 +6,30 @@ import { MemoryRouter } from 'react-router-dom';
 
 const mockSaveContent = jest.fn();
 jest.mock('../hooks/useSaveContent', () => jest.fn(() => mockSaveContent));
+jest.mock('../assets/pricing-header-image.png', () => 'mocked-pricing-image.png');
+jest.mock('../components/MessageDisplay', () => ({ message }) => (
+  <div data-testid="message-display">{message}</div>
+));
+
+jest.mock('../components/LoginHandler', () => {
+  return {
+    __esModule: true,
+    default: ({ children }) => children({ handleOpenLogin: jest.fn() })
+  };
+});
 
 describe('PricingHero Component', () => {
   beforeEach(() => {
+    Object.defineProperty(window, 'localStorage', {
+      value: {
+        getItem: jest.fn(),
+        setItem: jest.fn(),
+        removeItem: jest.fn(),
+        clear: jest.fn(),
+      },
+      writable: true
+    });
+
     global.fetch = jest.fn(() =>
       Promise.resolve({
         json: () =>
@@ -18,7 +39,6 @@ describe('PricingHero Component', () => {
           ]),
       })
     );
-    localStorage.clear();
   });
 
   afterEach(() => {
@@ -26,6 +46,12 @@ describe('PricingHero Component', () => {
   });
 
   test('renders the heading and content', async () => {
+    window.localStorage.getItem.mockImplementation((key) => {
+      if (key === 'accessToken') return null;
+      if (key === 'user_tier_level') return null;
+      return null;
+    });
+
     await act(async () => {
       render(
         <MemoryRouter>
@@ -39,6 +65,11 @@ describe('PricingHero Component', () => {
   });
 
   test('renders the login button when the user is not logged in', async () => {
+    window.localStorage.getItem.mockImplementation((key) => {
+      if (key === 'accessToken') return null;
+      return null;
+    });
+
     await act(async () => {
       render(
         <MemoryRouter>
@@ -51,7 +82,12 @@ describe('PricingHero Component', () => {
   });
 
   test('does not render the login button when the user is logged in', async () => {
-    localStorage.setItem('accessToken', 'mockToken');
+    window.localStorage.getItem.mockImplementation((key) => {
+      if (key === 'accessToken') return 'mockToken';
+      if (key === 'user_tier_level') return null;
+      return null;
+    });
+
     await act(async () => {
       render(
         <MemoryRouter>
@@ -60,11 +96,16 @@ describe('PricingHero Component', () => {
       );
     });
 
+    await screen.findByText('Test Heading');
     expect(screen.queryByText('Start now')).not.toBeInTheDocument();
   });
 
   test('allows admin users to edit and save content', async () => {
-    localStorage.setItem('user_tier_level', '2');
+    window.localStorage.getItem.mockImplementation((key) => {
+      if (key === 'user_tier_level') return '2';
+      return null;
+    });
+
     await act(async () => {
       render(
         <MemoryRouter>
@@ -73,7 +114,7 @@ describe('PricingHero Component', () => {
       );
     });
 
-    const editButton = screen.getByText('Edit');
+    const editButton = await screen.findByText('Edit');
     fireEvent.click(editButton);
 
     const headingInput = screen.getByDisplayValue('Test Heading');
@@ -90,10 +131,30 @@ describe('PricingHero Component', () => {
     ]);
   });
 
+  test('does not display edit button for non-admin users', async () => {
+    window.localStorage.getItem.mockImplementation((key) => {
+      if (key === 'user_tier_level') return '1';
+      return null;
+    });
+
+    await act(async () => {
+      render(
+        <MemoryRouter>
+          <PricingHero />
+        </MemoryRouter>
+      );
+    });
+
+    await screen.findByText('Test Heading');
+    expect(screen.queryByText('Edit')).not.toBeInTheDocument();
+  });
+
   test('handles API fetch error correctly', async () => {
     const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
     global.fetch = jest.fn(() => Promise.reject(new Error('API Error')));
     
+    window.localStorage.getItem.mockImplementation((key) => null);
+
     await act(async () => {
       render(
         <MemoryRouter>
@@ -110,8 +171,10 @@ describe('PricingHero Component', () => {
   });
 
   test('prevents saving when content is invalid', async () => {
-    localStorage.setItem('user_tier_level', '2');
-    global.alert = jest.fn();
+    window.localStorage.getItem.mockImplementation((key) => {
+      if (key === 'user_tier_level') return '2';
+      return null;
+    });
     
     await act(async () => {
       render(
@@ -121,7 +184,7 @@ describe('PricingHero Component', () => {
       );
     });
 
-    const editButton = screen.getByText('Edit');
+    const editButton = await screen.findByText('Edit');
     fireEvent.click(editButton);
 
     const headingInput = screen.getByDisplayValue('Test Heading');
@@ -129,11 +192,15 @@ describe('PricingHero Component', () => {
 
     fireEvent.click(screen.getByText('Save Changes'));
 
-    expect(global.alert).toHaveBeenCalledWith('Please ensure all fields are filled out before saving.');
+    expect(screen.getByTestId('message-display')).toHaveTextContent(
+      'Please ensure all fields are filled out before saving.'
+    );
     expect(mockSaveContent).not.toHaveBeenCalled();
   });
 
   test('renders image with correct properties', async () => {
+    window.localStorage.getItem.mockImplementation((key) => null);
+
     await act(async () => {
       render(
         <MemoryRouter>
@@ -142,11 +209,83 @@ describe('PricingHero Component', () => {
       );
     });
 
-    const image = screen.getByRole('img');
+    const image = await screen.findByAltText('Pricing header');
     expect(image).toBeInTheDocument();
+    expect(image).toHaveAttribute('src', 'mocked-pricing-image.png');
     expect(image).toHaveStyle({
       width: '45vw',
       paddingLeft: '35px'
     });
+  });
+
+  test('displays message display component only when editing', async () => {
+    window.localStorage.getItem.mockImplementation((key) => {
+      if (key === 'user_tier_level') return '2';
+      return null;
+    });
+
+    await act(async () => {
+      render(
+        <MemoryRouter>
+          <PricingHero />
+        </MemoryRouter>
+      );
+    });
+
+    expect(screen.queryByTestId('message-display')).not.toBeInTheDocument();
+    
+    const editButton = await screen.findByText('Edit');
+    fireEvent.click(editButton);
+    
+    expect(screen.getByTestId('message-display')).toBeInTheDocument();
+  });
+
+  test('switches between editing and viewing modes', async () => {
+    window.localStorage.getItem.mockImplementation((key) => {
+      if (key === 'user_tier_level') return '2';
+      return null;
+    });
+
+    await act(async () => {
+      render(
+        <MemoryRouter>
+          <PricingHero />
+        </MemoryRouter>
+      );
+    });
+
+    expect(screen.getByText('Test Heading')).toBeInTheDocument();
+    expect(screen.queryByDisplayValue('Test Heading')).not.toBeInTheDocument();
+    
+    const editButton = await screen.findByText('Edit');
+    fireEvent.click(editButton);    
+    expect(screen.queryByText('Test Heading')).not.toBeInTheDocument();
+    expect(screen.getByDisplayValue('Test Heading')).toBeInTheDocument();
+    expect(screen.getByDisplayValue('Test Content')).toBeInTheDocument();
+    
+    fireEvent.click(screen.getByText('Save Changes'));    
+    expect(screen.getByText('Test Heading')).toBeInTheDocument();
+    expect(screen.queryByDisplayValue('Test Heading')).not.toBeInTheDocument();
+  });
+
+  test('uses textarea for content in edit mode', async () => {
+    window.localStorage.getItem.mockImplementation((key) => {
+      if (key === 'user_tier_level') return '2';
+      return null;
+    });
+
+    await act(async () => {
+      render(
+        <MemoryRouter>
+          <PricingHero />
+        </MemoryRouter>
+      );
+    });
+
+    const editButton = await screen.findByText('Edit');
+    fireEvent.click(editButton);
+    
+    const contentTextarea = screen.getByDisplayValue('Test Content');
+    expect(contentTextarea.tagName).toBe('TEXTAREA');
   });
 });
