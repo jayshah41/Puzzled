@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import LoginHandler from './LoginHandler';
 import useSaveContent from '../hooks/useSaveContent';
+import MessageDisplay from './MessageDisplay';
 import productsHeaderImage from '../assets/products-header-image.png';
 import '../styles/GeneralStyles.css';
 
@@ -11,6 +12,7 @@ const ProductsHero = () => {
 
   const saveContent = useSaveContent();
   const [isEditing, setIsEditing] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
   const [heading, setHeading] = useState("MakCorp is more than a platform");
   const [content, setContent] = useState(
@@ -54,11 +56,13 @@ const ProductsHero = () => {
                 if (contentIsValid()) {
                   handleSave();
                   setIsEditing(!isEditing);
+                  setErrorMessage('');
                 } else {
-                  alert("Please ensure all fields are filled out before saving.")
+                  setErrorMessage("Please ensure all fields are filled out before saving.");
                 }
               } else {
                 setIsEditing(!isEditing);
+                setErrorMessage('');
               }
             }}
             style={{ marginBottom: '1rem' }}
@@ -66,6 +70,9 @@ const ProductsHero = () => {
             {isEditing ? 'Save Changes' : 'Edit'}
           </button>
         )}
+        
+        {isEditing && <MessageDisplay message={errorMessage} />}
+        
         {isEditing ? (
           <input
             type="text"

@@ -1,9 +1,22 @@
-import React from 'react';
+import React, { useState } from 'react';
+import MessageDisplay from './MessageDisplay';
 import '../styles/GeneralStyles.css';
 import Socials from './Socials';
 
 const ContactCard = ({ contact, index, setContacts, isEditing }) => {
+  const [errorMessage, setErrorMessage] = useState('');
+
   const handleChange = (field, value) => {
+    if (field === 'name' && !value.trim()) {
+      setErrorMessage("Name cannot be empty");
+    } else if (field === 'role' && !value.trim()) {
+      setErrorMessage("Role cannot be empty");
+    } else if (field === 'email' && !value.trim()) {
+      setErrorMessage("Email cannot be empty");
+    } else {
+      setErrorMessage('');
+    }
+    
     setContacts(prevContacts => {
       const updatedContacts = [...prevContacts];
       updatedContacts[index][field] = value;
@@ -13,6 +26,8 @@ const ContactCard = ({ contact, index, setContacts, isEditing }) => {
 
   return (
     <div style={{ width: '25vw', backgroundColor: 'white', display:'flex', flexDirection: 'column', boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)', margin: '20px', borderRadius: '10px' }}>
+        {isEditing && <MessageDisplay message={errorMessage} />}
+        
         <img src={contact.image} alt={contact.name} style={{ borderRadius: '1000px', width: '70%', margin: 'auto', marginTop: '25px' }} />
         {isEditing ? (
           <input
