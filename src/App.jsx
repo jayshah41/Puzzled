@@ -17,6 +17,7 @@ import Projects from './pages/graphs/Projects';
 import Financials from './pages/graphs/Financials';
 import News from './pages/News';
 import SocialMedia from './pages/SocialMedia'
+import AboutUs from './pages/AboutUs';
 
 const App = () => {
   return (
@@ -29,6 +30,7 @@ const App = () => {
           <Route path="/products" element={<Products />} />
           <Route path="/contact-us" element={<ContactUs />} /> 
           <Route path="/account" element={<AccountManager />} />
+          <Route path="/about" element={<AboutUs />} />
           <Route path="/graphs/company-details" element={<CompanyDetails />} />
           <Route path="/graphs/market-data" element={<MarketData />} />
           <Route path="/graphs/market-trends" element={<MarketTrends />} />
