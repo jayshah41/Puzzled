@@ -89,4 +89,64 @@ describe('PricingHero Component', () => {
       { component: 'Pricing', section: 'content', text_value: 'Updated Content' },
     ]);
   });
+
+  test('handles API fetch error correctly', async () => {
+    const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    global.fetch = jest.fn(() => Promise.reject(new Error('API Error')));
+    
+    await act(async () => {
+      render(
+        <MemoryRouter>
+          <PricingHero />
+        </MemoryRouter>
+      );
+    });
+
+    expect(consoleSpy).toHaveBeenCalledWith(
+      "There was an error fetching the editable content", 
+      expect.any(Error)
+    );
+    consoleSpy.mockRestore();
+  });
+
+  test('prevents saving when content is invalid', async () => {
+    localStorage.setItem('user_tier_level', '2');
+    global.alert = jest.fn();
+    
+    await act(async () => {
+      render(
+        <MemoryRouter>
+          <PricingHero />
+        </MemoryRouter>
+      );
+    });
+
+    const editButton = screen.getByText('Edit');
+    fireEvent.click(editButton);
+
+    const headingInput = screen.getByDisplayValue('Test Heading');
+    fireEvent.change(headingInput, { target: { value: '   ' } });
+
+    fireEvent.click(screen.getByText('Save Changes'));
+
+    expect(global.alert).toHaveBeenCalledWith('Please ensure all fields are filled out before saving.');
+    expect(mockSaveContent).not.toHaveBeenCalled();
+  });
+
+  test('renders image with correct properties', async () => {
+    await act(async () => {
+      render(
+        <MemoryRouter>
+          <PricingHero />
+        </MemoryRouter>
+      );
+    });
+
+    const image = screen.getByRole('img');
+    expect(image).toBeInTheDocument();
+    expect(image).toHaveStyle({
+      width: '45vw',
+      paddingLeft: '35px'
+    });
+  });
 });
