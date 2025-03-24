@@ -4,7 +4,9 @@ pandas
 pyyaml
 faker
 requests
-django-cors-headers  # If React needs CORS
-django-environ  # For managing environment variables
+django-cors-headers 
+django-environ 
 coverage
 djangorestframework-simplejwt
+python-decouple
+stripe

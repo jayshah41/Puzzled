@@ -4,422 +4,536 @@ import GraphPage from '../../components/GraphPage.jsx';
 import useAuthToken from '../../hooks/useAuthToken';
 import axios from 'axios';
 
+
 const CapitalRaises = () => {
   const [capitalRaises, setCapitalRaises] = useState([]);
+  const [filteredCapitalRaises, setFilteredCapitalRaises] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState('');
 
-  const [asxCode, setAsxCode] = useState("");
-  const [bankBalance, setBankBalance] = useState("");
-  const [date, setDate] = useState("");
-  const [amount, setAmount] = useState("");
-  const [price, setPrice] = useState("");
-  const [raiseType, setRaiseType] = useState("");
- 
   const [metricSummaries, setMetricSummaries] = useState({
     asx: 0, 
     avgRaiseAmount: 0, 
     totalRaiseAmount: 0, 
     noOfCapRaises: 0, 
-});
+  });
 
-//charts
-const [monthlyAmountRaised, setMonthlyAmountRaised] = useState({
-  labels: [], 
-  datasets: [{ data:[] }]
-});
+  const [monthlyAmountRaised, setMonthlyAmountRaised] = useState({
+    labels: [], 
+    datasets: [{ data:[] }]
+  });
 
-const [capitalRaiseByASX, setCapitalRaiseByASX] = useState({
-  labels: [], 
-  datasets: [{ data: [] }]
-});
+  const [capitalRaiseByASX, setCapitalRaiseByASX] = useState({
+    labels: [], 
+    datasets: [{ data: [] }]
+  });
 
+  const [tableData, setTableData] = useState([]);
+  const [filterTags, setFilterTags] = useState([]);
 
-// table data state
-const [tableData, setTableData] = useState([]);
+  const { getAccessToken, authError } = useAuthToken();
 
+  const fetchCapitalRaises = useCallback(async () => {
+    const token = await getAccessToken();
 
-const { getAccessToken, authError } = useAuthToken();
-
-const fetchCapitalRaises = useCallback(async () => {
-  const token = await getAccessToken();
-
-  if (!token) {
-      setError("Authentication error: No token found.");
+    if (!token) {
+      setError('Authentication error: No token found.');
       setLoading(false);
       return;
-  }
+    }
 
-  try {
+    try {
       setLoading(true);
-          const params = {
-          asxCode: asxCode || undefined,
-          bankBalance: bankBalance || undefined,
-          date: date || undefined,
-          amount: amount || undefined,
-          price: price || undefined,
-          raiseType: raiseType || undefined,
-      };
       
-      // remove undefined keys
-      Object.keys(params).forEach(key => 
-          params[key] === undefined && delete params[key]
-      );
-      
-      // sending api requests
-      const response = await axios.get("http://127.0.0.1:8000/data/capital-raises/", {
-          headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json"
-          },
-          params: params
+      const response = await axios.get('/api/data/capital-raises/', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
       });
       
-      // handling different api formats
       if (Array.isArray(response.data)) {
-          setCapitalRaises(response.data);
-          processCapitalRaises(response.data);
+        setCapitalRaises(response.data);
+        setFilteredCapitalRaises(response.data);
+        processCapitalRaises(response.data);
       } else if (response.data && typeof response.data === 'object') {
-          const dataArray = [response.data];
-          setCapitalRaises(dataArray);
-          processCapitalRaises(dataArray);
+        const dataArray = [response.data];
+        setCapitalRaises(dataArray);
+        setFilteredCapitalRaises(dataArray);
+        processCapitalRaises(dataArray);
       } else {
-          setCapitalRaises([]);
-          resetData();
+        setCapitalRaises([]);
+        setFilteredCapitalRaises([]);
+        resetData();
       }
       
-      // handles errors
-      setError("");
-  } catch (error) {
-      console.error("Error fetching capital raises:", error.response?.data || error);
-      setError("Failed to fetch capital raises data: " + (error.response?.data?.detail || error.message));
+      setError('');
+    } catch (error) {
+      console.error('Error fetching capital raises:', error.response?.data || error);
+      setError('Failed to fetch capital raises data: ' + (error.response?.data?.detail || error.message));
       resetData();
-  } finally {
+    } finally {
       setLoading(false);
-  }
-}, [asxCode, bankBalance, date, amount, price, raiseType]);
+    }
+  }, []);
 
+  const applyClientSideFilters = useCallback(() => {
+    if (!capitalRaises.length) return;
+    
+    const fieldMapping = {
+      'ASX': 'asx_code',
+      'Date': 'date',
+      'Raise Type': 'raise_type'
+    };
 
-const processCapitalRaises = (data) => {
-  if (!data || data.length === 0) {
+    const rangeFieldMapping = {
+      'Bank Balance': 'bank_balance',
+      'Amount': 'amount',
+      'Price': 'price',
+    }
+  
+    let filtered = [...capitalRaises];
+    
+    const filtersByLabel = {};
+    filterTags.forEach(tag => {
+      if (tag.label === 'No Filters Applied') return;
+      
+      if (!filtersByLabel[tag.label]) {
+        filtersByLabel[tag.label] = [];
+      }
+      filtersByLabel[tag.label].push(tag.value);
+    });
+    
+    if (Object.keys(filtersByLabel).length === 0) {
+      setFilteredCapitalRaises(capitalRaises);
+      processCapitalRaises(capitalRaises);
+      return;
+    }
+  
+    Object.entries(filtersByLabel).forEach(([label, values]) => {
+      if (values.includes('Any')) return; 
+      
+      const fieldName = fieldMapping[label];
+      
+      if (fieldName) {
+        filtered = filtered.filter(item => {
+          if (!item[fieldName]) return false;
+          const itemValue = String(item[fieldName]);
+          return values.some(value => String(value) === itemValue);
+        });
+      }
+  
+      const rangeField = rangeFieldMapping[label];
+      if (rangeField) {
+        filtered = filtered.filter(item => {
+          const value = parseFloat(item[rangeField]);
+          if (isNaN(value)) return false;
+          
+          return values.some(rangeStr => {
+            if (!rangeStr.includes(' to ')) return false;
+            const [min, max] = rangeStr.split(' to ').map(val => parseFloat(val));
+            return value >= min && value <= max;
+          });
+        });
+      }
+    });
+    
+    setFilteredCapitalRaises(filtered);
+    processCapitalRaises(filtered);
+  }, [capitalRaises, filterTags]);
+
+  useEffect(() => {
+    if (capitalRaises.length > 0) {
+      applyClientSideFilters();
+    }
+  }, [filterTags, applyClientSideFilters]);
+
+  useEffect(() => {
+    fetchCapitalRaises();
+  }, [fetchCapitalRaises]);
+
+  const processCapitalRaises = (data) => {
+    if (!data || data.length === 0) {
       resetData();
       return;
-  }
-  
-  // calculate metric values 
-  const asx = data.length;
-  const avgRaiseAmount = data.reduce((sum, item) => sum + (parseFloat(item.amount) || 0), 0) / (asx || 1);
-  const totalRaiseAmount = data.reduce((sum, item) => sum + (parseFloat(item.amount) || 0), 0);
-  const noOfCapRaises = data.filter(item => parseFloat(item.amount) > 0).length;
+    }
+    
+    const asx = data.length;
+    const avgRaiseAmount = data.reduce((sum, item) => sum + (parseFloat(item.amount) || 0), 0) / (asx || 1);
+    const totalRaiseAmount = data.reduce((sum, item) => sum + (parseFloat(item.amount) || 0), 0);
+    const noOfCapRaises = data.filter(item => parseFloat(item.amount) > 0).length;
 
-  setMetricSummaries({
+    setMetricSummaries({
       asx: asx, 
       avgRaiseAmount: avgRaiseAmount,
       totalRaiseAmount: totalRaiseAmount,
       noOfCapRaises: noOfCapRaises,
-  });
+    });
 
-  // process data for charts 
-  processMonthlyAmountRaised(data);
-  processCapitalRaiseByASX(data); 
+    processMonthlyAmountRaised(data);
+    processCapitalRaiseByASX(data); 
 
-  // process table data 
-  setTableData(data.map(item => ({
+    setTableData(data.map(item => ({
       asx: item.asx_code || '',
-      date: item.date || 0, 
+      date: item.date || '', 
       amount: formatCurrency(item.amount || 0, 0), 
       price: formatCurrency(item.price || 0, 0), 
-  })));
-};
+      raiseType: item.raise_type || '',
+      bankBalance: formatCurrency(item.bank_balance || 0, 0)
+    })));
+  };
 
-const formatCurrency = (value, decimals = 2) => {
-  if (isNaN(value)) return 'A$0.00';
-  return '$' + Number(value).toLocaleString('en-AU', {
+  const formatCurrency = (value, decimals = 2) => {
+    if (isNaN(value)) return '$0.00';
+    return '$' + Number(value).toLocaleString('en-AU', {
       minimumFractionDigits: decimals,
       maximumFractionDigits: decimals
-  });
-};
+    });
+  };
 
-//CHART
-// 1. Monthly Amount Raised
-const processMonthlyAmountRaised = (data) => {
-  if (!data || data.length === 0) {
+  const processMonthlyAmountRaised = (data) => {
+    if (!data || data.length === 0) {
+      setMonthlyAmountRaised({
+        labels: ['No Data'],
+        datasets: [{
+          type: 'bar',
+          label: 'Monthly Amount Raised',
+          data: [0],
+          backgroundColor: 'rgba(75, 192, 192, 1.0)',
+          borderColor: 'rgb(75, 192, 192)',
+          borderWidth: 1
+        }]
+      });
+      return;
+    }
+    const monthlyData = {};
+    
+    data.forEach(item => {
+      if (!item.date) return;
+      
+      const date = new Date(item.date);
+      if (isNaN(date.getTime())) return;
+      
+      const month = date.toLocaleString('default', { month: 'long' });
+      const year = date.getFullYear();
+      const key = `${month} ${year}`;
+      
+      const amount = parseFloat(item.amount) || 0;
+      
+      if (!monthlyData[key]) {
+        monthlyData[key] = 0;
+      }
+      
+      monthlyData[key] += amount;
+    });
+    
+    const months = Object.keys(monthlyData);
+    const amounts = Object.values(monthlyData);
+    
     setMonthlyAmountRaised({
-      labels: ['No Data'],
+      labels: months,
       datasets: [{
         type: 'bar',
-        label: "Monthly Amount Raised",
-        data: [0],
-        backgroundColor: "rgba(75, 192, 192, 0.7)",
-        borderColor: "rgb(75, 192, 192)",
+        label: 'Amount Raised',
+        data: amounts,
+        backgroundColor: 'rgba(75, 192, 192, 1.0)',
+        borderColor: 'rgb(75, 192, 192)',
         borderWidth: 1
       }]
     });
-    return;
-  }
-  const monthlyData = {};
-  
-  data.forEach(item => {
-    if (!item.date) return;
-    
-    const date = new Date(item.date);
-    if (isNaN(date.getTime())) return;
-    
-    const month = date.toLocaleString('default', { month: 'long' });
-    const year = date.getFullYear();
-    const key = `${month} ${year}`;
-    
-    const amount = parseFloat(item.amount) || 0;
-    
-    if (!monthlyData[key]) {
-      monthlyData[key] = 0;
+  };
+
+  const processCapitalRaiseByASX = (data) => {
+    if (!data || data.length === 0) {
+      setCapitalRaiseByASX({
+        labels: ['No Data'],
+        datasets: [{
+          type: 'bar',
+          label: 'Capital Raised',
+          data: [0],
+          backgroundColor: 'rgba(153, 102, 255, 1.0)',
+          borderColor: 'rgb(153, 102, 255)',
+          borderWidth: 1
+        }]
+      });
+      return;
     }
     
-    monthlyData[key] += amount;
-  });
-  
-  const months = Object.keys(monthlyData);
-  const amounts = Object.values(monthlyData);
-  
-  setMonthlyAmountRaised({
-    labels: months,
-    datasets: [{
-      type: 'bar',
-      label: "Amount Raised",
-      data: amounts,
-      backgroundColor: "rgba(75, 192, 192, 0.7)",
-      borderColor: "rgb(75, 192, 192)",
-      borderWidth: 1
-    }]
-  });
-};
-
-const processCapitalRaiseByASX = (data) => {
-  if (!data || data.length === 0) {
+    const asxData = {};
+    
+    data.forEach(item => {
+      const asx = item.asx_code || 'Unknown';
+      const amount = parseFloat(item.amount) || 0;
+      
+      if (!asxData[asx]) {
+        asxData[asx] = 0;
+      }
+      
+      asxData[asx] += amount;
+    });
+    
+    const asxEntries = Object.entries(asxData)
+      .sort(([, amountA], [, amountB]) => amountB - amountA)
+      .slice(0, 10); 
+    
+    const asxCodes = asxEntries.map(([code]) => code);
+    const amounts = asxEntries.map(([, amount]) => amount);
+    
     setCapitalRaiseByASX({
-      labels: ['No Data'],
+      labels: asxCodes,
       datasets: [{
         type: 'bar',
-        label: "Capital Raised",
-        data: [0],
-        backgroundColor: "rgba(153, 102, 255, 0.7)",
-        borderColor: "rgb(153, 102, 255)",
+        label: 'Capital Raised',
+        data: amounts,
+        backgroundColor: 'rgba(153, 102, 255, 1.0)',
+        borderColor: 'rgb(153, 102, 255)',
         borderWidth: 1
       }]
     });
-    return;
-  }
-  
-  const asxData = {};
-  
-  data.forEach(item => {
-    const asx = item.asx_code || "Unknown";
-    const amount = parseFloat(item.amount) || 0;
-    
-    if (!asxData[asx]) {
-      asxData[asx] = 0;
-    }
-    
-    asxData[asx] += amount;
-  });
-  
-  const asxEntries = Object.entries(asxData)
-    .sort(([, amountA], [, amountB]) => amountB - amountA)
-    .slice(0, 10); 
-  
-  const asxCodes = asxEntries.map(([code]) => code);
-  const amounts = asxEntries.map(([, amount]) => amount);
-  
-  setCapitalRaiseByASX({
-    labels: asxCodes,
-    datasets: [{
-      type: 'bar',
-      label: "Capital Raised",
-      data: amounts,
-      backgroundColor: "rgba(153, 102, 255, 0.7)",
-      borderColor: "rgb(153, 102, 255)",
-      borderWidth: 1
-    }]
-  });
-};
+  };
 
-
-const resetData = () => {
-  setMetricSummaries({
+  const resetData = () => {
+    setMetricSummaries({
       asx: 0,
       avgRaiseAmount: 0,
       totalRaiseAmount: 0,
       noOfCapRaises: 0,
-  });
-  
-  //reset charts
-  setMonthlyAmountRaised({
+    });
+    
+    setMonthlyAmountRaised({
       labels: ['No Data'],
       datasets: [{
-          type: 'bar',
-          label: "Monthly Amount Raised",
-          data: [0],
-          backgroundColor: ["rgba(75, 192, 75, 0.7)"]
+        type: 'bar',
+        label: 'Monthly Amount Raised',
+        data: [0],
+        backgroundColor: ['rgba(75, 192, 75, 1.0)']
       }]
-  });
-  
-  setCapitalRaiseByASX({
+    });
+    
+    setCapitalRaiseByASX({
       labels: ['No Data'],
       datasets: [{
-          type: 'bar',
-          label: "Capital Raise By ASX Code",
-          data: [0],
-          backgroundColor: ["rgba(75, 75, 192, 0.7)"]
+        type: 'bar',
+        label: 'Capital Raise By ASX Code',
+        data: [0],
+        backgroundColor: ['rgba(75, 75, 192, 1.0)']
       }]
-  });
-  
-  setTableData([]);
-};
+    });
+    
+    setTableData([]);
+  };
 
-useEffect(() => {
-  fetchCapitalRaises();
-}, [fetchCapitalRaises]);
+  const getUniqueValues = (key) => {
+    if (!capitalRaises || capitalRaises.length === 0) return [];
+    
+    const uniqueValues = [...new Set(capitalRaises.map(item => item[key]))].filter(Boolean);
+    return uniqueValues.map(value => ({ label: value, value: value }));
+  };
 
-const [filterTags, setFilterTags] = useState([]);
+  const generateRangeOptions = (field) => {
+    if (!capitalRaises || !capitalRaises.length) return [];
+    
+    const values = capitalRaises
+      .map(item => parseFloat(item[field]))
+      .filter(val => !isNaN(val));
+      
+    if (!values.length) return [];
+    
+    const min = Math.min(...values);
+    const max = Math.max(...values);
+    const options = [];
+    
+    options.push({ label: 'Any', value: 'Any' });
+    
+    const roundedMin = Math.floor(min);
+    const roundedMax = Math.ceil(max);
+    
+    if (roundedMax < 100) {
+      let currentValue = roundedMin;
+      
+      while (currentValue < roundedMax) {
+        const rangeMin = currentValue;
+        const rangeMax = currentValue + 1;
+        
+        options.push({
+          label: `${rangeMin} to ${rangeMax}`,
+          value: `${rangeMin} to ${rangeMax}`
+        });
+        
+        currentValue = rangeMax;
+      }
+    } 
+    else {
+      const magnitude = Math.pow(10, Math.floor(Math.log10(roundedMax)));
+      let increment = Math.max(1, Math.round(magnitude / 10));
+      
+      if ((roundedMax - roundedMin) / increment > 20) {
+        increment = Math.max(1, Math.round(magnitude / 5));
+      } else if ((roundedMax - roundedMin) / increment < 5) {
+        increment = Math.max(1, Math.round(magnitude / 20));
+      }
+      
+      let currentValue = Math.floor(roundedMin / increment) * increment;
+      
+      while (currentValue < roundedMax) {
+        const rangeMin = currentValue;
+        const rangeMax = currentValue + increment;
+        
+        const formatNumber = (num) => {
+          if (num >= 1000000000) {
+            return `${(num / 1000000000).toFixed(2)}B`.replace(/\.00B$/, 'B');
+          } else if (num >= 1000000) {
+            const formatted = (num / 1000000).toFixed(2);
+            return `${formatted.replace(/\.?0+$/, '')}M`;
+          } else if (num >= 1000) {
+            return `${Math.round(num / 1000)}K`;
+          } else {
+            return Math.round(num);
+          }
+        };
+        
+        const rangeLabel = `${formatNumber(rangeMin)} to ${formatNumber(rangeMax)}`;
+        
+        options.push({
+          label: rangeLabel,
+          value: `${rangeMin} to ${rangeMax}`
+        });
+        
+        currentValue = rangeMax;
+      }
+    }
+    
+    return options;
+  };
 
-const getUniqueValues = (key) => {
-  if (!capitalRaises || capitalRaises.length === 0) return [];
-  
-  const uniqueValues = [...new Set(capitalRaises.map(item => item[key]))].filter(Boolean);
-  return uniqueValues.map(value => ({ label: value, value: value }));
-};
-  
+  const handleFilterChange = (label, values) => {
+    setFilterTags(prevTags => {
+      const tagsWithoutCurrentLabel = prevTags.filter(tag => tag.label !== label);
+      
+      if (!values || values.length === 0 || values.includes('Any')) {
+        return tagsWithoutCurrentLabel;
+      }
+      
+      const newTags = values.map(value => {
+        const option = allFilterOptions
+          .find(opt => opt.label === label)?.options
+          .find(opt => opt.value === value);
+        
+        return {
+          label,
+          value,
+          values, 
+          displayValue: option?.label || value
+        };
+      });
+      
+      return [...tagsWithoutCurrentLabel, ...newTags];
+    });
+  };
+
+  const getSelectedValuesForFilter = (filterLabel) => {
+    const values = filterTags
+      .filter(tag => tag.label === filterLabel)
+      .map(tag => tag.value);
+    
+    return values.length > 0 ? values : ['Any'];
+  };
+
   const allFilterOptions = [
     {
       label: 'ASX',
       value: 'Any',
-      onChange: (value) => {
-          setFilterTags(prevTags => 
-            prevTags.map(tag => 
-              tag.label === 'ASX' ? {...tag, value} : tag
-            )
-          );
-          if(value != "Any"){handleAddFilter({label: 'ASX', value})};
-        },
-    options: [
-      { label: 'Any', value: 'Any' }, ...getUniqueValues('asx_code')
-    ]
-  },
+      onChange: (value) => handleFilterChange('ASX', value),
+      options: [{ label: 'Any', value: 'Any' }, ...getUniqueValues('asx_code')], 
+      selectedValues: getSelectedValuesForFilter('ASX')
+    },
     {
       label: 'Bank Balance',
       value: 'Any',
-      onChange: (value) => {
-        setFilterTags(prevTags => 
-          prevTags.map(tag => 
-            tag.label === 'Bank Balance' ? {...tag, value} : tag
-          )
-        );
-        if(value != "Any"){handleAddFilter({label: 'Bank Balance', value})};
-      },      
-      options: [
-        { label: 'Any', value: 'Any' }, ...getUniqueValues('bank_balance')
-      ]
+      onChange: (value) => handleFilterChange('Bank Balance', value),
+      options: generateRangeOptions('bank_balance'), 
+      selectedValues: getSelectedValuesForFilter('Bank Balance')
     },
     {
-        label: 'Date',
-        value: 'Any',
-        onChange: (value) => {
-          setFilterTags(prevTags => 
-            prevTags.map(tag => 
-              tag.label === 'Date' ? {...tag, value} : tag
-            )
-          );
-          if(value != "Any"){handleAddFilter({label: 'Date', value})};
-        },        
-        options: [
-          { label: 'Any', value: 'Any' }, ...getUniqueValues('date')
-        ]
-      },
-      {
-        label: 'Amount',
-        value: 'Any',
-        onChange: (value) => {
-          setFilterTags(prevTags => 
-            prevTags.map(tag => 
-              tag.label === 'Amount' ? {...tag, value} : tag
-            )
-          );
-          if(value != "Any"){handleAddFilter({label: 'Amount', value})};
-        },        
-        options: [
-          { label: 'Any', value: 'Any' }, ...getUniqueValues('amount')
-        ]
-      },
-      {
-        label: 'Price',
-        value: 'Any',
-        onChange: (value) => {
-          setFilterTags(prevTags => 
-            prevTags.map(tag => 
-              tag.label === 'Price' ? {...tag, value} : tag
-            )
-          );
-          if(value != "Any"){handleAddFilter({label: 'Price', value})};
-        },        
-        options: [
-          { label: 'Any', value: 'Any' }, ...getUniqueValues('price')
-        ]
-      },
-      {
-        label: 'Raise Type',
-        value: 'Any',
-        onChange: (value) => {
-          setFilterTags(prevTags => 
-            prevTags.map(tag => 
-              tag.label === 'Raise Type' ? {...tag, value} : tag
-            )
-          );
-          if(value != "Default"){handleAddFilter({label: 'Raise Type', value})};
-        },       
-        options: [
-          { label: 'Any', value: 'Any' }, ...getUniqueValues('raise_type')
-        ]
-      },
+      label: 'Date',
+      value: 'Any',
+      onChange: (value) => handleFilterChange('Date', value),
+      options: [{ label: 'Any', value: 'Any' }, ...getUniqueValues('date')], 
+      selectedValues: getSelectedValuesForFilter('Date')
+    },
+    {
+      label: 'Amount',
+      value: 'Any',
+      onChange: (value) => handleFilterChange('Amount', value),
+      options: generateRangeOptions('amount'), 
+      selectedValues: getSelectedValuesForFilter('Amount')
+
+    },
+    {
+      label: 'Price',
+      value: 'Any',
+      onChange: (value) => handleFilterChange('Price', value),
+      options: generateRangeOptions('price'), 
+      selectedValues: getSelectedValuesForFilter('Price')
+    },
+    {
+      label: 'Raise Type',
+      value: 'Any',
+      onChange: (value) => handleFilterChange('Raise Type', value),
+      options: [{ label: 'Any', value: 'Any' }, ...getUniqueValues('raise_type')],
+      selectedValues: getSelectedValuesForFilter('Raise Type')
+    },
   ];
-  
-  const [filterOptions, setFilterOptions] = useState(() => {
-    const currentTagLabels = filterTags.map(tag => tag.label);
-    return allFilterOptions.filter(option => !currentTagLabels.includes(option.label));
-});
 
+  const handleRemoveFilter = (label, value) => {
+    setFilterTags(prevTags => {
+      const updatedTags = prevTags.filter(tag => !(tag.label === label && tag.value === value));
+      return updatedTags;
+    });
 
-  const handleRemoveFilter = (filterLabel) => {
-    const removedFilter = filterTags.find(tag => tag.label === filterLabel);
-    setFilterTags(prevTags => prevTags.filter(tag => tag.label !== filterLabel));
-    
-    if (removedFilter) {
-      setFilterOptions(prevOptions => [...prevOptions, 
-        allFilterOptions.find(opt => opt.label === filterLabel)
-      ]);
+    const currentFilter = allFilterOptions.find(opt => opt.label === label);
+    if (currentFilter) {
+      const currentValues = filterTags
+        .filter(tag => tag.label === label && tag.value !== value)
+        .map(tag => tag.value);
+      if (currentValues.length === 0) {
+        currentFilter.onChange(["Any"]);
+      } else {
+        currentFilter.onChange(currentValues);
+      }
     }
   };
   
   const handleAddFilter = (filter) => {
-    setFilterTags(prevTags => {
-        const exists = prevTags.some(tag => tag.label === filter.label);
-        if (exists) {
-            return prevTags.map(tag => 
-                tag.label === filter.label ? { ...tag, value: filter.value } : tag
-            );
+    if (filter.value && filter.value !== 'Any') {
+      setFilterTags(prevTags => {
+        const existingIndex = prevTags.findIndex(tag => tag.label === filter.label);
+        if (existingIndex >= 0) {
+          const updatedTags = [...prevTags];
+          updatedTags[existingIndex] = filter;
+          return updatedTags;
+        } else {
+          return [...prevTags, filter];
         }
-        return [...prevTags, filter];
-    });
+      });
+    }
   };
 
+  const applyFilters = () => {
+    applyClientSideFilters();
+  };
 
   const generateFilterTags = () => {
-    return filterTags.length > 0 ? filterTags : [
-        { label: 'No Filters Applied', value: 'Click to add filters', onRemove: () => {} }
-    ];
-    };
+    if (filterTags.length === 0) {
+      return [{ label: 'No Filters Applied', value: 'Click to add filters' }];
+    }
+    
+    return filterTags.map(tag => ({
+      ...tag,
+      onRemove: () => handleRemoveFilter(tag.label, tag.value)
+    }));
+  };
 
-
-  //stats
   const generateMetricCards = () => [
     {
       title: 'ASX Code Count',
@@ -439,8 +553,6 @@ const getUniqueValues = (key) => {
     },
   ];
 
-  
-  //charts
   const generateChartData = () => [
     {
       title: 'Monthly Amount Raised',
@@ -505,18 +617,19 @@ const getUniqueValues = (key) => {
     { header: 'Date', key: 'date' },
     { header: 'Amount', key: 'amount' },
     { header: 'Price', key: 'price' },
+    { header: 'Raise Type', key: 'raiseType' },
+    { header: 'Bank Balance', key: 'bankBalance' }
   ]);
   
   return (
-    <div className="standard-padding">
-      {error && <div className="error-message">{error}</div>}
+    <div className='standard-padding'>
+      {error && <div className='error-message'>{error}</div>}
       {loading ? (
-        <div className="loading-indicator">Loading directors data...</div>
+        <div className='loading-indicator'>Loading capital raises data...</div>
       ) : (
         <GraphPage
-          title="Directors Dashboard"
+          title='Capital Raises'
           filterTags={generateFilterTags()}
-          filterOptions={filterOptions}
           allFilterOptions={allFilterOptions}
           metricCards={generateMetricCards()}
           chartData={generateChartData()}
@@ -524,10 +637,12 @@ const getUniqueValues = (key) => {
           tableData={tableData}
           handleAddFilter={handleAddFilter}
           handleRemoveFilter={handleRemoveFilter}
+          applyFilters={applyFilters}
         />
       )}
     </div>
   );
 };
+
 
 export default CapitalRaises;

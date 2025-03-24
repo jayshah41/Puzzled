@@ -5,10 +5,11 @@ User = get_user_model()
 
 
 class UserSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True, required=False)
+
     class Meta:
         model = User
-        fields = ['id', 'email', 'first_name', 'last_name', 'phone_number', 'commodities', 'tier_level']
-        extra_kwargs = {'password': {'write_only': True}}
+        fields = ['id', 'email', 'first_name', 'last_name', 'phone_number', 'commodities', 'tier_level', 'password', 'username']
     
     def create(self, validated_data):
         password = validated_data.pop('password', None)  
@@ -17,8 +18,6 @@ class UserSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError({"password": "Password is required."})
 
         instance = self.Meta.model(**validated_data)  
-        if password:
-            instance.set_password(password)  
         instance.save()
 
         return instance
