@@ -63,7 +63,6 @@ const AccountManager = () => {
   const handleLogout = () => {
     localStorage.removeItem("accessToken");
     navigate("/");
-    window.scrollTo(0, 0);
     localStorage.setItem("user_tier_level", "-1");
     window.dispatchEvent(new Event('storage'));
   };

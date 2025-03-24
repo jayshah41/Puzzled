@@ -25,7 +25,6 @@ const LoginHandler = ({ children }) => {
   const handleLoginSuccess = () => {
     setShowingLogin(false);
     navigate('/');
-    window.scrollTo(0, 0);
     window.location.reload();
   };
 
