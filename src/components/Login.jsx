@@ -157,12 +157,6 @@ const Login = ({ onClose, loginButton, onLoginSuccess }) => {
                     <form className="auth-form" onSubmit={handleLogin} role="form">
                         <input type="email" placeholder="Email address" className="auth-input" name="email" value={formData.email} onChange={handleChange} required />
                         <input type="password" placeholder="Password" className="auth-input" name="password" value={formData.password} onChange={handleChange} required />
-                        <div className="options-container">
-                            <label className="remember-me">
-                                <input type="checkbox" /> Remember me
-                            </label>
-                            <a href="#" className="forgot-password">Forgot your password?</a>
-                        </div>
                         <button type="submit" className="auth-button">Sign in</button>
                     </form>
                 ) : (
