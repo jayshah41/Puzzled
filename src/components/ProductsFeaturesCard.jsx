@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import MessageDisplay from './MessageDisplay';
 import '../styles/ProductsFeatures.css';
 
-const ProductsFeaturesCard = ({ index, video, title, content, setValues, isEditing }) => {
+const ProductsFeaturesCard = ({ index, video, title, content = '', setValues, isEditing }) => {
   const [errorMessage, setErrorMessage] = useState('');
   
   const handleChange = (field, value) => {
@@ -21,13 +21,15 @@ const ProductsFeaturesCard = ({ index, video, title, content, setValues, isEditi
     });
   };
 
-  const contentToShow = content.split('#').map((e, idx) => (
+  const safeContent = content || '';
+
+  const contentToShow = safeContent.split('#').map((e, idx) => (
     isEditing ? (
       <textarea
         key={idx}
         value={e}
         onChange={(event) => {
-          const updatedContent = content.split('#');
+          const updatedContent = safeContent.split('#');
           updatedContent[idx] = event.target.value;
           handleChange('content', updatedContent.join('#'));
         }}
@@ -50,7 +52,7 @@ const ProductsFeaturesCard = ({ index, video, title, content, setValues, isEditi
             {isEditing ? (
               <input
                 type="text"
-                value={title}
+                value={title || ''}
                 onChange={(e) => handleChange('title', e.target.value)}
                 className="auth-input"
               />
@@ -84,7 +86,7 @@ const ProductsFeaturesCard = ({ index, video, title, content, setValues, isEditi
             {isEditing ? (
               <input
                 type="text"
-                value={title}
+                value={title || ''}
                 onChange={(e) => handleChange('title', e.target.value)}
                 className="auth-input"
               />
