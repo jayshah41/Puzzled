@@ -5,6 +5,8 @@ global.TextDecoder = TextDecoder;
 
 global.fetch = jest.fn(() =>
   Promise.resolve({
-    json: () => Promise.resolve([]), // Mock an empty response
+    json: () => Promise.resolve([]),
   })
 );
+
+global.scrollTo = jest.fn();

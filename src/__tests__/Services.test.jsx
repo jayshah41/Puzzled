@@ -9,7 +9,6 @@ jest.mock('../components/ServicesCardContainer', () => {
     return <div data-testid="services-card-container">ServicesCardContainer {isEditing ? 'Editing' : 'View'} Mode</div>;
   };
 });
-jest.mock('../components/Socials', () => () => <div data-testid="socials">Socials</div>);
 jest.mock('../components/MessageDisplay', () => ({ message }) => (
   <div data-testid="message-display">{message}</div>
 ));
@@ -56,7 +55,6 @@ describe('Services Component', () => {
     });
 
     expect(await screen.findByTestId('services-card-container')).toBeInTheDocument();
-    expect(await screen.findByTestId('socials')).toBeInTheDocument();
   });
 
   test('shows edit button for admin users', async () => {
