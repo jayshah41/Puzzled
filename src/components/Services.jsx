@@ -108,7 +108,6 @@ const Services = () => {
         )}
         
         <ServicesCardContainer isEditing={isEditing} />
-        <Socials />
       </div>
     </div>
   </div>
