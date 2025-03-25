@@ -9,7 +9,6 @@ const SubscriptionPlans = () => {
   const isLoggedIn = !!token;
 
   const [paymentOption, setPaymentOption] = useState("$3995 Per Annum");
-  const [numOfUsers, setNumOfUsers] = useState("one");
   const [tierLevel, setTierLevel] = useState("2");
   
   const colourMap = {
@@ -23,48 +22,27 @@ const SubscriptionPlans = () => {
     return colourMap[paymentOption];
   };
 
-  const calculatePrice = (paymentOption, numOfUsers) => {
+  const calculatePrice = (paymentOption) => {
     const basePrices = {
       "$895 Per Month": 895,
       "$1495 Per Quarter": 1495,
       "$3995 Per Annum": 3995
     };
 
-    const userMultipliers = {
-      "one": 1,
-      "five": {
-        "$895 Per Month": 1295 / 895,
-        "$1495 Per Quarter": 2995 / 1495,
-        "$3995 Per Annum": 9995 / 3995
-      }
-    };
-
     const basePrice = basePrices[paymentOption];
-    const multiplier = numOfUsers === "one" ? userMultipliers["one"] : userMultipliers["five"][paymentOption];
 
-    return `$${Math.round(basePrice * multiplier)} Per ${paymentOption.split(' ')[2]}`;
+    return `$${basePrice} Per ${paymentOption.split(' ')[2]}`;
   };
 
   const handlePaymentChange = (event) => {
     setPaymentOption(event.target.value);
   };
   
-  const handleNumOfUsersChange = (event) => {
-    setNumOfUsers(event.target.value);
-  };
-  
   const handleTierLevelChange = (event) => {
     setTierLevel(event.target.value);
   };
 
-  const titleCase = (s) => {
-    return s.toLowerCase()
-            .split(' ')
-            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-            .join(' ');
-  };
-
-  const currentPrice = tierLevel === "1" ? "Free" : calculatePrice(paymentOption, numOfUsers);
+  const currentPrice = tierLevel === "1" ? "Free" : calculatePrice(paymentOption);
   const info = ['Company: All data', 'Market Data: All Data', 'Projects: All Data', 'Shareholders: All Data', 'Directors: All Data', 'Financials: All Data', 'Capital Raises: All Data'];
   const features = info.map((feature, index) => (
     <li key={index} className="feature-item">
@@ -77,7 +55,7 @@ const SubscriptionPlans = () => {
     <div className="container standard-padding">
       <div className="pricing-card">
         <div className="pricing-header" style={{ backgroundColor: getColour() }}>
-        <h3 style={{ margin: 'auto' }}>Tier {tierLevel} Pricing {tierLevel==="2" ? `(${titleCase(numOfUsers)} User${numOfUsers == 'five' ? 's' : ''})` : null}</h3>
+        <h3 style={{ margin: 'auto' }}>Tier {tierLevel} Pricing</h3>
         </div>
         <div className="pricing-content">
           <div className="price">
@@ -145,28 +123,6 @@ const SubscriptionPlans = () => {
             Annually
           </label>
         </div>
-        
-        <div className="control-section">
-          <h3>Select the number of users</h3>
-          <label className="radio-option">
-            <input 
-              type="radio" 
-              value="one" 
-              checked={numOfUsers === "one"} 
-              onChange={handleNumOfUsersChange} 
-            />
-            One
-          </label>
-          <label className="radio-option">
-            <input 
-              type="radio" 
-              value="five" 
-              checked={numOfUsers === "five"} 
-              onChange={handleNumOfUsersChange} 
-            />
-            Five
-          </label>
-        </div>
         </>
         : null}
         {!isLoggedIn ? (
@@ -178,7 +134,7 @@ const SubscriptionPlans = () => {
             )}
           </LoginHandler>
         ) :
-        <SubscribeButton paymentOption={paymentOption} numOfUsers={numOfUsers} tierLevel={tierLevel} />}
+        <SubscribeButton paymentOption={paymentOption} tierLevel={tierLevel} />}
       </div>
     </div>
   )
