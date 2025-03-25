@@ -225,6 +225,7 @@ const Navbar = () => {
                 if (contentIsValid(tabs, graphLinks, graphsTitle)) {
                   handleSave();
                   setIsEditing(false);
+                  window.location.reload();
                 } else {
                   alert('Please ensure all fields are filled out before saving.');
                 }
