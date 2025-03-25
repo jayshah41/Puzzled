@@ -15,7 +15,7 @@ const StripeSuccessPage = () => {
       }
 
       try {
-        const response = await fetch('/api/update-tier/', {
+        const response = await fetch('/api/proxy/update-tier/', {
           method: 'PATCH',
           headers: {
             'Content-Type': 'application/json',

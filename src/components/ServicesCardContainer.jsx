@@ -15,7 +15,7 @@ const ServicesCardContainer = ({ isEditing }) => {
   }, []);
 
   const fetchData = () => {
-    fetch('/api/editable-content/?component=Services')
+    fetch('/api/proxy/editable-content/?component=Services')
       .then(response => response.json())
       .then(data => {
         const initialValues = [
@@ -61,7 +61,7 @@ const ServicesCardContainer = ({ isEditing }) => {
 
     const savePromises = values.map((value, index) => {
       return Promise.all([
-        fetch('/api/editable-content/update/', {
+        fetch('/api/proxy/editable-content/update/', {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -77,7 +77,7 @@ const ServicesCardContainer = ({ isEditing }) => {
             console.error(`There was an error saving the title ${index + 1}`, error);
           }),
 
-        fetch('/api/editable-content/update/', {
+        fetch('/api/proxy/editable-content/update/', {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',

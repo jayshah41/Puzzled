@@ -52,7 +52,7 @@ const Login = ({ onClose, loginButton, onLoginSuccess }) => {
         }
 
         try {
-            const response = await fetch("/api/login/", {
+            const response = await fetch("/api/proxy/login/", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ email: formData.email, password: formData.password }),
@@ -64,7 +64,7 @@ const Login = ({ onClose, loginButton, onLoginSuccess }) => {
             localStorage.setItem("accessToken", data.access);
             localStorage.setItem("refreshToken", data.refresh);
 
-            const userResponse = await fetch("/api/profile/", {
+            const userResponse = await fetch("/api/proxy/profile/", {
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json",
@@ -111,7 +111,7 @@ const Login = ({ onClose, loginButton, onLoginSuccess }) => {
         }
 
         try {
-            const response = await fetch("/api/register/", {
+            const response = await fetch("/api/proxy/register/", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({

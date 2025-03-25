@@ -45,7 +45,7 @@ const AccountManager = () => {
     const fetchUserData = async () => {
       const accessToken = localStorage.getItem('accessToken');
       try {
-        const response = await fetch('/api/profile/', {
+        const response = await fetch('/api/proxy/profile/', {
           headers: {
             Authorization: `Bearer ${accessToken}`,
           },
@@ -126,7 +126,7 @@ const AccountManager = () => {
     console.log('Selected Tier:', newTier);
   
     try {
-      const response = await fetch('/api/update-tier/', {
+      const response = await fetch('/api/proxy/update-tier/', {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -163,7 +163,7 @@ const AccountManager = () => {
     }
 
     try {
-      const response = await fetch('/api/delete-account/', {
+      const response = await fetch('/api/proxy/delete-account/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -201,7 +201,7 @@ const AccountManager = () => {
           <h2>Change Email</h2>
           <form onSubmit={(e) => {
             e.preventDefault();
-            handleUpdate('/api/update-profile/', { email }, 'Email updated successfully!');
+            handleUpdate('/api/proxy/update-profile/', { email }, 'Email updated successfully!');
           }}>
             <InputField
               type="email"
@@ -217,7 +217,7 @@ const AccountManager = () => {
           <h2>Change Phone Number</h2>
           <form onSubmit={(e) => {
             e.preventDefault();
-            handleUpdate('/api/update-profile/', { phone_number: phone }, 'Phone number updated successfully!');
+            handleUpdate('/api/proxy/update-profile/', { phone_number: phone }, 'Phone number updated successfully!');
           }}>
             <InputField
               type="tel"
@@ -233,7 +233,7 @@ const AccountManager = () => {
           <h2>Change Password</h2>
           <form onSubmit={(e) => {
             e.preventDefault();
-            handleUpdate('/api/update-profile/', { old_password: oldPassword, new_password: newPassword }, 'Password updated successfully!');
+            handleUpdate('/api/proxy/update-profile/', { old_password: oldPassword, new_password: newPassword }, 'Password updated successfully!');
           }}>
             <InputField
               type="password"
@@ -255,7 +255,7 @@ const AccountManager = () => {
           <h2>Change Name</h2>
           <form onSubmit={(e) => {
             e.preventDefault();
-            handleUpdate('/api/update-profile/', { first_name: firstName, last_name: lastName }, 'Name updated successfully!');
+            handleUpdate('/api/proxy/update-profile/', { first_name: firstName, last_name: lastName }, 'Name updated successfully!');
           }}>
             <InputField
               type="text"
@@ -277,7 +277,7 @@ const AccountManager = () => {
           <h2>Change Commodities</h2>
           <form onSubmit={(e) => {
             e.preventDefault();
-            handleUpdate('/api/update-profile/', { commodities }, 'Commodities updated successfully!');
+            handleUpdate('/api/proxy/update-profile/', { commodities }, 'Commodities updated successfully!');
           }}>
             <CommodityManager
               commodities={commodities}

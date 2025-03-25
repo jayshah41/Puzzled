@@ -47,7 +47,7 @@ const MarketData = () => {
     try {
       setLoading(true);
       
-      const response = await axios.get('/api/data/market-data/', {
+      const response = await axios.get('/api/proxy/data/market-data/', {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json'

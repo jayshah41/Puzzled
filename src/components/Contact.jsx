@@ -48,7 +48,7 @@ const Contact = () => {
   ]);
 
   useEffect(() => {
-    fetch('/api/editable-content/?component=Contact')
+    fetch('/api/proxy/editable-content/?component=Contact')
       .then(response => response.json())
       .then(data => {
         setTitle(data.find(content => content.section === 'title')?.text_value || "Meet Our Team");
