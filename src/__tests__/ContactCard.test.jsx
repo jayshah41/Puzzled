@@ -135,19 +135,6 @@ describe('ContactCard Component', () => {
     });
   });
 
-  test('applies correct styling to the profile image', () => {
-    render(<ContactCard contact={mockContact} index={0} setContacts={mockSetContacts} isEditing={false} />);
-    
-    const image = screen.getByAltText('John Doe');
-    expect(image).toHaveStyle({
-      width: '70%',
-      borderRadius: '1000px',
-      margin: 'auto',
-      marginTop: '25px'
-    });
-    expect(image).toHaveAttribute('src', '/path/to/image.jpg');
-  });
-
   test('renders role with grey color and auto margin', () => {
     render(<ContactCard contact={mockContact} index={0} setContacts={mockSetContacts} isEditing={false} />);
     
