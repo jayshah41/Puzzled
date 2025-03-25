@@ -10,6 +10,7 @@ import '../styles/AccountManager.css';
 import '../styles/Modal.css';
 
 const AccountManager = () => {
+  const userAuthLevel = localStorage.getItem("user_tier_level");
   useAuthRedirect();
   const { getAccessToken, authError } = useAuthToken();
 
@@ -25,12 +26,20 @@ const AccountManager = () => {
   const [deletePassword, setDeletePassword] = useState('');
   const [error, setError] = useState('');
   const [statusMessage, setStatusMessage] = useState({ type: '', text: '' });
+  const [selectedTier, setSelectedTier] = useState(() => {
+    const userLevel = parseInt(userAuthLevel, 10);
+    if (userLevel === 2) return "1";
+    if (userLevel === 1) return "0";
+    return "";
+  });
 
   const commodityOptions = ["Aluminum", "Coal", "Cobalt", "Copper", "Gold", "Graphite", 
     "Halloysite", "Iron Ore", "Lithium", "Magnesium", "Manganese",
     "Mineral Sands", "Molybdenum", "Nickel", "Oil & Gas", "Palladium",
     "Platinum", "Potash", "Rare Earths", "Scandium", "Tantalum", "Tin",
     "Titanium", "Tungsten", "Uranium", "Vanadium", "Zinc"];
+  
+  const tierDescriptionMap = ['Basic Plan', 'Premium Plan', 'Admin'];
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -110,6 +119,36 @@ const AccountManager = () => {
     }
   };
 
+  const handleTierDowngrade = async (newTier) => {
+  
+    const accessToken = localStorage.getItem('accessToken');
+    console.log('Access Token:', accessToken);
+    console.log('Selected Tier:', newTier);
+  
+    try {
+      const response = await fetch('/api/update-tier/', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({ tier_level: parseInt(newTier, 10) }),
+      });
+  
+      if (response.ok) {
+        setStatusMessage({ type: 'success', text: 'Tier level downgraded successfully!' });
+        localStorage.setItem("user_tier_level", String(newTier));
+        window.location.reload();
+      } else {
+        const errorData = await response.json().catch(() => ({}));
+        setStatusMessage({ type: 'error', text: errorData.message || 'Failed to downgrade tier.' });
+      }
+    } catch (error) {
+      console.error('Error downgrading tier:', error);
+      setStatusMessage({ type: 'error', text: 'An error occurred. Please try again.' });
+    }
+  };
+
   const handleDeleteAccount = async (e) => {
     e.preventDefault();
     const accessToken = localStorage.getItem('accessToken');
@@ -154,7 +193,9 @@ const AccountManager = () => {
       <h1 style={{ textAlign: "center", marginBottom: "75px" }}>Welcome {firstName}!</h1>
       {error && <p className="error-message">{error}</p>}
       <StatusMessage type={statusMessage.type} text={statusMessage.text} />
-
+      <h2 className="centre" style={{ marginBottom: "75px" }}>
+        Tier Level {parseInt(userAuthLevel, 10)+1}: {tierDescriptionMap[parseInt(userAuthLevel, 10)]}
+      </h2>
       <div className="container">
         <div className="form-section">
           <h2>Change Email</h2>
@@ -246,6 +287,29 @@ const AccountManager = () => {
             <button type="submit" className="auth-button">Update Commodities</button>
           </form>
         </div>
+
+        {parseInt(userAuthLevel, 10) > 0 && (
+          <div className="form-section">
+            <h2>Downgrade Tier Level</h2>
+            <form onSubmit={(e) => {
+              e.preventDefault();
+              handleTierDowngrade(selectedTier);
+            }}>
+              <label htmlFor="tier-select">Select New Tier Level:</label>
+              <select
+                id="tier-select"
+                value={selectedTier}
+                onChange={(e) => setSelectedTier(e.target.value)}
+              >
+                {parseInt(userAuthLevel, 10) === 2 && (
+                  <option value="1">Tier Level 2 - Premium Plan</option>
+                )}
+                <option value="0">Tier Level 1 - Basic Plan</option>
+              </select>
+              <button type="submit" className="auth-button">Downgrade Tier</button>
+            </form>
+          </div>
+        )}
 
         <div className="form-section">
           <h2>Delete Account</h2>

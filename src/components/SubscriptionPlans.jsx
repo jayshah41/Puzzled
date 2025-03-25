@@ -1,8 +1,13 @@
 import React, { useState } from 'react';
+import LoginHandler from './LoginHandler';
+import SubscribeButton from './SubscribeButton';
 import '../styles/GeneralStyles.css';
 import '../styles/SubscriptionStyles.css';
 
 const SubscriptionPlans = () => {
+  const token = localStorage.getItem("accessToken");
+  const isLoggedIn = !!token;
+
   const [paymentOption, setPaymentOption] = useState("$3995 Per Annum");
   const [numOfUsers, setNumOfUsers] = useState("one");
   const [tierLevel, setTierLevel] = useState("2");
@@ -164,6 +169,16 @@ const SubscriptionPlans = () => {
         </div>
         </>
         : null}
+        {!isLoggedIn ? (
+          <LoginHandler isPricing={true}>
+            {({ handleOpenLogin }) => (
+              <button className="defaultButton" onClick={handleOpenLogin} >
+                Join now
+              </button>
+            )}
+          </LoginHandler>
+        ) :
+        <SubscribeButton paymentOption={paymentOption} numOfUsers={numOfUsers} tierLevel={tierLevel} />}
       </div>
     </div>
   )

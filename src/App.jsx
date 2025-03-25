@@ -17,6 +17,7 @@ import Projects from './pages/graphs/Projects';
 import Financials from './pages/graphs/Financials';
 import News from './pages/News';
 import SocialMedia from './pages/SocialMedia'
+import StripeSuccessPage from './pages/StripeSuccessPage';
 import AboutUs from './pages/AboutUs';
 import Copyright from './pages/Copyright';
 import Information from './pages/Information';
@@ -58,6 +59,7 @@ const App = () => {
           <Route path="/graphs/financials" element={<Financials />} />
           <Route path="/news" element={<News />} />
           <Route path="/social-media" element={<SocialMedia/>} />
+          <Route path="/stripe-success" element={<StripeSuccessPage/>} />
         </Routes>
         <Footer />
       </Router>
