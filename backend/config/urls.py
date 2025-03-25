@@ -30,7 +30,7 @@ urlpatterns = [
     path('update-profile/', UpdateProfileView.as_view(), name='update-profile'),
     path('delete-account/', DeleteAccountView.as_view(), name='delete-account'),
     path('update-tier/', UpdateTierView.as_view(), name='update-tier'),
-    path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'), ##########################
+    path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('data/', include('api.urls')),
     path('editable-content/', EditableContentView.as_view(), name='editable-content'),
