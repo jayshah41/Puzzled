@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import ValueComponent from './ValueComponent';
 import useSaveContent from '../hooks/useSaveContent';
+import MessageDisplay from './MessageDisplay';
 import '../styles/ValueComponent.css';
 
 const Values = () => {
@@ -8,6 +9,7 @@ const Values = () => {
   const saveContent = useSaveContent();
 
   const [isEditing, setIsEditing] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
   const [heading, setHeading] = useState("MakCorp's Value to Clients");
   const [contentMap, setContentMap] = useState([]);
 
@@ -71,17 +73,22 @@ const Values = () => {
             if (contentIsValid()) {
               handleSave();
               setIsEditing(!isEditing);
+              setErrorMessage('');
             } else {
-              alert("Please ensure all fields are filled out before saving.")
+              setErrorMessage("Please ensure all fields are filled out before saving.");
             }
           } else {
             setIsEditing(!isEditing);
+            setErrorMessage('');
           }
         }}
         style={{ marginBottom: '1rem', backgroundColor: "white" }}>
           {isEditing ? 'Save Changes' : 'Edit'}
         </button>
       : null}
+      
+      {isEditing && <MessageDisplay message={errorMessage} />}
+      
       <div className="values-header">
         {isEditing ? (
           <input

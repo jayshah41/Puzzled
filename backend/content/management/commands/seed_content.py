@@ -389,6 +389,11 @@ class Command(BaseCommand):
             },
             {
                 "component": "Navbar",
+                "section": "dropdownHeading",
+                "text_value": '{"text": "Graphs", "link": "", "showing": true, "accessLevel": 1}'
+            },
+            {
+                "component": "Navbar",
                 "section": "graph0",
                 "text_value": '{"text": "Company Details", "link": "/graphs/company-details", "showing": true, "accessLevel": 1}'
             },

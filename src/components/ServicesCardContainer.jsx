@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import ServicesCard from './ServicesCard';
+import MessageDisplay from './MessageDisplay';
 import '../styles/GeneralStyles.css';
 import moneyBag from '../assets/ServicesCards/money-bag.png';
 import graphUp from '../assets/ServicesCards/graph-up.png';
@@ -7,6 +8,7 @@ import newspaper from '../assets/ServicesCards/newspaper.png';
 
 const ServicesCardContainer = ({ isEditing }) => {
   const [values, setValues] = useState([]);
+  const [errorMessage, setErrorMessage] = useState('');
 
   useEffect(() => {
     fetchData();
@@ -51,9 +53,11 @@ const ServicesCardContainer = ({ isEditing }) => {
 
   const saveContent = () => {
     if (!contentIsValid(values)) {
-      alert('Please ensure all titles and content fields are filled out before saving. Empty fields will not be saved.');
+      setErrorMessage('Please ensure all titles and content fields are filled out before saving.');
       return;
     }
+
+    setErrorMessage('');
 
     const savePromises = values.map((value, index) => {
       return Promise.all([
@@ -99,22 +103,28 @@ const ServicesCardContainer = ({ isEditing }) => {
   useEffect(() => {
     if (!isEditing) {
       saveContent();
+    } else {
+      setErrorMessage('');
     }
   }, [isEditing]);
 
   return (
-    <div className="three-card-container">
-      {values.map((value, index) => (
-        <ServicesCard
-          key={index}
-          index={index}
-          image={value.image}
-          title={value.title}
-          content={value.content}
-          setValues={setValues}
-          isEditing={isEditing}
-        />
-      ))}
+    <div>
+      {isEditing && <MessageDisplay message={errorMessage} />}
+      
+      <div className="three-card-container">
+        {values.map((value, index) => (
+          <ServicesCard
+            key={index}
+            index={index}
+            image={value.image}
+            title={value.title}
+            content={value.content}
+            setValues={setValues}
+            isEditing={isEditing}
+          />
+        ))}
+      </div>
     </div>
   );
 };

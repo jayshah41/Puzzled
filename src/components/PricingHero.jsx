@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import LoginHandler from './LoginHandler';
 import useSaveContent from '../hooks/useSaveContent';
+import MessageDisplay from './MessageDisplay';
 import pricingHeaderImage from '../assets/pricing-header-image.png';
 import '../styles/GeneralStyles.css';
 
@@ -12,6 +13,7 @@ const PricingHero = () => {
   const saveContent = useSaveContent();
   
   const [isEditing, setIsEditing] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
   const [heading, setHeading] = useState("MakCorp Platform through Affordable Subscriptions");
   const [content, setContent] = useState("The MakCorp platform provides our users with access to 6 key data modules with over 600 data points to provide our clients with the ability to make better informed investment decisions. As an example, using projects data, users can seamlessly filter based upon key indicators like commodity type, geographic location or project stage to identify potential investment or client oppotunities.");
@@ -54,16 +56,20 @@ const PricingHero = () => {
               if (contentIsValid()) {
                 handleSave();
                 setIsEditing(!isEditing);
+                setErrorMessage('');
               } else {
-                alert("Please ensure all fields are filled out before saving.")
+                setErrorMessage("Please ensure all fields are filled out before saving.");
               }
             } else {
               setIsEditing(!isEditing);
+              setErrorMessage('');
             }
         }}
         style={{ marginBottom: '1rem' }}>
           {isEditing ? 'Save Changes' : 'Edit'}</button>
         : null}
+        {isEditing && <MessageDisplay message={errorMessage} />}
+        
         {isEditing ? (
           <input
             type="text"
@@ -94,7 +100,7 @@ const PricingHero = () => {
           </LoginHandler>
         ) : null}
         </div>
-        <img src={pricingHeaderImage} style={{ width: '45vw', paddingLeft: "35px" }}></img>
+        <img src={pricingHeaderImage} style={{ width: '45vw', paddingLeft: "35px" }} alt="Pricing header" />
     </div>
   )
 }

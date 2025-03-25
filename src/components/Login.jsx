@@ -150,7 +150,7 @@ const Login = ({ onClose, loginButton, onLoginSuccess }) => {
 
 
                 {isLogin ? (
-                    <form className="auth-form" onSubmit={handleLogin}>
+                    <form className="auth-form" onSubmit={handleLogin} role="form">
                         <input
                             type="email" placeholder="Email address" className="auth-input"
                             name="email" value={formData.email} onChange={handleChange} required
@@ -168,7 +168,7 @@ const Login = ({ onClose, loginButton, onLoginSuccess }) => {
                         <button type="submit" className="auth-button">Sign in</button>
                     </form>
                 ) : (
-                    <form className="auth-form" onSubmit={handleSignup}>
+                    <form className="auth-form" onSubmit={handleSignup} role="form">
                         <p>User Information</p>
                         <input type="text" placeholder="First Name" className="auth-input" name="firstName" value={formData.firstName} onChange={handleChange} required />
                         <input type="text" placeholder="Last Name" className="auth-input" name="lastName" value={formData.lastName} onChange={handleChange} required />

@@ -15,9 +15,26 @@ const Navbar = () => {
   const saveContent = useSaveContent();
 
   const [isEditing, setIsEditing] = useState(false);
-  const [tabs, setTabs] = useState([]);
-  const [graphLinks, setGraphLinks] = useState([]);
+  const [tabs, setTabs] = useState([
+    { text: "Home", link: "/", showing: true, accessLevel: -1 },
+    { text: "Pricing", link: "/pricing", showing: true, accessLevel: -1 },
+    { text: "Products", link: "/products", showing: true, accessLevel: -1 },
+    { text: "Contact Us", link: "/contact-us", showing: true, accessLevel: -1 },
+    { text: "News", link: "/news", showing: true, accessLevel: 0 },
+    { text: "Socials", link: "/social-media", showing: true, accessLevel: 0 }
+  ]);
+  const [graphLinks, setGraphLinks] = useState([
+    { text: "Company Details", link: "/graphs/company-details", showing: true, accessLevel: 1 },
+    { text: "Market Data", link: "/graphs/market-data", showing: true, accessLevel: 1 },
+    { text: "Market Trends", link: "/graphs/market-trends", showing: true, accessLevel: 1 },
+    { text: "Directors", link: "/graphs/directors", showing: true, accessLevel: 1 },
+    { text: "Shareholders", link: "/graphs/shareholders", showing: true, accessLevel: 1 },
+    { text: "Capital Raises", link: "/graphs/capital-raises", showing: true, accessLevel: 1 },
+    { text: "Projects", link: "/graphs/projects", showing: true, accessLevel: 1 },
+    { text: "Financials", link: "/graphs/financials", showing: true, accessLevel: 1 }
+  ]);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [graphsTitle, setGraphsTitle] = useState("Graphs");
   const [showGraphsDropdown, setShowGraphsDropdown] = useState(false);
 
   useEffect(() => {
@@ -32,6 +49,13 @@ const Navbar = () => {
           .filter(item => item.section.startsWith('graph'))
           .map((item) => JSON.parse(item.text_value))
           .filter(graph => graph.accessLevel <= userTierLevel);
+        
+        const graphsTitleItem = data.find(item => item.section === 'dropdownHeading');
+        if (graphsTitleItem) {
+          const graphsData = JSON.parse(graphsTitleItem.text_value);
+          setGraphsTitle(graphsData.text);
+        }
+
         setTabs(fetchedTabs);
         setGraphLinks(fetchedGraphLinks);
       })
@@ -53,7 +77,18 @@ const Navbar = () => {
       text_value: JSON.stringify(graph),
     }));
 
-    saveContent([...tabContentData, ...graphContentData]);
+    const graphsTitleData = {
+      component: 'Navbar',
+      section: 'dropdownHeading',
+      text_value: JSON.stringify({
+        text: graphsTitle,
+        link: "",
+        showing: true,
+        accessLevel: 1
+      }),
+    };
+
+    saveContent([...tabContentData, ...graphContentData, graphsTitleData]);
   };
 
   const toggleTabVisibility = (index) => {
@@ -151,7 +186,7 @@ const Navbar = () => {
     };
   }, []);
 
-  const contentIsValid = (tabs, graphLinks) => {
+  const contentIsValid = (tabs, graphLinks, graphsTitle) => {
     for (const tab of tabs) {
       if (!tab.text.trim() || !tab.link.trim()) {
         return false;
@@ -162,6 +197,10 @@ const Navbar = () => {
         return false;
       }
     }
+    if (!graphsTitle.trim()) {
+      return false;
+    }
+    
     return true;
   };
 
@@ -183,7 +222,7 @@ const Navbar = () => {
           style={{ marginLeft: "20px" }}
             onClick={() => {
               if (isEditing) {
-                if (contentIsValid(tabs, graphLinks)) {
+                if (contentIsValid(tabs, graphLinks, graphsTitle)) {
                   handleSave();
                   setIsEditing(false);
                 } else {
@@ -200,12 +239,21 @@ const Navbar = () => {
         </div>
         {links}
         {(isEditing || (isLoggedIn && areAnyGraphsVisible)) && (
-          <div className="dropdown">
-            <button
-              className="dropbtn navbar-button"
-              onMouseEnter={() => setShowGraphsDropdown(true)}>
-              Graphs
-            </button>
+          <div className="dropdown"
+            onMouseEnter={() => setShowGraphsDropdown(true)}
+            onMouseLeave={() => setShowGraphsDropdown(false)}>
+            {isEditing ? (
+              <div style={{ display: 'flex', alignItems: 'center' }}>
+                <input
+                  type="text"
+                  value={graphsTitle}
+                  onChange={(e) => setGraphsTitle(e.target.value)}
+                  style={{ marginRight: '8px', width: '100px' }}
+                />
+              </div>
+            ) : (
+              <button className="dropbtn navbar-button">{graphsTitle}</button>
+            )}
             {showGraphsDropdown && (
               <div className="dropdown-content">
                 {graphLinksUI}
