@@ -1,5 +1,5 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Home from './pages/Home';
 import Pricing from './pages/Pricing';
@@ -17,11 +17,27 @@ import Projects from './pages/graphs/Projects';
 import Financials from './pages/graphs/Financials';
 import News from './pages/News';
 import SocialMedia from './pages/SocialMedia'
+import StripeSuccessPage from './pages/StripeSuccessPage';
+import AboutUs from './pages/AboutUs';
+import Copyright from './pages/Copyright';
+import Information from './pages/Information';
+import Privacy from './pages/Privacy';
+
+const ScrollToTop = () => {
+  const location = useLocation();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [location]);
+
+  return null;
+};
 
 const App = () => {
   return (
     <>
       <Router>
+        <ScrollToTop />
         <Navbar />
         <Routes>
           <Route path="/" element={<Home />} />
@@ -29,6 +45,10 @@ const App = () => {
           <Route path="/products" element={<Products />} />
           <Route path="/contact-us" element={<ContactUs />} /> 
           <Route path="/account" element={<AccountManager />} />
+          <Route path="/about" element={<AboutUs />} />
+          <Route path="/copyrights" element={<Copyright />} />
+          <Route path="/info" element={<Information />} />
+          <Route path="/privacy-policy" element={<Privacy />} />
           <Route path="/graphs/company-details" element={<CompanyDetails />} />
           <Route path="/graphs/market-data" element={<MarketData />} />
           <Route path="/graphs/market-trends" element={<MarketTrends />} />
@@ -39,6 +59,7 @@ const App = () => {
           <Route path="/graphs/financials" element={<Financials />} />
           <Route path="/news" element={<News />} />
           <Route path="/social-media" element={<SocialMedia/>} />
+          <Route path="/stripe-success" element={<StripeSuccessPage/>} />
         </Routes>
         <Footer />
       </Router>

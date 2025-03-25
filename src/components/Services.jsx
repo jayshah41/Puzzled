@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import useSaveContent from '../hooks/useSaveContent';
 import ServicesCardContainer from './ServicesCardContainer';
 import Socials from './Socials';
+import MessageDisplay from './MessageDisplay';
 import '../styles/GeneralStyles.css';
 
 const Services = () => {
@@ -9,6 +10,7 @@ const Services = () => {
   const saveContent = useSaveContent();
 
   const [isEditing, setIsEditing] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
   const [heading, setHeading] = useState("");
   const [paragraphOne, setParagraphOne] = useState("");
   const [paragraphTwo, setParagraphTwo] = useState("");
@@ -52,11 +54,13 @@ const Services = () => {
           if (contentIsValid()) {
             handleSave();
             setIsEditing(!isEditing);
+            setErrorMessage('');
           } else {
-            alert("Please ensure all fields are filled out before saving.")
+            setErrorMessage("Please ensure all fields are filled out before saving.");
           }
         } else {
           setIsEditing(!isEditing);
+          setErrorMessage('');
         }
       }}
       style={{ marginBottom: '1rem' }}
@@ -64,6 +68,9 @@ const Services = () => {
       {isEditing ? "Save Changes" : "Edit"}
     </button>
     : null}
+    
+    {isEditing && <MessageDisplay message={errorMessage} />}
+    
     <div style={{ textAlign: 'center' }}>
       {isEditing ? (
         <input
@@ -101,7 +108,6 @@ const Services = () => {
         )}
         
         <ServicesCardContainer isEditing={isEditing} />
-        <Socials />
       </div>
     </div>
   </div>

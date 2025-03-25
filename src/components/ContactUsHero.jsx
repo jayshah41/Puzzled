@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import useSaveContent from '../hooks/useSaveContent';
+import MessageDisplay from './MessageDisplay';
 import contactUsHeaderImage from '../assets/contactus-header-image.png';
 import '../styles/GeneralStyles.css';
 
@@ -7,6 +8,7 @@ const ContactUsHero = () => {
   const isAdminUser = localStorage.getItem("user_tier_level") == 2;
   const saveContent = useSaveContent();
   const [isEditing, setIsEditing] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
   const [heading, setHeading] = useState("Have a question?");
   const [content, setContent] = useState("Having some difficulties using the website? Contact us through the form below, and we will respond back to you as soon as possible!");
@@ -49,11 +51,13 @@ const ContactUsHero = () => {
                 if (contentIsValid()) {
                   handleSave();
                   setIsEditing(!isEditing);
+                  setErrorMessage('');
                 } else {
-                  alert("Please ensure all fields are filled out before saving.")
+                  setErrorMessage("Please ensure all fields are filled out before saving.");
                 }
               } else {
                 setIsEditing(!isEditing);
+                setErrorMessage('');
               }
             }}
             style={{ marginBottom: '1rem' }}
@@ -61,6 +65,9 @@ const ContactUsHero = () => {
             {isEditing ? 'Save Changes' : 'Edit'}
           </button>
         )}
+        
+        {isEditing && <MessageDisplay message={errorMessage} />}
+        
         {isEditing ? (
           <input
             type="text"

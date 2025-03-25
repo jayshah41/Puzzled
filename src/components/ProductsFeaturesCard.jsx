@@ -1,8 +1,19 @@
-import React from 'react';
+import React, { useState } from 'react';
+import MessageDisplay from './MessageDisplay';
 import '../styles/ProductsFeatures.css';
 
-const ProductsFeaturesCard = ({ index, video, title, content, setValues, isEditing }) => {
+const ProductsFeaturesCard = ({ index, video, title, content = '', setValues, isEditing }) => {
+  const [errorMessage, setErrorMessage] = useState('');
+  
   const handleChange = (field, value) => {
+    if (field === 'title' && !value.trim()) {
+      setErrorMessage("Title cannot be empty");
+    } else if (field === 'content' && !value.trim()) {
+      setErrorMessage("Content cannot be empty");
+    } else {
+      setErrorMessage('');
+    }
+    
     setValues(prevValues => {
       const updatedValues = [...prevValues];
       updatedValues[index][field] = value;
@@ -10,13 +21,15 @@ const ProductsFeaturesCard = ({ index, video, title, content, setValues, isEditi
     });
   };
 
-  const contentToShow = content.split('#').map((e, idx) => (
+  const safeContent = content || '';
+
+  const contentToShow = safeContent.split('#').map((e, idx) => (
     isEditing ? (
       <textarea
         key={idx}
         value={e}
         onChange={(event) => {
-          const updatedContent = content.split('#');
+          const updatedContent = safeContent.split('#');
           updatedContent[idx] = event.target.value;
           handleChange('content', updatedContent.join('#'));
         }}
@@ -31,13 +44,15 @@ const ProductsFeaturesCard = ({ index, video, title, content, setValues, isEditi
 
   return (
     <div className={`products-features-container ${reverse ? 'reverse' : ''}`}>
+      {isEditing && <MessageDisplay message={errorMessage} />}
+      
       {!reverse ? (
         <div className="text-content">
           <div>
             {isEditing ? (
               <input
                 type="text"
-                value={title}
+                value={title || ''}
                 onChange={(e) => handleChange('title', e.target.value)}
                 className="auth-input"
               />
@@ -71,7 +86,7 @@ const ProductsFeaturesCard = ({ index, video, title, content, setValues, isEditi
             {isEditing ? (
               <input
                 type="text"
-                value={title}
+                value={title || ''}
                 onChange={(e) => handleChange('title', e.target.value)}
                 className="auth-input"
               />

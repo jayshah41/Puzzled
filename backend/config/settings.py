@@ -48,7 +48,8 @@ INSTALLED_APPS = [
     'api',
     'content',
     'rest_framework',
-    'corsheaders'
+    'corsheaders',
+    'payments'
 ]
 
 MIDDLEWARE = [

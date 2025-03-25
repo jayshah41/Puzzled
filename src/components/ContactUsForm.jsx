@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import useSaveContent from '../hooks/useSaveContent';
+import MessageDisplay from './MessageDisplay';
 import '../styles/ContactUsForm.css';
-
-const API_BASE_URL = 'http://localhost:8000/'; //Change after deployment.
 
 const ContactUsForm = () => {
   const isAdminUser = localStorage.getItem("user_tier_level") == 2;
@@ -13,6 +12,7 @@ const ContactUsForm = () => {
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [submitError, setSubmitError] = useState(null);
   const [validationErrors, setValidationErrors] = useState({});
+  const [errorMessage, setErrorMessage] = useState('');
 
   const [labels, setLabels] = useState({
     message: "Message",
@@ -352,11 +352,13 @@ const ContactUsForm = () => {
               if (contentIsValid()) {
                 handleSave();
                 setIsEditing(!isEditing);
+                setErrorMessage('');
               } else {
-                alert("Please ensure all fields are filled out before saving.")
+                setErrorMessage("Please ensure all fields are filled out before saving.");
               }
             } else {
               setIsEditing(!isEditing);
+              setErrorMessage('');
             }
           }}
           style={{ marginBottom: '1rem' }}
@@ -364,6 +366,8 @@ const ContactUsForm = () => {
           {isEditing ? 'Save Changes' : 'Edit Labels'}
         </button>
       )}
+      
+      {isEditing && <MessageDisplay message={errorMessage} />}
 
       {submitSuccess && (
         <div className="success-message">

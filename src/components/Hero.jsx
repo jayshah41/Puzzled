@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import LoginHandler from './LoginHandler';
 import useSaveContent from '../hooks/useSaveContent';
+import MessageDisplay from './MessageDisplay';
 import hero from '../assets/animated-heropic.gif';
 import '../styles/GeneralStyles.css';
 
@@ -11,6 +12,7 @@ const Hero = () => {
   const saveContent = useSaveContent();
 
   const [isEditing, setIsEditing] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
   const [title, setTitle] = useState("MakCorp has modernised how our clients invest in Mining, Oil & Gas.");
   const [intro, setIntro] = useState("Compare & analyse ASX resource companies, including");
@@ -72,17 +74,22 @@ const Hero = () => {
                 if (contentIsValid()) {
                   handleSave();
                   setIsEditing(!isEditing);
+                  setErrorMessage('');
                 } else {
-                  alert("Please ensure all fields are filled out before saving.")
+                  setErrorMessage("Please ensure all fields are filled out before saving.");
                 }
               } else {
                 setIsEditing(!isEditing);
+                setErrorMessage('');
               }
             }}
             style={{ marginBottom: '1rem' }}>
             {isEditing ? 'Save Changes' : 'Edit'}
           </button>
         ) : null}
+        
+        {isEditing && <MessageDisplay message={errorMessage} />}
+        
         {isEditing ? (
           <input
             type="text"

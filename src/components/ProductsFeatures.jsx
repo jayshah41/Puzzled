@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import ProductsFeaturesCard from './ProductsFeaturesCard';
 import useSaveContent from '../hooks/useSaveContent';
+import MessageDisplay from './MessageDisplay';
 import '../styles/ProductsFeatures.css';
 import filterVideo from '../assets/videos/1 Filter Visually on Charts.mp4';
 import excludeDataVideo from '../assets/videos/2 Exclude Data using a legend.mp4';
@@ -14,6 +15,7 @@ const ProductsFeatures = () => {
   const saveContent = useSaveContent();
 
   const [isEditing, setIsEditing] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
   const [features, setFeatures] = useState([]);
 
   useEffect(() => {
@@ -62,11 +64,13 @@ const ProductsFeatures = () => {
               if (contentIsValid()) {
                 handleSave();
                 setIsEditing(!isEditing);
+                setErrorMessage('');
               } else {
-                alert("Please ensure all fields are filled out before saving.")
+                setErrorMessage("Please ensure all fields are filled out before saving.");
               }
             } else {
               setIsEditing(!isEditing);
+              setErrorMessage('');
             }
           }}
           style={{ marginBottom: '1rem' }}
@@ -74,6 +78,9 @@ const ProductsFeatures = () => {
           {isEditing ? 'Save Changes' : 'Edit'}
         </button>
       ) : null}
+      
+      {isEditing && <MessageDisplay message={errorMessage} />}
+      
       <div className="products-features-wrapper">
         {features.map((feature, index) => (
           <ProductsFeaturesCard

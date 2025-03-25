@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import ContactCard from './ContactCard';
 import useSaveContent from '../hooks/useSaveContent';
+import MessageDisplay from './MessageDisplay';
 import '../styles/GeneralStyles.css';
 import steveRosewell from '../assets/MeetTheTeam/steve-rosewell.png';
 import emmanuelHeyndrickx from '../assets/MeetTheTeam/emmanuel-heyndrickx.png';
@@ -12,6 +13,7 @@ const Contact = () => {
   const saveContent = useSaveContent();
 
   const [isEditing, setIsEditing] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
   const [title, setTitle] = useState("Meet Our Team");
   const [introText, setIntroText] = useState("Our team has over 50 years combined experience in the resource sector, from working on mine sites to ERP software reviews.");
   const [contacts, setContacts] = useState([
@@ -99,17 +101,22 @@ const Contact = () => {
                 if (contentIsValid()) {
                   handleSave();
                   setIsEditing(!isEditing);
+                  setErrorMessage('');
                 } else {
-                  alert("Please ensure all fields are filled out before saving.")
+                  setErrorMessage("Please ensure all fields are filled out before saving.");
                 }
               } else {
                 setIsEditing(!isEditing);
+                setErrorMessage('');
               }
             }}
             style={{ marginBottom: '1rem' }}>
             {isEditing ? 'Save Changes' : 'Edit'}
           </button>
         : null}
+        
+        {isEditing && <MessageDisplay message={errorMessage} />}
+        
       <div style={{ textAlign: 'center', marginBottom: '75px' }}>
           {isEditing ? (
             <input

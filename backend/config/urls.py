@@ -30,7 +30,7 @@ urlpatterns = [
     path('update-profile/', UpdateProfileView.as_view(), name='update-profile'),
     path('delete-account/', DeleteAccountView.as_view(), name='delete-account'),
     path('update-tier/', UpdateTierView.as_view(), name='update-tier'),
-    path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'), ##########################
+    path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('data/', include('api.urls')),
     path('editable-content/', EditableContentView.as_view(), name='editable-content'),
@@ -41,5 +41,6 @@ urlpatterns = [
     path('news-cards/update-order/', NewsCardViewSet.as_view({'patch': 'update_order'}), name='newscard-direct-update-order'),
     path('news-cards/<int:pk>/', NewsCardViewSet.as_view({'get': 'retrieve', 'put': 'update', 'patch': 'partial_update', 'delete': 'destroy'}), name='newscard-direct-detail'),
     path('news-cards/', NewsCardViewSet.as_view({'get': 'list', 'post': 'create'}), name='newscard-direct-list'),
-    path('send-email/', SendEmailView.as_view(), name='send-email')
+    path('send-email/', SendEmailView.as_view(), name='send-email'),
+    path('payments/', include('payments.urls')),
 ]
