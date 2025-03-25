@@ -6,8 +6,10 @@ import stripe
 from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
-from users.models import User  
+from users.models import User
 import json
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
 
 stripe.api_key = settings.STRIPE_SECRET_KEY
 
@@ -53,8 +55,9 @@ class CreateCheckoutSessionView(APIView):
                     },
                 ],
                 customer_email=user.email,
-                success_url='http://localhost:3000/success',  
-                cancel_url='http://localhost:3000/cancel',    
+                client_reference_id=user.id,
+                success_url='http://localhost:3000/stripe-success',  
+                cancel_url='http://localhost:3000/',    
             )
 
             print(f"Checkout session created: {checkout_session.id}")
@@ -64,38 +67,6 @@ class CreateCheckoutSessionView(APIView):
         except Exception as e:
             print(f"Stripe error occurred: {str(e)}")
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-
-class CreateCustomerPortalSessionView(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def post(self, request):
-        user = request.user
-        print(f"Requesting Customer Portal session for: {user.email}")
-
-        try:
-            customers = stripe.Customer.list(email=user.email)
-
-            if not customers.data:
-                print("No Stripe customer found for user.")
-                return Response({'error': 'Stripe customer not found.'}, status=status.HTTP_404_NOT_FOUND)
-
-            stripe_customer_id = customers.data[0].id
-            print(f"Stripe customer found: {stripe_customer_id}")
-
-  
-            session = stripe.billing_portal.Session.create(
-                customer=stripe_customer_id,
-                return_url='http://localhost:3000/account'  
-            )
-
-            print(f"Customer Portal session created: {session.url}")
-            return Response({'url': session.url})
-
-        except Exception as e:
-            print(f"Error creating Customer Portal session: {e}")
-            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
 
 @csrf_exempt
 def stripe_webhook(request):
@@ -165,3 +136,15 @@ def stripe_webhook(request):
             print(f"Error retrieving customer or updating user: {e}")
 
     return JsonResponse({'status': 'success'}, status=200)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def verify_subscription(request):
+    """
+    Verify the user's subscription status.
+    """
+    user = request.user  # Get the authenticated user
+    if user.tier_level >= 1:  # Check if the user has an active subscription
+        return Response({'message': 'Subscription verified', 'tier_level': user.tier_level})
+    return Response({'error': 'No active subscription found'}, status=status.HTTP_400_BAD_REQUEST)
