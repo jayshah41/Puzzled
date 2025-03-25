@@ -4,18 +4,16 @@ import { loadStripe } from '@stripe/stripe-js';
 const stripePromise = loadStripe('pk_test_51R5dtaFdjBkEBqgJickH78j7EwhONhshPZgVtlQGl3Zg90BzYYwHNJrtGQgz8K62FetAPV1ajGJ7viB46lH2DGUo00NRncOWjN');
 
 const SubscribeButton = ({ paymentOption, numOfUsers, tierLevel }) => {
+  
+  const userAuthLevel = localStorage.getItem("user_tier_level");
+  const isAlreadySubscribed = parseInt(userAuthLevel, 10) >= parseInt(tierLevel - 1, 10);
 
   const handleClick = async () => {
-    // ✅ Prevent subscription for paid users (tier 1)
-    if (tierLevel !== "0") {
-      alert('You are already subscribed!');
-      return;
-    }
 
     const stripe = await stripePromise;
 
     try {
-      const response = await fetch('http://localhost:8000/payments/create-checkout-session/', {
+      const response = await fetch('/api/payments/create-checkout-session/', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
@@ -50,9 +48,9 @@ const SubscribeButton = ({ paymentOption, numOfUsers, tierLevel }) => {
     <button
       onClick={handleClick}
       className="defaultButton"
-      disabled={tierLevel !== "0"} // ✅ Disable unless free user (tier 0)
+      disabled={isAlreadySubscribed}
     >
-      {tierLevel !== "0" ? 'Already Subscribed' : 'Subscribe Now'}
+      {isAlreadySubscribed ? 'Already Subscribed' : 'Subscribe Now'}
     </button>
   );
 };
