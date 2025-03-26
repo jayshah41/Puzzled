@@ -4,7 +4,8 @@ import "../styles/YouTubeFeed.css";
 const YouTubeFeed = ({ channelId }) => {
     const [videos, setVideos] = useState([]);
     const [error, setError] = useState(null);
-    const YT_API_KEY = import.meta.env?.VITE_YT_API_KEY || process.env?.VITE_YT_API_KEY;
+    const YT_API_KEY = import.meta?.env?.VITE_YOUTUBE_API_KEY || process.env.VITE_YOUTUBE_API_KEY;
+
     const fetchVideos = async () => {
         try {
             const response = await fetch(
