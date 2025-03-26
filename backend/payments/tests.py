@@ -4,6 +4,7 @@ from rest_framework.test import APIClient
 from unittest.mock import patch, MagicMock
 import stripe
 import json
+from rest_framework.renderers import JSONRenderer
 
 User = get_user_model()
 
@@ -78,6 +79,45 @@ class TestStripeEndpoints:
         response = self.client.get("/payments/verify-subscription/")
         assert response.status_code == 200
         assert response.json()["tier_level"] == 1
+
+    def test_verify_subscription_unauthenticated(self):
+        client = APIClient()  # Not authenticated
+        response = client.get("/payments/verify-subscription/")
+        assert response.status_code == 401
+        assert response.json()["detail"] == "Authentication credentials were not provided."
+
+    @patch("payments.views.stripe.checkout.Session.create", side_effect=ValueError("Something unexpected"))
+    def test_checkout_session_generic_exception(self, _):
+        self.user.tier_level = 0
+        self.user.save()
+        response = self.client.post("/payments/create-checkout-session/", {
+            "paymentOption": "$895 Per Month",
+            "numOfUsers": 1
+        })
+        assert response.status_code == 500
+        assert "something unexpected" in response.json()["error"].lower()
+
+    @patch("payments.views.stripe.checkout.Session.create")
+    def test_checkout_session_internal_exception(self, mock_create_session):
+        self.user.tier_level = 0
+        self.user.save()
+
+        class MockSession:
+            @property
+            def id(self):
+                raise Exception("Boom!")
+
+        mock_create_session.return_value = MockSession()
+
+        response = self.client.post("/payments/create-checkout-session/", {
+            "paymentOption": "$895 Per Month",
+            "numOfUsers": 1
+        })
+
+        assert response.status_code == 500
+        assert "error" in response.json()
+
+
 
 
 @pytest.mark.django_db
@@ -186,5 +226,35 @@ class TestStripeWebhook:
             HTTP_STRIPE_SIGNATURE="sig"
         )
         assert response.status_code == 400
+    
+    @patch("payments.views.User.objects.get", side_effect=User.DoesNotExist)
+    @patch("payments.views.stripe.Webhook.construct_event")
+    def test_webhook_checkout_completed_user_does_not_exist_log(self, mock_event, _):
+        mock_event.return_value = {
+            "type": "checkout.session.completed",
+            "data": {"object": {"customer_email": "ghost@example.com"}}
+        }
+
+        response = self.client.post(
+            "/payments/stripe-webhook/",
+            data="{}",
+            content_type="application/json",
+            HTTP_STRIPE_SIGNATURE="sig"
+        )
+        assert response.status_code == 200
+
+    @patch("stripe.Webhook.construct_event", side_effect=ValueError("JSON parse error"))
+    def test_webhook_invalid_json_payload(self, _):
+        response = self.client.post(
+            "/payments/stripe-webhook/",
+            data="whatever invalid JSON",
+            content_type="application/json"
+        )
+        assert response.status_code == 400
+        assert response.json()["error"] == "Invalid payload"
 
 
+
+
+
+        
