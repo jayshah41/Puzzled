@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import '../styles/GeneralStyles.css';
 
 const StripeSuccessPage = () => {
   const navigate = useNavigate();
@@ -45,7 +46,7 @@ const StripeSuccessPage = () => {
   }, [navigate]);
 
   return (
-    <div>
+    <div className="standard-padding">
       <h2>Subscription Successful!</h2>
       <h2>{statusMessage}</h2>
 

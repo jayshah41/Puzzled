@@ -51,3 +51,5 @@ staticfiles/
 */htmlcov
 coverage/
 __mocks__/*.js
+.vercel
+.env*.local
