@@ -20,8 +20,8 @@ const Navbar = () => {
     { text: "Pricing", link: "/pricing", showing: true, accessLevel: -1 },
     { text: "Products", link: "/products", showing: true, accessLevel: -1 },
     { text: "Contact Us", link: "/contact-us", showing: true, accessLevel: -1 },
-    { text: "News", link: "/news", showing: true, accessLevel: 0 },
-    { text: "Socials", link: "/social-media", showing: true, accessLevel: 0 }
+    { text: "News", link: "/news", showing: false, accessLevel: 0 },
+    { text: "Socials", link: "/social-media", showing: false, accessLevel: 0 }
   ]);
   const [graphLinks, setGraphLinks] = useState([
     { text: "Company Details", link: "/graphs/company-details", showing: true, accessLevel: 1 },
