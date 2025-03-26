@@ -7,6 +7,20 @@ import Footer from '../components/Footer';
 jest.mock('../components/Socials', () => () => <div data-testid="mocked-socials">Mocked Socials</div>);
 jest.mock('../assets/makcorpLogo.png', () => 'mocked-logo.png');
 
+const originalConsoleError = console.error;
+beforeAll(() => {
+  console.error = (...args) => {
+    if (args[0] && args[0].includes('not wrapped in act')) {
+      return;
+    }
+    originalConsoleError(...args);
+  };
+});
+
+afterAll(() => {
+  console.error = originalConsoleError;
+});
+
 describe('Footer Component', () => {
   beforeEach(() => {
     render(
