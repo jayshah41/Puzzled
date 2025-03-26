@@ -1,3 +1,4 @@
+import React from 'react';
 import TwitterFeed from "./TwitterFeed";
 import YouTubeFeed from "./YoutubeFeed";
 import "../styles/SocialFeed.css";
