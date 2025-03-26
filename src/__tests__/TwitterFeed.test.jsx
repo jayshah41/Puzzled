@@ -3,6 +3,15 @@ import { render, screen, waitFor } from "@testing-library/react";
 import TwitterFeed from "../components/TwitterFeed";
 import '@testing-library/jest-dom';
 
+const originalConsoleError = console.error;
+beforeAll(() => {
+  console.error = jest.fn();
+});
+
+afterAll(() => {
+  console.error = originalConsoleError;
+});
+
 describe("TwitterFeed Component", () => {
   const mockRSS = `
     <rss>
