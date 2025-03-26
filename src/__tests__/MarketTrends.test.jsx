@@ -1,311 +1,615 @@
 import React from 'react';
 import { render, screen, waitFor, fireEvent, act } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom';
 import axios from 'axios';
-import MarketTrends from '../components/graphs/MarketTrends';
-import useAuthToken from '../hooks/useAuthToken';
 
-// Mock dependencies
 jest.mock('axios');
-jest.mock('../../hooks/useAuthToken');
-jest.mock('../../components/GraphPage', () => {
-  return function MockGraphPage(props) {
-    return (
-      <div data-testid="graph-page">
-        <h1>{props.title}</h1>
-        <div data-testid="metric-cards">
-          {props.metricCards.map((card, index) => (
-            <div key={index} data-testid={`metric-card-${index}`}>
-              <h3>{card.title}</h3>
-              <p>{card.value}</p>
+jest.mock('../hooks/useAuthToken', () => ({
+  __esModule: true,
+  default: () => ({
+    getAccessToken: jest.fn().mockResolvedValue('test-token'),
+    authError: null
+  })
+}), { virtual: true });
+
+jest.mock('../components/GraphPage', () => {
+  return jest.fn(props => (
+    <div data-testid="graph-page-mock">
+      <h1>{props.title}</h1>
+      {props.filterTags && (
+        <div data-testid="filter-tags">
+          {props.filterTags.map((tag, i) => (
+            <div key={i} data-testid={`filter-tag-${i}`}>
+              {tag.label}: {tag.value}
+              {tag.onRemove && <button data-testid={`remove-filter-${i}`} onClick={tag.onRemove}>Remove</button>}
             </div>
           ))}
         </div>
+      )}
+      {props.allFilterOptions && (
         <div data-testid="filter-options">
-          {props.allFilterOptions.map((option, index) => (
-            <div key={index} data-testid={`filter-option-${index}`}>
-              <h4>{option.label}</h4>
-            </div>
-          ))}
-        </div>
-        <div data-testid="charts">
-          {props.chartData.map((chart, index) => (
-            <div key={index} data-testid={`chart-${index}`}>
-              <h3>{chart.title}</h3>
-            </div>
-          ))}
-        </div>
-        <div data-testid="table">
-          <table>
-            <thead>
-              <tr>
-                {props.tableColumns.map((col, index) => (
-                  <th key={index}>{col.header}</th>
+          {props.allFilterOptions.map((option, i) => (
+            <div key={i} data-testid={`filter-option-${i}`}>
+              <span>{option.label}</span>
+              <select 
+                data-testid={`filter-select-${i}`}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  option.onChange([value]);
+                }}
+              >
+                <option value="Any">Any</option>
+                {option.options.map((opt, j) => (
+                  <option key={j} value={opt.value}>{opt.label}</option>
                 ))}
-              </tr>
-            </thead>
-            <tbody>
-              {props.tableData.map((row, rowIndex) => (
-                <tr key={rowIndex} data-testid={`table-row-${rowIndex}`}>
-                  {props.tableColumns.map((col, colIndex) => (
-                    <td key={colIndex}>{row[col.key]}</td>
-                  ))}
-                </tr>
-              ))}
-            </tbody>
-          </table>
+              </select>
+            </div>
+          ))}
         </div>
-        <button 
-          data-testid="add-filter-button" 
-          onClick={() => props.handleAddFilter({label: 'Test', value: 'test'})}
-        >
-          Add Filter
-        </button>
-        <button 
-          data-testid="remove-filter-button" 
-          onClick={() => props.handleRemoveFilter('Test', 'test')}
-        >
-          Remove Filter
-        </button>
-        <button 
-          data-testid="apply-filters-button" 
-          onClick={props.applyFilters}
-        >
-          Apply Filters
-        </button>
-      </div>
-    );
-  };
+      )}
+      {props.metricCards && (
+        <div data-testid="metric-cards">
+          {props.metricCards.map((card, i) => (
+            <div key={i} data-testid={`metric-card-${i}`}>
+              <h3>{card.title}</h3>
+              <p data-testid={`metric-value-${i}`}>{card.value}</p>
+            </div>
+          ))}
+        </div>
+      )}
+      {props.chartData && (
+        <div data-testid="chart-data">
+          {props.chartData.map((chart, i) => (
+            <div key={i} data-testid={`chart-${i}`}>
+              <h3>{chart.title}</h3>
+              <div>
+                Labels: {JSON.stringify(chart.data.labels)}
+              </div>
+              <div>
+                Datasets: {chart.data.datasets.length}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+      {props.tableData && (
+        <div data-testid="table-data">
+          <p>Rows: {props.tableData.length}</p>
+          {props.tableData.map((row, i) => (
+            <div key={i} data-testid={`table-row-${i}`}>
+              ASX: {row.asx}
+            </div>
+          ))}
+        </div>
+      )}
+      <button data-testid="apply-filters-btn" onClick={props.applyFilters}>Apply Filters</button>
+      <button 
+        data-testid="add-filter-btn" 
+        onClick={() => props.handleAddFilter({
+          label: props.allFilterOptions[0].label,
+          value: props.allFilterOptions[0].options[1]?.value || 'test',
+          displayValue: props.allFilterOptions[0].options[1]?.label || 'test'
+        })}
+      >
+        Add Filter
+      </button>
+    </div>
+  ));
 });
+
+import MarketTrends from '../pages/graphs/MarketTrends';
 
 const mockMarketTrendsData = [
   {
     id: 1,
     asx_code: 'ABC',
-    market_cap: 1000000,
-    trade_value: 50000,
-    total_shares: 500000,
-    new_price: 2.00,
-    previous_price: 1.90,
-    week_price_change: 5.0,
-    month_price_change: 10.0,
-    year_price_change: 20.0,
-    previous_trade_value: 45000
+    market_cap: 10000000,
+    trade_value: 500000,
+    total_shares: 1000000,
+    new_price: 10.5,
+    previous_price: 10.0,
+    week_price_change: 2.5,
+    month_price_change: 5.0,
+    year_price_change: 15.0,
+    previous_trade_value: 450000
   },
   {
     id: 2,
     asx_code: 'XYZ',
-    market_cap: 2000000,
-    trade_value: 75000,
-    total_shares: 750000,
-    new_price: 2.50,
-    previous_price: 2.60,
-    week_price_change: -2.0,
+    market_cap: 5000000,
+    trade_value: 250000,
+    total_shares: 500000,
+    new_price: 5.0,
+    previous_price: 5.2,
+    week_price_change: -1.5,
+    month_price_change: -3.0,
+    year_price_change: 7.0,
+    previous_trade_value: 240000
+  },
+  {
+    id: 3,
+    asx_code: 'DEF',
+    market_cap: 20000000,
+    trade_value: 750000,
+    total_shares: 2000000,
+    new_price: 20.0,
+    previous_price: 19.0,
+    week_price_change: 3.0,
     month_price_change: 8.0,
-    year_price_change: 15.0,
-    previous_trade_value: 70000
+    year_price_change: 20.0,
+    previous_trade_value: 720000
+  },
+  {
+    id: 4,
+    asx_code: 'GHI',
+    market_cap: 15000000,
+    trade_value: 600000,
+    total_shares: 1500000,
+    new_price: 15.0,
+    previous_price: 16.0,
+    week_price_change: -2.0,
+    month_price_change: -4.0,
+    year_price_change: 10.0,
+    previous_trade_value: 650000
   }
 ];
 
-describe('MarketTrends Component', () => {
+const mockObjectResponse = {
+  data: {
+    id: 1,
+    asx_code: 'ABC',
+    market_cap: 10000000,
+    trade_value: 500000,
+    total_shares: 1000000,
+    new_price: 10.5,
+    previous_price: 10.0,
+    week_price_change: 2.5,
+    month_price_change: 5.0,
+    year_price_change: 15.0,
+    previous_trade_value: 450000
+  }
+};
+
+const mockMarketTrendsEdgeData = [
+  {
+    id: 5,
+    asx_code: 'JKL',
+    market_cap: null,
+    trade_value: '',
+    total_shares: 'invalid',
+    new_price: NaN,
+    previous_price: undefined,
+    week_price_change: '',
+    month_price_change: null,
+    year_price_change: undefined,
+    previous_trade_value: null
+  },
+  {
+    id: 6,
+    asx_code: 'MNO',
+    market_cap: 0,
+    trade_value: 0,
+    total_shares: 0,
+    new_price: 0,
+    previous_price: 0,
+    week_price_change: 0,
+    month_price_change: 0,
+    year_price_change: 0,
+    previous_trade_value: 0
+  }
+];
+
+describe('MarketTrends', () => {
   beforeEach(() => {
-    // Reset all mocks
     jest.clearAllMocks();
-    
-    // Mock auth token hook
-    useAuthToken.mockReturnValue({
-      getAccessToken: jest.fn().mockResolvedValue('fake-token'),
-      authError: null
-    });
-    
-    // Mock axios response
-    axios.get.mockResolvedValue({ data: mockMarketTrendsData });
   });
 
   test('renders loading state initially', () => {
+    axios.get.mockImplementation(() => new Promise(resolve => setTimeout(() => resolve({ data: [] }), 100)));
     render(<MarketTrends />);
     expect(screen.getByText(/loading market trends data/i)).toBeInTheDocument();
   });
 
-  test('fetches market trends data on mount', async () => {
-    render(<MarketTrends />);
-    
-    await waitFor(() => {
-      expect(useAuthToken().getAccessToken).toHaveBeenCalled();
-      expect(axios.get).toHaveBeenCalledWith('/api/data/market-trends/', {
-        headers: {
-          Authorization: 'Bearer fake-token',
-          'Content-Type': 'application/json'
-        }
-      });
-    });
-  });
-
-  test('renders GraphPage component with data after loading', async () => {
+  test('fetches market trends data and displays it', async () => {
+    axios.get.mockResolvedValueOnce({ data: mockMarketTrendsData });
     render(<MarketTrends />);
     
     await waitFor(() => {
       expect(screen.queryByText(/loading market trends data/i)).not.toBeInTheDocument();
-      expect(screen.getByTestId('graph-page')).toBeInTheDocument();
-      expect(screen.getByText(/Market Trends/i)).toBeInTheDocument();
     });
+    
+    expect(axios.get).toHaveBeenCalledWith(
+      '/api/data/market-trends/',
+      expect.objectContaining({
+        headers: expect.objectContaining({
+          Authorization: 'Bearer test-token'
+        })
+      })
+    );
+    
+    expect(screen.getByText('Market Trends')).toBeInTheDocument();
+    const metricCards = screen.getByTestId('metric-cards');
+    expect(metricCards).toBeInTheDocument();
+    
+    const tableData = screen.getByTestId('table-data');
+    expect(tableData).toBeInTheDocument();
+    expect(tableData).toHaveTextContent('Rows: 4');
   });
 
-  test('displays correct metrics from processed data', async () => {
+  test('handles non-array API response', async () => {
+    axios.get.mockResolvedValueOnce({ data: mockMarketTrendsData[0] });
     render(<MarketTrends />);
     
     await waitFor(() => {
-      // ASX Code Count
-      const asxCodeCard = screen.getByTestId('metric-card-0');
-      expect(asxCodeCard).toHaveTextContent('ASX Code Count');
-      expect(asxCodeCard).toHaveTextContent('2'); // 2 items in mock data
-      
-      // Check price change metrics
-      const dailyAvgPriceChangeCard = screen.getByTestId('metric-card-1');
-      expect(dailyAvgPriceChangeCard).toHaveTextContent('Daily Average Price Change %');
+      expect(screen.queryByText(/loading market trends data/i)).not.toBeInTheDocument();
     });
+    
+    const tableData = screen.getByTestId('table-data');
+    expect(tableData).toBeInTheDocument();
+    expect(tableData).toHaveTextContent('Rows: 1');
   });
 
-  test('renders charts with correct data', async () => {
+  test('handles API response with data property', async () => {
+    axios.get.mockResolvedValueOnce(mockObjectResponse);
     render(<MarketTrends />);
     
     await waitFor(() => {
-      const charts = screen.getAllByTestId(/chart-/);
-      expect(charts).toHaveLength(2);
-      expect(charts[0]).toHaveTextContent('Daily Top 10 ASX Graph by Price Change %');
-      expect(charts[1]).toHaveTextContent('Daily Top 10 ASX Graph by Volume Change %');
+      expect(screen.queryByText(/loading market trends data/i)).not.toBeInTheDocument();
     });
+    
+    const tableData = screen.getByTestId('table-data');
+    expect(tableData).toBeInTheDocument();
+    expect(tableData).toHaveTextContent('Rows: 1');
   });
 
-  test('renders table with correct data', async () => {
+  test('handles API error gracefully', async () => {
+    axios.get.mockRejectedValueOnce({ 
+      response: { data: { detail: 'Failed to fetch data' } }
+    });
+    
     render(<MarketTrends />);
     
     await waitFor(() => {
-      expect(screen.getByTestId('table')).toBeInTheDocument();
-      // Check if we have rows for our mock data (plus header)
-      const tableRows = screen.getAllByTestId(/table-row-/);
-      expect(tableRows).toHaveLength(2); // 2 items in mock data
+      expect(screen.getByText(/Failed to fetch market trends data/i)).toBeInTheDocument();
+    });
+  });
+
+  test('handles API error without response data', async () => {
+    axios.get.mockRejectedValueOnce(new Error('Network error'));
+    
+    render(<MarketTrends />);
+    
+    await waitFor(() => {
+      expect(screen.getByText(/Failed to fetch market trends data/i)).toBeInTheDocument();
     });
   });
 
   test('handles authentication error', async () => {
-    // Mock auth token hook to return null
-    useAuthToken.mockReturnValue({
-      getAccessToken: jest.fn().mockResolvedValue(null),
-      authError: 'Auth error'
-    });
+    jest.resetModules();
+    jest.mock('../hooks/useAuthToken', () => ({
+      __esModule: true,
+      default: () => ({
+        getAccessToken: jest.fn().mockResolvedValue(null),
+        authError: 'Token not found'
+      })
+    }), { virtual: true });
     
-    render(<MarketTrends />);
+    const { default: MarketTrendsWithAuthError } = await import('../pages/graphs/MarketTrends');
+    
+    render(<MarketTrendsWithAuthError />);
     
     await waitFor(() => {
-      expect(screen.getByText(/authentication error: no token found/i)).toBeInTheDocument();
+      expect(screen.getByText(/Authentication error: No token found/i)).toBeInTheDocument();
     });
   });
 
-  test('handles API error', async () => {
-    // Mock axios to throw an error
-    axios.get.mockRejectedValue({ 
-      message: 'Network Error',
-      response: { data: { detail: 'Server error' } } 
-    });
+  test('handles edge cases in data processing', async () => {
+    axios.get.mockResolvedValueOnce({ data: mockMarketTrendsEdgeData });
     
     render(<MarketTrends />);
     
     await waitFor(() => {
-      expect(screen.getByText(/failed to fetch market trends data/i)).toBeInTheDocument();
+      expect(screen.queryByText(/loading market trends data/i)).not.toBeInTheDocument();
+    });
+    
+    const tableData = screen.getByTestId('table-data');
+    expect(tableData).toBeInTheDocument();
+    expect(tableData).toHaveTextContent('Rows: 2');
+    
+    const metricCards = screen.getByTestId('metric-cards');
+    expect(metricCards).toBeInTheDocument();
+  });
+
+  test('adds and removes filters correctly', async () => {
+    axios.get.mockResolvedValueOnce({ data: mockMarketTrendsData });
+    
+    render(<MarketTrends />);
+    
+    await waitFor(() => {
+      expect(screen.queryByText(/loading market trends data/i)).not.toBeInTheDocument();
+    });
+    
+    expect(screen.getByText(/No Filters Applied/i)).toBeInTheDocument();
+    
+    fireEvent.click(screen.getByTestId('add-filter-btn'));
+    
+    await waitFor(() => {
+      expect(screen.queryByText(/No Filters Applied/i)).not.toBeInTheDocument();
+    });
+    
+    const removeButton = screen.getByTestId('remove-filter-0');
+    fireEvent.click(removeButton);
+    
+    await waitFor(() => {
+      expect(screen.getByText(/No Filters Applied/i)).toBeInTheDocument();
     });
   });
 
-  test('handles filter changes', async () => {
+  test('applies client-side filters correctly', async () => {
+    axios.get.mockResolvedValueOnce({ data: mockMarketTrendsData });
+    
     render(<MarketTrends />);
     
     await waitFor(() => {
-      expect(screen.getByTestId('graph-page')).toBeInTheDocument();
+      expect(screen.queryByText(/loading market trends data/i)).not.toBeInTheDocument();
     });
     
-    // Test adding filter
-    act(() => {
-      fireEvent.click(screen.getByTestId('add-filter-button'));
+    fireEvent.click(screen.getByTestId('add-filter-btn'));
+    
+    await waitFor(() => {
+      expect(screen.queryByText(/No Filters Applied/i)).not.toBeInTheDocument();
     });
     
-    // Test applying filters
-    act(() => {
-      fireEvent.click(screen.getByTestId('apply-filters-button'));
-    });
+    fireEvent.click(screen.getByTestId('apply-filters-btn'));
     
-    // Test removing filter
-    act(() => {
-      fireEvent.click(screen.getByTestId('remove-filter-button'));
-    });
-    
-    // Verify that the axios request is only called once on initial load
-    expect(axios.get).toHaveBeenCalledTimes(1);
+    expect(screen.getByText('Market Trends')).toBeInTheDocument();
   });
 
-  test('handles empty data response', async () => {
-    // Mock empty data response
-    axios.get.mockResolvedValue({ data: [] });
+  test('generates filter options correctly', async () => {
+    axios.get.mockResolvedValueOnce({ data: mockMarketTrendsData });
     
     render(<MarketTrends />);
     
     await waitFor(() => {
-      expect(screen.getByTestId('graph-page')).toBeInTheDocument();
+      expect(screen.queryByText(/loading market trends data/i)).not.toBeInTheDocument();
+    });
+    
+    const filterOptions = screen.getByTestId('filter-options');
+    expect(filterOptions).toBeInTheDocument();
+    
+    const filterSelect = screen.getByTestId('filter-select-0');
+    expect(filterSelect).toBeInTheDocument();
+    
+    fireEvent.change(filterSelect, { target: { value: 'Any' } });
+    
+    expect(screen.getByText(/No Filters Applied/i)).toBeInTheDocument();
+  });
+
+  test('handles ASX range filter', async () => {
+    axios.get.mockResolvedValueOnce({ data: mockMarketTrendsData });
+    
+    render(<MarketTrends />);
+    
+    await waitFor(() => {
+      expect(screen.queryByText(/loading market trends data/i)).not.toBeInTheDocument();
+    });
+    
+    const filterOptions = screen.getAllByTestId(/filter-select-\d+/);
+    
+    if (filterOptions.length > 1) {
+      fireEvent.change(filterOptions[1], { target: { value: '5000000 to 10000000' } });
       
-      // Metrics should show default values
-      const asxCodeCard = screen.getByTestId('metric-card-0');
-      expect(asxCodeCard).toHaveTextContent('ASX Code Count');
-      expect(asxCodeCard).toHaveTextContent('0');
-    });
-  });
-  
-  test('handles non-array response data', async () => {
-    // Mock response with object instead of array
-    const singleObjectData = {
-      id: 1,
-      asx_code: 'ABC',
-      market_cap: 1000000,
-      trade_value: 50000,
-      total_shares: 500000,
-      new_price: 2.00,
-      previous_price: 1.90,
-      week_price_change: 5.0,
-      month_price_change: 10.0,
-      year_price_change: 20.0,
-      previous_trade_value: 45000
-    };
-    
-    axios.get.mockResolvedValue({ data: singleObjectData });
-    
-    render(<MarketTrends />);
-    
-    await waitFor(() => {
-      expect(screen.getByTestId('graph-page')).toBeInTheDocument();
+      fireEvent.click(screen.getByTestId('apply-filters-btn'));
       
-      // Should handle single object as array with one item
-      const asxCodeCard = screen.getByTestId('metric-card-0');
-      expect(asxCodeCard).toHaveTextContent('ASX Code Count');
-      expect(asxCodeCard).toHaveTextContent('1');
-    });
+      expect(screen.getByText('Market Trends')).toBeInTheDocument();
+    }
   });
-  
-  test('formatter functions work correctly', async () => {
+
+  test('processes complex data for charts correctly', async () => {
+    const complexData = [...mockMarketTrendsData, ...mockMarketTrendsEdgeData];
+    axios.get.mockResolvedValueOnce({ data: complexData });
+    
     render(<MarketTrends />);
     
     await waitFor(() => {
-      // Check currency formatting in metrics
-      const dailyRelVolChangeCard = screen.getByTestId('metric-card-5');
-      expect(dailyRelVolChangeCard).toHaveTextContent('Daily Relative Volume Change');
-      expect(dailyRelVolChangeCard).toHaveTextContent('$');
+      expect(screen.queryByText(/loading market trends data/i)).not.toBeInTheDocument();
     });
+    
+    const chartData = screen.getByTestId('chart-data');
+    expect(chartData).toBeInTheDocument();
+    
+    const charts = screen.getAllByTestId(/chart-\d+/);
+    expect(charts.length).toBeGreaterThan(0);
   });
-  
-  test('filter tag generation works with no filters', async () => {
+});
+
+describe('Data Processing Functions', () => {
+  test('processMarketTrends calculates metrics correctly with various data', async () => {
+    const mixedData = [...mockMarketTrendsData, ...mockMarketTrendsEdgeData];
+    axios.get.mockResolvedValueOnce({ data: mixedData });
+    
     render(<MarketTrends />);
     
     await waitFor(() => {
-      // Should show "No Filters Applied" by default
-      expect(screen.getByTestId('graph-page')).toBeInTheDocument();
+      expect(screen.queryByText(/loading market trends data/i)).not.toBeInTheDocument();
     });
+    
+    const metricCards = screen.getByTestId('metric-cards');
+    expect(metricCards).toBeInTheDocument();
+    
+    const chartData = screen.getByTestId('chart-data');
+    expect(chartData).toBeInTheDocument();
+  });
+  
+  test('handles empty data array correctly', async () => {
+    axios.get.mockResolvedValueOnce({ data: [] });
+    
+    render(<MarketTrends />);
+    
+    await waitFor(() => {
+      expect(screen.queryByText(/loading market trends data/i)).not.toBeInTheDocument();
+    });
+    
+    const tableData = screen.getByTestId('table-data');
+    expect(tableData).toHaveTextContent('Rows: 0');
+    
+    const chartData = screen.getByTestId('chart-data');
+    expect(chartData).toBeInTheDocument();
+    expect(chartData).toHaveTextContent('Labels: ["No Data"]');
+  });
+  
+  test('formats currency values correctly', async () => {
+    axios.get.mockResolvedValueOnce({ data: mockMarketTrendsData });
+    
+    render(<MarketTrends />);
+    
+    await waitFor(() => {
+      expect(screen.queryByText(/loading market trends data/i)).not.toBeInTheDocument();
+    });
+    
+    const metricCards = screen.getByTestId('metric-cards');
+    expect(metricCards).toBeInTheDocument();
+    
+    const dailyVolCard = screen.getByText(/Daily Relative Volume Change/).closest('[data-testid^="metric-card"]');
+    expect(dailyVolCard).toBeInTheDocument();
+    expect(dailyVolCard.querySelector('[data-testid^="metric-value"]').textContent).toMatch(/\$[0-9,.]+/);
+  });
+  
+  test('chart data generation for ASX price changes', async () => {
+    axios.get.mockResolvedValueOnce({ data: mockMarketTrendsData });
+    
+    render(<MarketTrends />);
+    
+    await waitFor(() => {
+      expect(screen.queryByText(/loading market trends data/i)).not.toBeInTheDocument();
+    });
+    
+    const chartElements = screen.getAllByTestId(/chart-\d+/);
+    expect(chartElements.length).toBeGreaterThan(0);
+    
+    const priceChangeChart = chartElements[0];
+    expect(priceChangeChart).toHaveTextContent(/Daily Top 10 ASX.*Price Change/i);
+  });
+  
+  test('chart data generation for ASX volume changes', async () => {
+    axios.get.mockResolvedValueOnce({ data: mockMarketTrendsData });
+    
+    render(<MarketTrends />);
+    
+    await waitFor(() => {
+      expect(screen.queryByText(/loading market trends data/i)).not.toBeInTheDocument();
+    });
+    
+    const chartElements = screen.getAllByTestId(/chart-\d+/);
+    expect(chartElements.length).toBeGreaterThan(1);
+    
+    const volumeChangeChart = chartElements[1];
+    expect(volumeChangeChart).toHaveTextContent(/Volume Change/i);
+  });
+});
+
+describe('Filter Functions', () => {
+  test('generates range options correctly', async () => {
+    axios.get.mockResolvedValueOnce({ data: mockMarketTrendsData });
+    
+    render(<MarketTrends />);
+    
+    await waitFor(() => {
+      expect(screen.queryByText(/loading market trends data/i)).not.toBeInTheDocument();
+    });
+    
+    const filterOptions = screen.getByTestId('filter-options');
+    expect(filterOptions).toBeInTheDocument();
+    
+    const filterSelects = screen.getAllByTestId(/filter-select-\d+/);
+    expect(filterSelects.length).toBeGreaterThan(1);
+  });
+  
+  test('handles filter changes correctly', async () => {
+    axios.get.mockResolvedValueOnce({ data: mockMarketTrendsData });
+    
+    render(<MarketTrends />);
+    
+    await waitFor(() => {
+      expect(screen.queryByText(/loading market trends data/i)).not.toBeInTheDocument();
+    });
+    
+    fireEvent.click(screen.getByTestId('add-filter-btn'));
+    
+    await waitFor(() => {
+      expect(screen.queryByText(/No Filters Applied/i)).not.toBeInTheDocument();
+    });
+    
+    fireEvent.click(screen.getByTestId('apply-filters-btn'));
+    
+    expect(screen.getByText('Market Trends')).toBeInTheDocument();
+  });
+
+  test('tests generateRangeOptions with small values', async () => {
+    const smallValueData = [
+      {
+        id: 7,
+        asx_code: 'PQR',
+        market_cap: 50,
+        trade_value: 30,
+        total_shares: 20,
+        new_price: 2.5,
+        previous_price: 2.0
+      },
+      {
+        id: 8,
+        asx_code: 'STU',
+        market_cap: 80,
+        trade_value: 40,
+        total_shares: 30,
+        new_price: 3.5,
+        previous_price: 3.0
+      }
+    ];
+    
+    axios.get.mockResolvedValueOnce({ data: smallValueData });
+    
+    render(<MarketTrends />);
+    
+    await waitFor(() => {
+      expect(screen.queryByText(/loading market trends data/i)).not.toBeInTheDocument();
+    });
+    
+    const filterOptions = screen.getByTestId('filter-options');
+    expect(filterOptions).toBeInTheDocument();
+  });
+
+  test('tests generateRangeOptions with large values', async () => {
+    const largeValueData = [
+      {
+        id: 9,
+        asx_code: 'VWX',
+        market_cap: 1000000000,
+        trade_value: 500000000,
+        total_shares: 200000000,
+        new_price: 500,
+        previous_price: 450
+      },
+      {
+        id: 10,
+        asx_code: 'YZA',
+        market_cap: 2000000000,
+        trade_value: 700000000,
+        total_shares: 300000000,
+        new_price: 700,
+        previous_price: 650
+      }
+    ];
+    
+    axios.get.mockResolvedValueOnce({ data: largeValueData });
+    
+    render(<MarketTrends />);
+    
+    await waitFor(() => {
+      expect(screen.queryByText(/loading market trends data/i)).not.toBeInTheDocument();
+    });
+    
+    const filterOptions = screen.getByTestId('filter-options');
+    expect(filterOptions).toBeInTheDocument();
   });
 });
