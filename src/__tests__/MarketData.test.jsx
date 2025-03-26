@@ -151,18 +151,12 @@ afterAll(() => {
     } else {
       console.log('Loading state not visible in the test - skipping assertion');
     }
-    
-    // Resolve the API call
     await act(async () => {
       resolvePromise({ data: mockMarketData });
     });
-    
-    // Wait for loading to disappear
     await waitFor(() => {
       expect(screen.queryByText(/loading market data/i)).not.toBeInTheDocument();
     });
-    
-    // Clean up
     jest.useRealTimers();
   });
 
@@ -203,7 +197,6 @@ afterAll(() => {
   });
 
   test('handles authentication error correctly', async () => {
-    // Mock auth token failure
     useAuthToken.mockReturnValueOnce({
       getAccessToken: jest.fn().mockResolvedValue(null),
       authError: 'Auth token error'
@@ -220,15 +213,10 @@ afterAll(() => {
     render(<MarketData />);
     
     await waitFor(() => {
-      // Check metric cards
       expect(screen.getByTestId('metric-card-0')).toHaveTextContent('Total Number of ASX Codes: 3');
-      
-      // Check chart data
       expect(screen.getByTestId('chart-0')).toHaveTextContent('Top 10 Debt By ASX Code');
       expect(screen.getByTestId('chart-1')).toHaveTextContent('Top 10 Market Cap By ASX Code');
       expect(screen.getByTestId('chart-2')).toHaveTextContent('Top 10 Bank Balance By ASX Code');
-      
-      // Check table data
       expect(screen.getByTestId('table-row-0')).toBeInTheDocument();
     });
   });
@@ -270,35 +258,24 @@ afterAll(() => {
     await waitFor(() => {
       expect(screen.getByTestId('filter-tag-0')).toHaveTextContent('No Filters Applied');
     });
-    
-    // Select ASX Code filter
     await act(async () => {
       fireEvent.change(screen.getByTestId('filter-select-ASX Code'), { target: { value: 'ABC' } });
     });
-    
     await waitFor(() => {
       expect(screen.getByTestId('filter-tag-0')).toHaveTextContent('ASX Code: ABC');
     });
-    
-    // Select a second filter
     await act(async () => {
       fireEvent.change(screen.getByTestId('filter-select-Changed'), { target: { value: 'Yes' } });
     });
-    
     await waitFor(() => {
       expect(screen.getByTestId('filter-tag-1')).toHaveTextContent('Changed: Yes');
     });
-    
-    // Apply filters
     fireEvent.click(screen.getByTestId('apply-filters'));
-    
-    // Reset a filter
     await act(async () => {
       fireEvent.click(screen.getByTestId('remove-tag-0'));
     });
     
     await waitFor(() => {
-      // Should only have the second filter now
       expect(screen.getByTestId('filter-tag-0')).toHaveTextContent('Changed: Yes');
     });
   });
@@ -309,21 +286,14 @@ afterAll(() => {
     await waitFor(() => {
       expect(screen.getByTestId('filter-tag-0')).toHaveTextContent('No Filters Applied');
     });
-    
-    // Select Market Cap filter
     await act(async () => {
       const marketCapSelect = screen.getByTestId('filter-select-Market Cap');
-      // Find a non-"Any" option to select
       const options = Array.from(marketCapSelect.options).filter(opt => opt.value !== 'Any');
       if (options.length > 0) {
         fireEvent.change(marketCapSelect, { target: { value: options[0].value } });
       }
     });
-    
-    // Apply filters
     fireEvent.click(screen.getByTestId('apply-filters'));
-    
-    // Check if filter was applied - it should have replaced "No Filters Applied"
     await waitFor(() => {
       expect(screen.queryByText('No Filters Applied')).not.toBeInTheDocument();
     });
@@ -335,33 +305,23 @@ afterAll(() => {
     await waitFor(() => {
       const tableRows = screen.getAllByTestId(/^table-row-/);
       expect(tableRows.length).toBeGreaterThan(0);
-      
-      // Check formatted currency values (we're testing the formatCurrency function)
-      const marketCapCell = tableRows[0].childNodes[2]; // Market Cap is the 3rd column
-      expect(marketCapCell.textContent).toMatch(/\$[\d,.]+/); // Should be formatted as currency
+      const marketCapCell = tableRows[0].childNodes[2]; 
+      expect(marketCapCell.textContent).toMatch(/\$[\d,.]+/); 
     });
   });
 
   test('generateRangeOptions handles different scale data correctly', async () => {
-    // Mock market data with small values
     const smallValuesData = [
       { ...mockMarketData[0], market_cap: '10', debt: '2', bank_balance: '1' },
       { ...mockMarketData[1], market_cap: '20', debt: '4', bank_balance: '2' },
     ];
-    
-    // First render with small values data
     axios.get.mockResolvedValueOnce({ data: smallValuesData });
     const { unmount } = render(<MarketData />);
     
     await waitFor(() => {
-      // Check that component rendered with market cap filter
       expect(screen.getAllByTestId(/^filter-option-/).length).toBeGreaterThan(0);
     });
-    
-    // Unmount the first render to avoid duplicate test IDs
     unmount();
-    
-    // Now test with larger values in a separate render
     const largeValuesData = [
       { ...mockMarketData[0], market_cap: '10000000', debt: '2000000', bank_balance: '1000000' },
       { ...mockMarketData[1], market_cap: '20000000', debt: '4000000', bank_balance: '2000000' },
@@ -371,7 +331,6 @@ afterAll(() => {
     render(<MarketData />);
     
     await waitFor(() => {
-      // Check that component rendered with market cap filter
       expect(screen.getAllByTestId(/^filter-option-/).length).toBeGreaterThan(0);
     });
   });
@@ -382,8 +341,6 @@ afterAll(() => {
     await waitFor(() => {
       expect(screen.getByTestId('filter-tag-0')).toHaveTextContent('No Filters Applied');
     });
-    
-    // Add two filters
     await act(async () => {
       fireEvent.change(screen.getByTestId('filter-select-ASX Code'), { target: { value: 'ABC' } });
       fireEvent.change(screen.getByTestId('filter-select-Changed'), { target: { value: 'Yes' } });
@@ -393,7 +350,6 @@ afterAll(() => {
       expect(screen.getAllByTestId(/^filter-tag-/).length).toBe(2);
     });
     
-    // Remove both filters
     await act(async () => {
       const removeButtons = screen.getAllByTestId(/^remove-tag-/);
       removeButtons.forEach(button => {
@@ -407,7 +363,6 @@ afterAll(() => {
   });
 
   test('getUniqueValues handles edge cases correctly', async () => {
-    // Data with null/undefined values
     const dataWithNulls = [
       { asx_code: 'ABC', changed: null },
       { asx_code: undefined, changed: 'No' },
@@ -419,13 +374,11 @@ afterAll(() => {
     render(<MarketData />);
     
     await waitFor(() => {
-      // Check that filter options rendered
       expect(screen.getAllByTestId(/^filter-option-/).length).toBeGreaterThan(0);
     });
   });
 
   test('generateRangeOptions handles no valid values correctly', async () => {
-    // Data with NaN values
     const dataWithNaNs = [
       { asx_code: 'ABC', market_cap: 'Not a number' },
       { asx_code: 'XYZ', market_cap: null },
@@ -436,7 +389,6 @@ afterAll(() => {
     render(<MarketData />);
     
     await waitFor(() => {
-      // Check that filter options rendered
       expect(screen.getAllByTestId(/^filter-option-/).length).toBeGreaterThan(0);
     });
   });
@@ -447,42 +399,27 @@ afterAll(() => {
     await waitFor(() => {
       expect(screen.getByTestId('filter-tag-0')).toHaveTextContent('No Filters Applied');
     });
-    
-    // Add ASX Code filter
     await act(async () => {
       fireEvent.change(screen.getByTestId('filter-select-ASX Code'), { target: { value: 'ABC' } });
     });
-    
-    // Apply filters and check results
     fireEvent.click(screen.getByTestId('apply-filters'));
-    
-    // Now try with a range filter
+
     await act(async () => {
       const marketCapSelect = screen.getByTestId('filter-select-Market Cap');
-      // Find a non-"Any" option to select
       const options = Array.from(marketCapSelect.options).filter(opt => opt.value !== 'Any');
       if (options.length > 0) {
         fireEvent.change(marketCapSelect, { target: { value: options[0].value } });
       }
     });
-    
-    // Apply filters again
     fireEvent.click(screen.getByTestId('apply-filters'));
-    
-    // Reset to "Any" for a filter
     await act(async () => {
       fireEvent.change(screen.getByTestId('filter-select-ASX Code'), { target: { value: 'Any' } });
     });
-    
-    // Apply filters one more time
     fireEvent.click(screen.getByTestId('apply-filters'));
   });
 
-  // Add these tests to your existing MarketData.test.jsx file
-
 
   test('formatCurrency handles edge cases', async () => {
-    // Create market data with various edge cases
     const edgeCaseData = [
       { 
         asx_code: 'NULL', 
@@ -494,43 +431,31 @@ afterAll(() => {
         ev_resource_per_ounce_ton: 'not-a-number'
       }
     ];
-    
-    // Re-render with the edge case data
     axios.get.mockResolvedValueOnce({ data: edgeCaseData });
     
     render(<MarketData />);
-    
-    // Verify that formatCurrency handles these cases without error
     const metricCards = await screen.findAllByTestId('metric-card-0');
     expect(metricCards.length).toBeGreaterThan(0);
     expect(metricCards[0]).toBeInTheDocument();
   });
 
   test('generateRangeOptions handles various data ranges', async () => {
-    // This test targets lines 424-445 which involve the range options generation
-    
-    // Test specific cases:
-    // 1. Very small range (less than 100)
     const smallRangeData = [
       { market_cap: '10' }, { market_cap: '15' }, { market_cap: '20' }
     ];
-    
-    // 2. Medium range
+
     const mediumRangeData = [
       { market_cap: '500' }, { market_cap: '1500' }, { market_cap: '2500' }
     ];
-    
-    // 3. Large range
+
     const largeRangeData = [
       { market_cap: '1000000' }, { market_cap: '5000000' }, { market_cap: '10000000' }
     ];
-    
-    // 4. Very large range (billions)
+
     const veryLargeRangeData = [
       { market_cap: '1000000000' }, { market_cap: '5000000000' }, { market_cap: '10000000000' }
     ];
-    
-    // Test the small range case
+
     axios.get.mockResolvedValueOnce({ 
       data: smallRangeData.map(item => ({ 
         ...mockMarketData[0], 
@@ -540,15 +465,13 @@ afterAll(() => {
     });
     
     const { unmount } = render(<MarketData />);
-    
-    // Instead of looking for a specific element, we'll just make sure the component rendered
+
     await waitFor(() => {
       expect(screen.getByTestId('graph-page')).toBeInTheDocument();
     });
     
     unmount();
-    
-    // Test medium range
+
     axios.get.mockResolvedValueOnce({ 
       data: mediumRangeData.map(item => ({ 
         ...mockMarketData[0], 
@@ -564,8 +487,7 @@ afterAll(() => {
     });
     
     unmount2();
-    
-    // Test large range
+
     axios.get.mockResolvedValueOnce({ 
       data: largeRangeData.map(item => ({ 
         ...mockMarketData[0], 
@@ -581,8 +503,7 @@ afterAll(() => {
     });
     
     unmount3();
-    
-    // Test very large range
+
     axios.get.mockResolvedValueOnce({ 
       data: veryLargeRangeData.map(item => ({ 
         ...mockMarketData[0], 

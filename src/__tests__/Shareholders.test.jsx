@@ -5,7 +5,6 @@ import axios from 'axios';
 import Shareholders from '../pages/graphs/Shareholders';
 import useAuthToken from '../hooks/useAuthToken';
 
-// Mock dependencies
 jest.mock('axios');
 jest.mock('../hooks/useAuthToken');
 jest.mock('../components/GraphPage', () => ({
@@ -103,7 +102,6 @@ jest.mock('../components/GraphPage', () => ({
   )
 }));
 
-// Sample test data
 const mockShareholderData = [
   {
     asx_code: 'ABC',
@@ -172,13 +170,11 @@ describe('Shareholders Component', () => {
 
   test('renders loading state initially', async () => {
     axios.get.mockImplementationOnce(() => new Promise((resolve) => {
-      // This promise won't resolve during the test to keep the loading state
       setTimeout(() => resolve({ data: [] }), 1000);
     }));
 
     render(<Shareholders />);
-    
-    // FIX: Wait for the loading element to be in the document
+
     expect(await screen.findByText('Loading shareholder data...')).toBeInTheDocument();
   });
 
@@ -254,23 +250,17 @@ describe('Shareholders Component', () => {
     await waitFor(() => {
       expect(screen.getByTestId('graph-page')).toBeInTheDocument();
     });
-
-    // Initially should show "No Filters Applied"
     expect(screen.getByTestId('filter-tag-0')).toHaveTextContent('No Filters Applied');
-    
-    // Add a filter for ASX Code
+
     fireEvent.click(screen.getByTestId('add-filter-ASX Code'));
-    
-    // Now should show the filter tag
+
     await waitFor(() => {
       expect(screen.queryByText('No Filters Applied')).not.toBeInTheDocument();
     });
 
-    // Remove the filter tag
     const removeButtons = screen.getAllByText('Remove');
     fireEvent.click(removeButtons[0]);
     
-    // Should go back to "No Filters Applied"
     await waitFor(() => {
       expect(screen.getByTestId('filter-tag-0')).toHaveTextContent('No Filters Applied');
     });
@@ -285,14 +275,11 @@ describe('Shareholders Component', () => {
       expect(screen.getByTestId('graph-page')).toBeInTheDocument();
     });
 
-    // Add a filter for ASX Code
     fireEvent.change(screen.getByTestId('select-ASX Code'), { target: { value: 'ABC' } });
     fireEvent.click(screen.getByTestId('add-filter-ASX Code'));
     
-    // Apply filters
     fireEvent.click(screen.getByTestId('apply-filters'));
-    
-    // Metrics should change based on filtered data
+
     await waitFor(() => {
       expect(screen.getByTestId('metric-card-0')).not.toHaveTextContent('No Of ASX Codes: 5');
     });
@@ -307,28 +294,22 @@ describe('Shareholders Component', () => {
       expect(screen.getByTestId('graph-page')).toBeInTheDocument();
     });
 
-    // Add a filter for Project Commodities
     fireEvent.change(screen.getByTestId('select-Project Commodities'), { target: { value: 'Gold' } });
     fireEvent.click(screen.getByTestId('add-filter-Project Commodities'));
-    
-    // The filter should be applied
+
     await waitFor(() => {
       const filterTags = screen.getAllByTestId(/filter-tag-/);
       expect(filterTags.length).toBeGreaterThan(0);
       expect(filterTags[0]).toHaveTextContent('Project Commodities');
     });
-    
-    // Apply filters
+
     fireEvent.click(screen.getByTestId('apply-filters'));
-    
-    // Now add another filter of the same type
+
     fireEvent.change(screen.getByTestId('select-Project Commodities'), { target: { value: 'Silver' } });
     fireEvent.click(screen.getByTestId('add-filter-Project Commodities'));
-    
-    // Apply filters again
+
     fireEvent.click(screen.getByTestId('apply-filters'));
-    
-    // Should still have metrics, but potentially different values
+
     expect(screen.getByTestId('metric-card-0')).toBeInTheDocument();
   });
 
@@ -341,13 +322,10 @@ describe('Shareholders Component', () => {
       expect(screen.getByTestId('graph-page')).toBeInTheDocument();
     });
 
-    // Add a filter for Value
     fireEvent.click(screen.getByTestId('add-filter-Value'));
-    
-    // Apply filters
+
     fireEvent.click(screen.getByTestId('apply-filters'));
-    
-    // Should have metrics based on filtered data
+
     expect(screen.getByTestId('metric-card-0')).toBeInTheDocument();
   });
 
@@ -359,23 +337,17 @@ describe('Shareholders Component', () => {
     await waitFor(() => {
       expect(screen.getByTestId('graph-page')).toBeInTheDocument();
     });
-    
-    // Check table data for formatted currency
+
     const tableData = screen.getByTestId('table-data');
     expect(tableData).toBeInTheDocument();
-    
-    // The value column should contain currency formatting
+
     const tableRows = screen.getAllByTestId(/table-row-/);
     expect(tableRows.length).toBeGreaterThan(0);
-    
-    // Since our mock component doesn't actually render the formatted values
-    // we can't directly test the format, but we can confirm the table exists
-    // with the correct number of rows
+
     expect(tableRows.length).toBe(mockShareholderData.length);
   });
 
   test('handles empty datasets in chart processing', async () => {
-    // Mock data with no useful chart data
     const emptyData = [
       {
         asx_code: '',
@@ -396,7 +368,6 @@ describe('Shareholders Component', () => {
       expect(screen.getByTestId('graph-page')).toBeInTheDocument();
     });
     
-    // The component actually creates 4 charts with empty data
     const chartData = screen.getAllByTestId(/chart-/);
     expect(chartData.length).toBe(4);
   });
@@ -410,14 +381,11 @@ describe('Shareholders Component', () => {
       expect(screen.getByTestId('graph-page')).toBeInTheDocument();
     });
     
-    // The Value filter should have options
     const valueSelect = screen.getByTestId('select-Value');
     expect(valueSelect).toBeInTheDocument();
-    expect(valueSelect.options.length).toBeGreaterThan(1); // "Any" + at least one range
+    expect(valueSelect.options.length).toBeGreaterThan(1);
   });
 
-  // FIX: Remove or modify the test that's trying to spy on React internals
-  // This test is problematic because it's trying to access React internals that may not be available
   test('refreshes data when filterTags change', async () => {
     axios.get.mockResolvedValueOnce({ data: mockShareholderData });
 
@@ -427,19 +395,13 @@ describe('Shareholders Component', () => {
       expect(screen.getByTestId('graph-page')).toBeInTheDocument();
     });
     
-    // Instead of spying on internal methods, we can test the effect by observing changes
-    // Add a filter
     fireEvent.click(screen.getByTestId('add-filter-ASX Code'));
-    
-    // Apply filters
+
     fireEvent.click(screen.getByTestId('apply-filters'));
-    
-    // Verify that the filters were applied (charts should update)
+
     expect(screen.getAllByTestId(/chart-/).length).toBe(4);
   });
 });
-
-// Additional tests for edge cases
 
 describe('Shareholders Component Edge Cases', () => {
   beforeEach(() => {
@@ -456,7 +418,7 @@ describe('Shareholders Component Edge Cases', () => {
         asx_code: 'ABC',
         ann_date: '2023-01-01',
         entity: 'Company A',
-        value: '1000000000', // 1 billion
+        value: '1000000000', 
         project_commodities: 'Gold',
         project_area: 'Area X',
         transaction_type: 'Buy'
@@ -471,8 +433,6 @@ describe('Shareholders Component Edge Cases', () => {
       expect(screen.getByTestId('graph-page')).toBeInTheDocument();
     });
     
-    // FIX: Test the behavior differently since the component might not be creating billion options
-    // Instead of checking for the 'B' suffix, check that the value select has options
     const valueSelect = screen.getByTestId('select-Value');
     expect(valueSelect).toBeInTheDocument();
     expect(valueSelect.options.length).toBeGreaterThan(0);
@@ -499,7 +459,6 @@ describe('Shareholders Component Edge Cases', () => {
       expect(screen.getByTestId('graph-page')).toBeInTheDocument();
     });
     
-    // Component should not crash with invalid value
     expect(screen.getByTestId('table-data')).toBeInTheDocument();
   });
 
@@ -524,7 +483,6 @@ describe('Shareholders Component Edge Cases', () => {
       expect(screen.getByTestId('graph-page')).toBeInTheDocument();
     });
     
-    // Component should handle null values gracefully
     expect(screen.getByTestId('table-data')).toBeInTheDocument();
   });
 
@@ -537,20 +495,17 @@ describe('Shareholders Component Edge Cases', () => {
       expect(screen.getByTestId('graph-page')).toBeInTheDocument();
     });
     
-    // Should have default/empty state metrics
     expect(screen.getByTestId('metric-card-0')).toHaveTextContent('No Of ASX Codes: 0');
     expect(screen.getByTestId('chart-0')).toBeInTheDocument();
-    // Chart should have a default "No Data" label
     expect(screen.getByTestId('chart-0')).toHaveTextContent(/Top 5 Shareholders/);
   });
 
   test('handles small range value filters correctly', async () => {
-    // Data with small values
     const smallValueData = Array.from({ length: 5 }).map((_, i) => ({
       asx_code: `ASX${i}`,
       ann_date: `2023-01-0${i+1}`,
       entity: `Company ${i}`,
-      value: `${i * 10}`, // Small values 0, 10, 20, 30, 40
+      value: `${i * 10}`, 
       project_commodities: 'Gold',
       project_area: 'Area X',
       transaction_type: 'Buy'
@@ -563,9 +518,6 @@ describe('Shareholders Component Edge Cases', () => {
     await waitFor(() => {
       expect(screen.getByTestId('graph-page')).toBeInTheDocument();
     });
-    
-    // FIX: Ensure there are range options even for small values
-    // Instead of checking the length, check that the select element exists
     const valueSelect = screen.getByTestId('select-Value');
     expect(valueSelect).toBeInTheDocument();
   });
