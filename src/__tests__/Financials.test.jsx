@@ -5,7 +5,6 @@ import axios from 'axios';
 import Financials from '../pages/graphs/Financials';
 import useAuthToken from '../hooks/useAuthToken';
 
-// Mock dependencies
 jest.mock('axios');
 jest.mock('../hooks/useAuthToken');
 jest.mock('../components/GraphPage', () => ({
@@ -232,23 +231,17 @@ describe('Financials Component', () => {
       expect(screen.getByTestId('graph-page')).toBeInTheDocument();
     });
 
-    // Initially should show "No Filters Applied"
     expect(screen.getByTestId('filter-tag-0')).toHaveTextContent('No Filters Applied');
     
-    // Add a filter for ASX Code
     fireEvent.click(screen.getByTestId('add-filter-ASX Code'));
     
-    // Now should show the filter tag
     await waitFor(() => {
       expect(screen.queryByText('No Filters Applied')).not.toBeInTheDocument();
     });
 
-    // Remove the filter tag
-    // Alternative approach - get all elements with role "button" containing the text "Remove"
     const removeButtons = screen.getAllByRole('button', { name: /remove/i });
     fireEvent.click(removeButtons[0]);
-    
-    // Should go back to "No Filters Applied"
+  
     await waitFor(() => {
       expect(screen.getByTestId('filter-tag-0')).toHaveTextContent('No Filters Applied');
     });
@@ -263,14 +256,11 @@ describe('Financials Component', () => {
       expect(screen.getByTestId('graph-page')).toBeInTheDocument();
     });
 
-    // Add a filter for ASX Code
     fireEvent.change(screen.getByTestId('select-ASX Code'), { target: { value: 'ABC' } });
     fireEvent.click(screen.getByTestId('add-filter-ASX Code'));
-    
-    // Apply filters
+
     fireEvent.click(screen.getByTestId('apply-filters'));
-    
-    // Metrics should change based on filtered data
+
     await waitFor(() => {
       expect(screen.getByTestId('metric-card-0')).not.toHaveTextContent('Total ASX Codes: 2');
     });
@@ -285,28 +275,22 @@ describe('Financials Component', () => {
       expect(screen.getByTestId('graph-page')).toBeInTheDocument();
     });
 
-    // Add a filter for Period
     fireEvent.change(screen.getByTestId('select-Period'), { target: { value: 'Q1 2023' } });
     fireEvent.click(screen.getByTestId('add-filter-Period'));
     
-    // The filter should be applied
     await waitFor(() => {
       const filterTags = screen.getAllByTestId(/filter-tag-/);
       expect(filterTags.length).toBeGreaterThan(0);
       expect(filterTags[0]).toHaveTextContent('Period');
     });
     
-    // Apply filters
     fireEvent.click(screen.getByTestId('apply-filters'));
-    
-    // Now add another filter of the same type
+
     fireEvent.change(screen.getByTestId('select-Period'), { target: { value: 'Q2 2023' } });
     fireEvent.click(screen.getByTestId('add-filter-Period'));
-    
-    // Apply filters again
+
     fireEvent.click(screen.getByTestId('apply-filters'));
-    
-    // Should still have metrics, but potentially different values
+
     expect(screen.getByTestId('metric-card-0')).toBeInTheDocument();
   });
 
@@ -319,13 +303,10 @@ describe('Financials Component', () => {
       expect(screen.getByTestId('graph-page')).toBeInTheDocument();
     });
 
-    // Add a filter for Net Operating Cash Flow
     fireEvent.click(screen.getByTestId('add-filter-Net Operating Cash Flow'));
-    
-    // Apply filters
+
     fireEvent.click(screen.getByTestId('apply-filters'));
-    
-    // Should have metrics based on filtered data
+
     expect(screen.getByTestId('metric-card-0')).toBeInTheDocument();
   });
 
@@ -337,16 +318,12 @@ describe('Financials Component', () => {
     await waitFor(() => {
       expect(screen.getByTestId('graph-page')).toBeInTheDocument();
     });
-    
-    // Check table data for formatted currency
+
     const tableData = screen.getByTestId('table-data');
-    expect(tableData).toBeInTheDocument();
-    
-    // The value column should contain currency formatting
+ 
     const tableRows = screen.getAllByTestId(/table-row-/);
     expect(tableRows.length).toBeGreaterThan(0);
-    
-    // Check that values are formatted as currency
+  
     expect(tableRows[0]).toHaveTextContent('$1,000,000');
   });
 
@@ -378,8 +355,7 @@ describe('Financials Component', () => {
     await waitFor(() => {
       expect(screen.getByTestId('graph-page')).toBeInTheDocument();
     });
-    
-    // The component creates charts with empty data
+
     const chartData = screen.getAllByTestId(/chart-/);
     expect(chartData.length).toBe(4);
   });
@@ -392,11 +368,10 @@ describe('Financials Component', () => {
     await waitFor(() => {
       expect(screen.getByTestId('graph-page')).toBeInTheDocument();
     });
-    
-    // The Net Operating Cash Flow filter should have options
+
     const valueSelect = screen.getByTestId('select-Net Operating Cash Flow');
     expect(valueSelect).toBeInTheDocument();
-    expect(valueSelect.options.length).toBeGreaterThan(1); // "Any" + at least one range
+    expect(valueSelect.options.length).toBeGreaterThan(1); 
   });
 
   test('refreshes data when filterTags change', async () => {
@@ -407,19 +382,15 @@ describe('Financials Component', () => {
     await waitFor(() => {
       expect(screen.getByTestId('graph-page')).toBeInTheDocument();
     });
-    
-    // Add a filter
+
     fireEvent.click(screen.getByTestId('add-filter-ASX Code'));
-    
-    // Apply filters
+
     fireEvent.click(screen.getByTestId('apply-filters'));
-    
-    // Verify that the filters were applied (charts should update)
+
     expect(screen.getAllByTestId(/chart-/).length).toBe(4);
   });
 });
 
-// Additional tests for edge cases
 describe('Financials Component Edge Cases', () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -435,7 +406,7 @@ describe('Financials Component Edge Cases', () => {
         asx_code: 'ABC',
         ann_date: '2023-01-01',
         period: 'Q1 2023',
-        net_operating_cash_flow: '1000000000', // 1 billion
+        net_operating_cash_flow: '1000000000', 
         exploration_spend: '500000000',
         development_production_spend: '300000000',
         staff_costs: '200000000',
@@ -457,8 +428,7 @@ describe('Financials Component Edge Cases', () => {
     await waitFor(() => {
       expect(screen.getByTestId('graph-page')).toBeInTheDocument();
     });
-    
-    // Check that large values are handled correctly
+
     const valueSelect = screen.getByTestId('select-Net Operating Cash Flow');
     expect(valueSelect).toBeInTheDocument();
     expect(valueSelect.options.length).toBeGreaterThan(0);
@@ -492,8 +462,7 @@ describe('Financials Component Edge Cases', () => {
     await waitFor(() => {
       expect(screen.getByTestId('graph-page')).toBeInTheDocument();
     });
-    
-    // Component should not crash with invalid value
+
     expect(screen.getByTestId('table-data')).toBeInTheDocument();
   });
 
@@ -525,8 +494,7 @@ describe('Financials Component Edge Cases', () => {
     await waitFor(() => {
       expect(screen.getByTestId('graph-page')).toBeInTheDocument();
     });
-    
-    // Component should handle null values gracefully
+
     expect(screen.getByTestId('table-data')).toBeInTheDocument();
   });
 
@@ -538,8 +506,7 @@ describe('Financials Component Edge Cases', () => {
     await waitFor(() => {
       expect(screen.getByTestId('graph-page')).toBeInTheDocument();
     });
-    
-    // Should have default/empty state metrics
+
     expect(screen.getByTestId('metric-card-0')).toHaveTextContent('Total ASX Codes: 0');
     expect(screen.getByTestId('chart-0')).toBeInTheDocument();
   });
@@ -549,7 +516,7 @@ describe('Financials Component Edge Cases', () => {
       asx_code: `ASX${i}`,
       ann_date: `2023-01-0${i+1}`,
       period: `Q1 2023`,
-      net_operating_cash_flow: `${i * 10}`, // Small values 0, 10, 20, 30, 40
+      net_operating_cash_flow: `${i * 10}`, 
       exploration_spend: `${i * 5}`,
       development_production_spend: `${i * 3}`,
       staff_costs: `${i * 2}`,
@@ -570,8 +537,7 @@ describe('Financials Component Edge Cases', () => {
     await waitFor(() => {
       expect(screen.getByTestId('graph-page')).toBeInTheDocument();
     });
-    
-    // Ensure there are range options even for small values
+  
     const valueSelect = screen.getByTestId('select-Net Operating Cash Flow');
     expect(valueSelect).toBeInTheDocument();
   });

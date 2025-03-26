@@ -5,7 +5,6 @@ import axios from 'axios';
 import CompanyDetails from '../pages/graphs/CompanyDetails';
 import useAuthToken from '../hooks/useAuthToken';
 
-// Mock dependencies
 jest.mock('axios');
 jest.mock('../hooks/useAuthToken');
 jest.mock('../components/GraphPage', () => ({
@@ -103,7 +102,6 @@ jest.mock('../components/GraphPage', () => ({
   )
 }));
 
-// Sample test data
 const mockCompanyData = [
   {
     asx_code: 'ABC',
@@ -166,45 +164,29 @@ describe('CompanyDetails Component', () => {
 
 
   test('renders loading state initially', async () => {
-    // Need to mock implementation to allow the loading state to be visible
     let resolvePromise;
     const promise = new Promise(resolve => {
       resolvePromise = resolve;
     });
     
     axios.get.mockImplementationOnce(() => promise);
-    
-    // Prevent the state updates from happening synchronously
     jest.useFakeTimers();
-    
-    // Render the component without await
     render(<CompanyDetails />);
-    
-    // Force component to update
     await act(async () => {
       jest.advanceTimersByTime(0);
     });
-    
-    // Check for loading state - use queryByText since the loading indicator might be gone quickly
     const loadingElement = screen.queryByText(/loading company details/i);
     if (loadingElement) {
       expect(loadingElement).toBeInTheDocument();
     } else {
-      // If the loading state isn't visible, just skip this assertion
       console.log('Loading state not visible in the test - skipping assertion');
     }
-    
-    // Resolve the API call
     await act(async () => {
       resolvePromise({ data: mockCompanyData });
     });
-    
-    // Wait for loading to disappear
     await waitFor(() => {
       expect(screen.queryByText(/loading market data/i)).not.toBeInTheDocument();
     });
-    
-    // Clean up
     jest.useRealTimers();
   });
   
@@ -367,8 +349,7 @@ describe('CompanyDetails Component', () => {
     });
     const tableData = screen.getByTestId('table-data');
     expect(tableData).toBeInTheDocument();
-    
-    // Wait for the table rows to be rendered
+
     await waitFor(() => {
       const tableRows = screen.getAllByTestId(/^table-row-/);
       expect(tableRows.length).toBe(mockCompanyData.length);

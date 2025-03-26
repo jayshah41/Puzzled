@@ -24,8 +24,6 @@ describe('MultiSelectDropdown', () => {
 
   test('renders with default "Select options" text when no selectedValues provided', () => {
     const { container } = render(<MultiSelectDropdown label="Test Label" options={mockOptions} onChange={mockOnChange} />);
-    // Find the dropdown-text span which should contain "Select options"
-    // since the component renders this text as the default placeholder
     const dropdownText = container.querySelector('.dropdown-text');
     expect(dropdownText.textContent).toBe('Select options');
   });
@@ -39,20 +37,16 @@ describe('MultiSelectDropdown', () => {
         onChange={mockOnChange} 
       />
     );
-    
-    // Check the displayed text first
+
     const dropdownText = container.querySelector('.dropdown-text');
     expect(dropdownText.textContent).toBe('Select options');
-    
-    // Open the dropdown to verify "Any" option exists but might not be checked
+
     const header = container.querySelector('.dropdown-header');
     fireEvent.click(header);
-    
-    // Find "Any" checkbox
+
     const anyCheckbox = screen.getAllByRole('checkbox').find(checkbox => 
       checkbox.parentElement.textContent.includes('Any'));
-    
-    // The test doesn't need to verify "Any" is checked, just that the dropdown operates properly
+
     expect(anyCheckbox).toBeDefined();
   });
 
@@ -65,12 +59,10 @@ describe('MultiSelectDropdown', () => {
         onChange={mockOnChange} 
       />
     );
-    
-    // Open dropdown
+
     const header = container.querySelector('.dropdown-header');
     fireEvent.click(header);
-    
-    // Click on the Option 1 checkbox to deselect it
+
     const option1Checkbox = screen.getByLabelText('Option 1');
     fireEvent.click(option1Checkbox);
     
@@ -93,15 +85,12 @@ describe('MultiSelectDropdown', () => {
 
   test('opens dropdown when header is clicked', () => {
     const { container } = render(<MultiSelectDropdown label="Test Label" options={mockOptions} onChange={mockOnChange} />);
-    
-    // Dropdown should initially be closed
+
     expect(screen.queryByText('Option 1')).not.toBeInTheDocument();
-    
-    // Click to open the dropdown
+
     const header = container.querySelector('.dropdown-header');
     fireEvent.click(header);
-    
-    // Dropdown should now be open
+
     expect(screen.getByText('Option 1')).toBeInTheDocument();
     expect(screen.getByText('Option 2')).toBeInTheDocument();
     expect(screen.getByText('Option 3')).toBeInTheDocument();
@@ -109,18 +98,14 @@ describe('MultiSelectDropdown', () => {
 
   test('closes dropdown when clicking outside', async () => {
     const { container } = render(<MultiSelectDropdown label="Test Label" options={mockOptions} onChange={mockOnChange} />);
-    
-    // Open the dropdown
+
     const header = container.querySelector('.dropdown-header');
     fireEvent.click(header);
-    
-    // Verify dropdown is open
+
     expect(screen.getByText('Option 1')).toBeInTheDocument();
-    
-    // Simulate clicking outside
+
     fireEvent.mouseDown(document);
-    
-    // Wait for dropdown to close
+
     await waitFor(() => {
       expect(screen.queryByText('Option 1')).not.toBeInTheDocument();
     });
@@ -128,12 +113,10 @@ describe('MultiSelectDropdown', () => {
 
   test('selects an option when clicked', () => {
     const { container } = render(<MultiSelectDropdown label="Test Label" options={mockOptions} onChange={mockOnChange} />);
-    
-    // Open the dropdown
+
     const header = container.querySelector('.dropdown-header');
     fireEvent.click(header);
-    
-    // Select an option
+
     const option1Checkbox = screen.getByLabelText('Option 1');
     fireEvent.click(option1Checkbox);
     
@@ -149,12 +132,10 @@ describe('MultiSelectDropdown', () => {
         onChange={mockOnChange} 
       />
     );
-    
-    // Open the dropdown
+
     const header = container.querySelector('.dropdown-header');
     fireEvent.click(header);
-    
-    // Select another option
+
     const option1Checkbox = screen.getByLabelText('Option 1');
     fireEvent.click(option1Checkbox);
     
@@ -170,12 +151,10 @@ describe('MultiSelectDropdown', () => {
         onChange={mockOnChange} 
       />
     );
-    
-    // Open the dropdown
+
     const header = container.querySelector('.dropdown-header');
     fireEvent.click(header);
-    
-    // Find and click the option1 checkbox to deselect it
+
     const option1Checkbox = screen.getByLabelText('Option 1');
     fireEvent.click(option1Checkbox);
     
@@ -191,12 +170,10 @@ describe('MultiSelectDropdown', () => {
         onChange={mockOnChange} 
       />
     );
-    
-    // Open the dropdown
+
     const header = container.querySelector('.dropdown-header');
     fireEvent.click(header);
-    
-    // Find and click the option2 checkbox
+
     const option2Checkbox = screen.getByLabelText('Option 2');
     fireEvent.click(option2Checkbox);
     
@@ -212,12 +189,10 @@ describe('MultiSelectDropdown', () => {
         onChange={mockOnChange} 
       />
     );
-    
-    // Open the dropdown
+
     const header = container.querySelector('.dropdown-header');
     fireEvent.click(header);
-    
-    // Find the option1 checkbox and click it to deselect
+
     const option1Checkbox = screen.getByLabelText('Option 1');
     fireEvent.click(option1Checkbox);
     
@@ -281,7 +256,7 @@ describe('MultiSelectDropdown', () => {
   });
 
   test('ensures selected values are maintained during re-renders', () => {
-    // First render with no selected values
+
     const { container, rerender } = render(
       <MultiSelectDropdown 
         label="Test Label" 
@@ -290,8 +265,7 @@ describe('MultiSelectDropdown', () => {
         onChange={mockOnChange} 
       />
     );
-    
-    // Re-render with the same props
+
     rerender(
       <MultiSelectDropdown 
         label="Test Label" 
@@ -300,12 +274,10 @@ describe('MultiSelectDropdown', () => {
         onChange={mockOnChange} 
       />
     );
-    
-    // Verify "Select options" text is maintained
+
     const dropdownText = container.querySelector('.dropdown-text');
     expect(dropdownText.textContent).toBe('Select options');
     
-    // Now test with string value that should be normalized
     rerender(
       <MultiSelectDropdown 
         label="Test Label" 
@@ -314,12 +286,10 @@ describe('MultiSelectDropdown', () => {
         onChange={mockOnChange} 
       />
     );
-    
-    // Open dropdown
+ 
     const header = container.querySelector('.dropdown-header');
     fireEvent.click(header);
     
-    // Verify the option is checked
     const option1Checkbox = screen.getByLabelText('Option 1');
     expect(option1Checkbox).toBeChecked();
   });
@@ -347,16 +317,14 @@ describe('MultiSelectDropdown', () => {
         onChange={mockOnChange} 
       />
     );
-    
-    // Open the dropdown
+
     const header = container.querySelector('.dropdown-header');
     fireEvent.click(header);
     
-    // Find option1 checkbox and click it twice (deselect then select again)
     const option1Checkbox = screen.getByLabelText('Option 1');
     fireEvent.click(option1Checkbox); // Deselect
-    mockOnChange.mockClear(); // Clear the onChange call count
-    fireEvent.click(option1Checkbox); // Select again
+    mockOnChange.mockClear(); 
+    fireEvent.click(option1Checkbox); 
     
     expect(mockOnChange).toHaveBeenCalledTimes(1);
   });
@@ -370,16 +338,13 @@ describe('MultiSelectDropdown', () => {
         onChange={mockOnChange} 
       />
     );
-    
-    // Open the dropdown
+
     const header = container.querySelector('.dropdown-header');
     fireEvent.click(header);
-    
-    // Get all option labels
+
     const optionLabels = screen.getAllByRole('checkbox').map(checkbox => 
       checkbox.parentElement.textContent.trim());
-    
-    // Ensure Option 2 appears before other non-selected options
+
     const option2Index = optionLabels.indexOf('Option 2');
     const option1Index = optionLabels.indexOf('Option 1');
     const option3Index = optionLabels.indexOf('Option 3');
@@ -397,12 +362,10 @@ describe('MultiSelectDropdown', () => {
         onChange={mockOnChange} 
       />
     );
-    
-    // Open the dropdown
+
     const header = container.querySelector('.dropdown-header');
     fireEvent.click(header);
-    
-    // Find and click the Any checkbox
+
     const anyCheckbox = screen.getByLabelText('Any');
     fireEvent.click(anyCheckbox);
     
