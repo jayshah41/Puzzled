@@ -43,8 +43,8 @@ const StripeSuccessPage = () => {
 
   return (
     <div>
-      <h1>Subscription Successful!</h1>
-      <p>{statusMessage}</p>
+      <h2>Subscription Successful!</h2>
+      <h2>{statusMessage}</h2>
 
       <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed euismod, nunc et euismod ultricies, dui erat volutpat velit, at bibendum sem velit nec ante. Nulla facilisi. Suspendisse potenti. Curabitur venenatis, metus a interdum sodales, velit elit egestas est, sed auctor dolor felis at nulla. Donec auctor, ante id suscipit volutpat, felis arcu fermentum nulla, id placerat ipsum urna non neque. Aliquam erat volutpat. Integer pharetra sollicitudin sapien, in suscipit risus vestibulum a. Proin dapibus magna a eros venenatis, at pretium lorem consequat. Nam vel sapien mauris. Fusce hendrerit sem eu felis feugiat, vel euismod orci auctor.</p>
         <p>Aenean scelerisque felis id odio blandit, non gravida sem auctor. Sed vel velit vitae ligula lacinia egestas non at nulla. Vivamus placerat, metus a suscipit porttitor, dui orci vehicula magna, non ultricies risus urna non lorem. Integer ut leo sed libero laoreet lacinia. Nam pharetra velit non est pharetra, in auctor eros faucibus. Sed bibendum risus et turpis varius, ac iaculis ipsum facilisis. Mauris sodales euismod ex, ac aliquam erat vehicula sed. Suspendisse vel felis et lacus ullamcorper interdum non at metus. Curabitur sollicitudin ante ac tortor scelerisque, et ultricies enim ullamcorper. Ut pretium lorem a ante suscipit, at tincidunt ante convallis.</p>

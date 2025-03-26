@@ -17,6 +17,26 @@ ChartJS.register(
   Legend
 );
 
+const downloadCSV = (columns, data, filename = 'table_data.csv') => {
+  const headers = columns.map(col => col.header).join(',');
+  const rows = data.map(row =>
+    columns.map(col => {
+      const cell = row[col.key];
+      return typeof cell === 'string' ? `"${cell.replace(/"/g, '""')}"` : cell;
+    }).join(',')
+  );
+
+  const csvContent = [headers, ...rows].join('\n');
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.setAttribute('download', filename);
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+};
+
 const GraphPage = ({ 
   title,
   filterTags = [],
@@ -38,6 +58,8 @@ const GraphPage = ({
       setCurrentPage(newPage);
     }
   };
+
+  const currentPageData = tableData.slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage);
 
   return (
     <div className="dashboard-container">
@@ -93,19 +115,16 @@ const GraphPage = ({
         <div className="filter-section">
           <h3>Filters</h3>
           <div className="filter-options">
-            {allFilterOptions.map((filter, index) => {
-              
-              return (
-                <div key={index} className="filter-column">
-                  <MultiSelectDropdown
-                    label={filter.label}
-                    options={filter.options}
-                    selectedValues={filter.selectedValues || ['Any']}
-                    onChange={(value) => filter.onChange(value)}
-                  />
-                </div>
-              );
-            })}
+            {allFilterOptions.map((filter, index) => (
+              <div key={index} className="filter-column">
+                <MultiSelectDropdown
+                  label={filter.label}
+                  options={filter.options}
+                  selectedValues={filter.selectedValues || ['Any']}
+                  onChange={(value) => filter.onChange(value)}
+                />
+              </div>
+            ))}
           </div>          
         </div>
         
@@ -140,7 +159,17 @@ const GraphPage = ({
       </div>
 
       <div className="table-section">
-        <h3>{tableData.length} Records</h3>
+        <div className="table-header-row">
+          <h3>{tableData.length} Records</h3>
+          <button 
+            className="download-btn"
+            onClick={() => {
+              downloadCSV(tableColumns, currentPageData, `table_page_${currentPage}.csv`);
+            }}
+          >
+            Download Page CSV
+          </button>
+        </div>
 
         <div className="pagination">
           <span>
@@ -171,16 +200,14 @@ const GraphPage = ({
             </tr>
           </thead>
           <tbody>
-            {tableData
-              .slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage)
-              .map((row, rowIndex) => (
-                <tr key={rowIndex}>
-                  {tableColumns.map((column, colIndex) => (
-                    <td key={colIndex} className="table-cell">
-                      {row[column.key]}
-                    </td>
-                  ))}
-                </tr>
+            {currentPageData.map((row, rowIndex) => (
+              <tr key={rowIndex}>
+                {tableColumns.map((column, colIndex) => (
+                  <td key={colIndex} className="table-cell">
+                    {row[column.key]}
+                  </td>
+                ))}
+              </tr>
             ))}
           </tbody>
         </table>
