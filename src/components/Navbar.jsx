@@ -20,8 +20,8 @@ const Navbar = () => {
     { text: "Pricing", link: "/pricing", showing: true, accessLevel: -1 },
     { text: "Products", link: "/products", showing: true, accessLevel: -1 },
     { text: "Contact Us", link: "/contact-us", showing: true, accessLevel: -1 },
-    { text: "News", link: "/news", showing: true, accessLevel: 0 },
-    { text: "Socials", link: "/social-media", showing: true, accessLevel: 0 }
+    { text: "News", link: "/news", showing: false, accessLevel: 0 },
+    { text: "Socials", link: "/social-media", showing: false, accessLevel: 0 }
   ]);
   const [graphLinks, setGraphLinks] = useState([
     { text: "Company Details", link: "/graphs/company-details", showing: true, accessLevel: 1 },
@@ -38,7 +38,7 @@ const Navbar = () => {
   const [showGraphsDropdown, setShowGraphsDropdown] = useState(false);
 
   useEffect(() => {
-    fetch('/api/editable-content/?component=Navbar')
+    fetch('/api/proxy/editable-content/?component=Navbar')
       .then((response) => response.json())
       .then((data) => {
         const fetchedTabs = data
@@ -225,6 +225,7 @@ const Navbar = () => {
                 if (contentIsValid(tabs, graphLinks, graphsTitle)) {
                   handleSave();
                   setIsEditing(false);
+                  window.location.reload();
                 } else {
                   alert('Please ensure all fields are filled out before saving.');
                 }

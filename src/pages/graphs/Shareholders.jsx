@@ -46,7 +46,7 @@ const Shareholders = () => {
     try {
       setLoading(true);
       
-      const response = await axios.get('/api/data/shareholders/', {
+      const response = await axios.get('/api/proxy/data/shareholders/', {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',

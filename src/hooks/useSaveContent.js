@@ -3,7 +3,7 @@ import { useCallback } from 'react';
 const useSaveContent = () => {
   const saveContent = useCallback((contentData) => {
     contentData.forEach(item => {
-      fetch('/api/editable-content/update/', {
+      fetch('/api/proxy/editable-content/update/', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

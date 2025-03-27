@@ -51,7 +51,7 @@ const Financials = () => {
     try {
       setLoading(true);
 
-      const response = await axios.get('/api/data/financials/', {
+      const response = await axios.get('/api/proxy/data/financials/', {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json'

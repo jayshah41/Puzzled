@@ -25,7 +25,7 @@ const Hero = () => {
   ]);
 
   useEffect(() => {
-    fetch('/api/editable-content/?component=Hero')
+    fetch('/api/proxy/editable-content/?component=Hero')
       .then(response => response.json())
       .then(data => {
         const titleContent = data.find(item => item.section === 'title');

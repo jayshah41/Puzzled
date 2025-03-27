@@ -69,7 +69,7 @@ const ContactUsForm = () => {
   ));
 
   useEffect(() => {
-    fetch(`/api/editable-content/?component=ContactUs`)
+    fetch(`/api/proxy/editable-content/?component=ContactUs`)
       .then((response) => response.json())
       .then((data) => {
         const updatedLabels = {};
@@ -233,7 +233,7 @@ const ContactUsForm = () => {
 
   const sendEmail = async () => {
     try {
-      const response = await fetch(`/api/send-email/`, {
+      const response = await fetch(`/api/proxy/send-email/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

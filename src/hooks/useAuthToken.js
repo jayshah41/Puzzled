@@ -28,7 +28,7 @@ const useAuthToken = () => {
 
         if (refreshToken) {
             try {
-                const response = await fetch("/api/token/refresh/", {
+                const response = await fetch("/api/proxy/token/refresh/", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",

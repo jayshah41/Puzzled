@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import '../styles/GeneralStyles.css';
 
 const StripeSuccessPage = () => {
   const navigate = useNavigate();
@@ -10,12 +11,13 @@ const StripeSuccessPage = () => {
       const accessToken = localStorage.getItem('accessToken');
       if (!accessToken) {
         setStatusMessage('No access token found. Please log in again.');
+        console.log('No access token found. Please log in again.');
         setTimeout(() => navigate('/'), 2000);
         return;
       }
 
       try {
-        const response = await fetch('/api/update-tier/', {
+        const response = await fetch('/api/proxy/update-tier/', {
           method: 'PATCH',
           headers: {
             'Content-Type': 'application/json',
@@ -26,10 +28,12 @@ const StripeSuccessPage = () => {
 
         if (response.ok) {
           setStatusMessage('Subscription successful! Redirecting to your account...');
+          console.log('Subscription successful! Redirecting to your account...');
           setTimeout(() => navigate('/account'), 2000);
         } else {
           const errorData = await response.json();
           setStatusMessage(errorData.error || 'Failed to update subscription. Please try again.');
+          console.log(errorData.error || 'Failed to update subscription. Please try again.');
         }
       } catch (error) {
         console.error('Error updating tier level:', error);
@@ -42,7 +46,7 @@ const StripeSuccessPage = () => {
   }, [navigate]);
 
   return (
-    <div>
+    <div className="standard-padding">
       <h2>Subscription Successful!</h2>
       <h2>{statusMessage}</h2>
 
