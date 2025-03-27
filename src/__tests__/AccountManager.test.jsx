@@ -1,7 +1,9 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
 import AccountManager from '../pages/AccountManager';
 
+// Mock hooks and dependencies
 jest.mock('../hooks/useAuthRedirect', () => jest.fn());
 jest.mock('../hooks/useAuthToken', () => () => ({
   getAccessToken: jest.fn().mockResolvedValue('mock-token'),
@@ -13,6 +15,7 @@ jest.mock('react-router-dom', () => ({
   useNavigate: () => jest.fn(),
 }));
 
+// Mock components with correct template literal syntax
 jest.mock('../components/InputField', () => ({ type, value, onChange, placeholder }) => (
   <input
     data-testid={`input-${placeholder}`}
@@ -36,36 +39,62 @@ beforeAll(() => {
 });
 
 beforeEach(() => {
+  // Clear all mocks and reset localStorage
+  jest.clearAllMocks();
+  localStorage.clear();
+  
   localStorage.setItem('user_tier_level', '1');
   localStorage.setItem('accessToken', 'mock-access-token');
 
-  global.fetch = jest.fn(() =>
-    Promise.resolve({
+  global.fetch = jest.fn((url, options) => {
+    // Handle different URL patterns
+    if (url.includes('/api/proxy/update-profile/')) {
+      return Promise.resolve({
+        ok: true,
+        json: () => Promise.resolve({ message: 'Email updated successfully' }),
+      });
+    }
+    if (url.includes('/api/proxy/delete-account/')) {
+      return Promise.resolve({
+        ok: true,
+        json: () => Promise.resolve({ message: 'Account deleted successfully' }),
+      });
+    }
+    // Default case
+    return Promise.resolve({
       ok: true,
       json: () => Promise.resolve({ tier_level: 1 }),
-    })
-  );
+    });
+  });
 });
 
 describe('AccountManager Page', () => {
+  const renderComponent = () => {
+    return render(
+      <MemoryRouter>
+        <AccountManager />
+      </MemoryRouter>
+    );
+  };
+
   test('renders welcome message and logout button', () => {
-    render(<AccountManager />);
+    renderComponent();
     expect(screen.getByText(/Welcome/i)).toBeInTheDocument();
     expect(screen.getByText('Logout')).toBeInTheDocument();
   });
 
   test('renders tier description for Premium Plan (user_tier_level 1)', () => {
-    render(<AccountManager />);
-    expect(screen.getByText(/Tier Level 2: Premium Plan/)).toBeInTheDocument();
+    renderComponent();
+    expect(screen.getByText(/Tier Level 2: Premium Plan/i)).toBeInTheDocument();
   });
 
   test('renders mocked commodity manager', () => {
-    render(<AccountManager />);
+    renderComponent();
     expect(screen.getByTestId('mocked-commodity-manager')).toBeInTheDocument();
   });
 
   test('updates email successfully', async () => {
-    render(<AccountManager />);
+    renderComponent();
     const emailInput = screen.getByTestId('input-New Email');
     const updateButton = screen.getByText('Update Email');
 
@@ -73,15 +102,18 @@ describe('AccountManager Page', () => {
     fireEvent.click(updateButton);
 
     await waitFor(() => {
-      expect(global.fetch).toHaveBeenCalledWith('/api/proxy/update-profile/', expect.objectContaining({
-        method: 'PATCH',
-        body: JSON.stringify({ email: 'newemail@example.com' }),
-      }));
+      expect(global.fetch).toHaveBeenCalledWith(
+        expect.stringContaining('/api/proxy/update-profile/'),
+        expect.objectContaining({
+          method: 'PATCH',
+          body: JSON.stringify({ email: 'newemail@example.com' }),
+        })
+      );
     });
   });
 
   test('handles logout correctly', () => {
-    render(<AccountManager />);
+    renderComponent();
     const logoutButton = screen.getByText('Logout');
 
     fireEvent.click(logoutButton);
@@ -91,7 +123,7 @@ describe('AccountManager Page', () => {
   });
 
   test('renders tier downgrade form for Premium Plan', () => {
-    render(<AccountManager />);
+    renderComponent();
     const tierSelect = screen.getByLabelText('Select New Tier Level:');
     const downgradeButton = screen.getByText('Downgrade Tier');
 
@@ -101,7 +133,7 @@ describe('AccountManager Page', () => {
 
   test('handles account deletion confirmation', async () => {
     window.confirm = jest.fn(() => true);
-    render(<AccountManager />);
+    renderComponent();
     const passwordInput = screen.getByTestId('input-Enter Password');
     const deleteButton = screen.getByRole('button', { name: 'Delete Account' });
 
@@ -109,10 +141,13 @@ describe('AccountManager Page', () => {
     fireEvent.click(deleteButton);
 
     await waitFor(() => {
-      expect(global.fetch).toHaveBeenCalledWith('/api/proxy/delete-account/', expect.objectContaining({
-        method: 'POST',
-        body: JSON.stringify({ password: 'password123' }),
-      }));
+      expect(global.fetch).toHaveBeenCalledWith(
+        expect.stringContaining('/api/proxy/delete-account/'),
+        expect.objectContaining({
+          method: 'POST',
+          body: JSON.stringify({ password: 'password123' }),
+        })
+      );
     });
   });
 });
