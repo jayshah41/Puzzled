@@ -4,7 +4,7 @@ const Services = () => {
   const [services, setServices] = useState([]);
 
   useEffect(() => {
-    fetch("/api/services/")
+    fetch("/api/proxy/services/")
       .then(response => response.json())
       .then(data => setServices(data))
       .catch(error => console.error("Error fetching services:", error));

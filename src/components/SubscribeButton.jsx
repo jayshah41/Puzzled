@@ -13,7 +13,7 @@ const SubscribeButton = ({ paymentOption, numOfUsers, tierLevel }) => {
     const stripe = await stripePromise;
 
     try {
-      const response = await fetch('/api/payments/create-checkout-session/', {
+      const response = await fetch('/api/proxy/payments/create-checkout-session/', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,

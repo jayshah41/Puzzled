@@ -19,7 +19,7 @@ const ProductsFeatures = () => {
   const [features, setFeatures] = useState([]);
 
   useEffect(() => {
-    fetch('/api/editable-content/?component=Products')
+    fetch('/api/proxy/editable-content/?component=Products')
       .then(response => response.json())
       .then(data => {
         const formattedFeatures = [];

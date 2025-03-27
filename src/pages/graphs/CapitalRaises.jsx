@@ -45,7 +45,7 @@ const CapitalRaises = () => {
     try {
       setLoading(true);
       
-      const response = await axios.get('/api/data/capital-raises/', {
+      const response = await axios.get('/api/proxy/data/capital-raises/', {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json'
