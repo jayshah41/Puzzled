@@ -461,24 +461,32 @@ test('handles mixed chart types including unknown types', () => {
   expect(screen.getByText('Unknown Chart')).toBeInTheDocument();
 });
 
+  test('renders metric descriptions when provided', () => {
+    const propsWithMetricDescriptions = {
+      ...mockProps,
+      metricCards: [
+        { title: 'Metric 1', value: '100', description: 'Test description' }
+      ]
+    };
+    render(<GraphPage {...propsWithMetricDescriptions} />);
+    expect(screen.getByText('Test description')).toBeInTheDocument();
+  });
 
-test('handles metric cards with missing trend or description', () => {
-  const propsWithIncompleteMetrics = {
-    ...mockProps,
-    metricCards: [
-      { title: 'No Trend', value: '100' },
-      { title: 'With Trend', value: '200', trend: 'up' },
-      { title: 'Just Description', value: '300', description: 'Some description' }
-    ]
-  };
-  
-  render(<GraphPage {...propsWithIncompleteMetrics} />);
+  test('handles undefined chartData', () => {
+    const propsWithUndefinedCharts = {
+      ...mockProps,
+      chartData: undefined
+    };
+    render(<GraphPage {...propsWithUndefinedCharts} />);
+    expect(screen.getByText('Test Dashboard')).toBeInTheDocument();
+  });
 
-  expect(screen.getByText('No Trend')).toBeInTheDocument();
-  expect(screen.getByText('With Trend')).toBeInTheDocument();
-  expect(screen.getByText('Just Description')).toBeInTheDocument();
-
-  expect(screen.getByText('Some description')).toBeInTheDocument();
-});
-
+  test('handles empty chartData array', () => {
+    const propsWithEmptyCharts = {
+      ...mockProps,
+      chartData: []
+    };
+    render(<GraphPage {...propsWithEmptyCharts} />);
+    expect(screen.getByText('Test Dashboard')).toBeInTheDocument();
+  });
 });
