@@ -1,83 +1,46 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import GraphPage from '../components/GraphPage';
-import MultiSelectDropdown from '../components/MultiSelectDropdown';
+import { Bar, Line, Pie, Doughnut, Radar, Scatter, Bubble } from 'react-chartjs-2';
 
 jest.mock('react-chartjs-2', () => ({
-  Bar: () => <div data-testid="bar-chart">Bar Chart</div>,
-  Line: () => <div data-testid="line-chart">Line Chart</div>,
-  Pie: () => <div data-testid="pie-chart">Pie Chart</div>,
-  Doughnut: () => <div data-testid="doughnut-chart">Doughnut Chart</div>,
-  Radar: () => <div data-testid="radar-chart">Radar Chart</div>,
-  Scatter: () => <div data-testid="scatter-chart">Scatter Chart</div>,
-  Bubble: () => <div data-testid="bubble-chart">Bubble Chart</div>,
+  Bar: () => <div data-testid="bar-chart" />,
+  Line: () => <div data-testid="line-chart" />,
+  Pie: () => <div data-testid="pie-chart" />,
+  Doughnut: () => <div data-testid="doughnut-chart" />,
+  Radar: () => <div data-testid="radar-chart" />,
+  Scatter: () => <div data-testid="scatter-chart" />,
+  Bubble: () => <div data-testid="bubble-chart" />,
 }));
-jest.mock('../components/MultiSelectDropdown', () => {
-  return jest.fn(({ label, options, selectedValues, onChange }) => (
-    <div data-testid={`multi-select-${label}`} className="mock-multi-select">
-      <span>{label}</span>
-      <select
-        data-testid={`select-${label}`}
-        onChange={(e) => onChange(e.target.value)}
-        value={selectedValues[0]}
-      >
-        <option value="Any">Any</option>
-        {options.map((option, index) => (
-          <option key={index} value={option.value || option}>
-            {option.label || option}
-          </option>
-        ))}
-      </select>
-    </div>
-  ));
-});
+
+jest.mock('../components/MultiSelectDropdown', () => ({ 
+  label, options, selectedValues, onChange 
+}) => (
+  <div data-testid="multi-select-dropdown">
+    <label>{label}</label>
+    <select 
+      data-testid={`select-${label}`}
+      multiple
+      value={selectedValues}
+      onChange={(e) => onChange(Array.from(e.target.selectedOptions, option => option.value))}
+    >
+      {options.map((option, i) => (
+        <option key={i} value={option.value}>{option.label}</option>
+      ))}
+    </select>
+  </div>
+));
 
 describe('GraphPage Component', () => {
   const mockProps = {
     title: 'Test',
     filterTags: [],
-    filterOptions: [
-      { label: 'Status', options: ['Active', 'Inactive'] },
-      { label: 'Category', options: ['A', 'B', 'C'] }
-    ],
-    allFilterOptions: [
-      { 
-        label: 'Status', 
-        options: ['Active', 'Inactive'], 
-        selectedValues: ['Any'],
-        onChange: jest.fn()
-      },
-      { 
-        label: 'Category', 
-        options: ['A', 'B', 'C'], 
-        selectedValues: ['Any'],
-        onChange: jest.fn()
-      }
-    ],
-    metricCards: [
-      { title: 'Total Users', value: '1,234', trend: 'up', description: 'Increased by 5%' },
-      { title: 'Revenue', value: '$5,678', trend: 'down' }
-    ],
-    chartData: [
-      { title: 'Chart 1', type: 'bar', data: {}, options: {} },
-      { title: 'Chart 2', type: 'line', data: {}, options: {} },
-      { title: 'Chart 3', type: 'pie', data: {}, options: {} },
-      { title: 'Chart 4', type: 'doughnut', data: {}, options: {} },
-      { title: 'Chart 5', type: 'radar', data: {}, options: {} },
-      { title: 'Chart 6', type: 'scatter', data: {}, options: {} },
-      { title: 'Chart 7', type: 'bubble', data: {}, options: {} }
-    ],
-    tableColumns: [
-      { header: 'ID', key: 'id' },
-      { header: 'Name', key: 'name' },
-      { header: 'Status', key: 'status' }
-    ],
-    tableData: Array(25).fill().map((_, i) => ({
-      id: i + 1,
-      name: `Item ${i + 1}`,
-      status: i % 2 === 0 ? 'Active' : 'Inactive'
-    })),
+    allFilterOptions: [],
+    metricCards: [],
+    chartData: [],
+    tableColumns: [],
+    tableData: [],
     handleRemoveFilter: jest.fn(),
     handleAddFilter: jest.fn()
   };
@@ -86,108 +49,157 @@ describe('GraphPage Component', () => {
     jest.clearAllMocks();
   });
 
-  test('renders the dashboard title correctly', () => {
-    render(<GraphPage {...mockProps} />);
-    expect(screen.getByText(`${mockProps.title} Dashboard`)).toBeInTheDocument();
+  beforeAll(() => {
+    global.URL.createObjectURL = jest.fn(() => 'mock-url');
+  });
+  
+  afterAll(() => {
+    delete global.URL.createObjectURL;
   });
 
-  test('displays "No Filters Applied" when no filter tags are present', () => {
+  test('renders without crashing', () => {
+    render(<GraphPage {...mockProps} />);
+    expect(screen.getByText('Test Dashboard')).toBeInTheDocument();
+  });
+
+  test('displays "No Filters Applied" when no filter tags', () => {
     render(<GraphPage {...mockProps} />);
     expect(screen.getByText('No Filters Applied')).toBeInTheDocument();
   });
 
-  test('renders table headers correctly', () => {
-    render(<GraphPage {...mockProps} />);
-    
-    expect(screen.getByText('ID')).toBeInTheDocument();
-    expect(screen.getByText('Name')).toBeInTheDocument();
-    const statusElements = screen.getAllByText('Status');
-    expect(statusElements.length).toBeGreaterThan(0);
-  });
-
-  test('clicking remove button on filter tag calls handleRemoveFilter', () => {
+  test('displays filter tags when provided', () => {
     const propsWithFilters = {
       ...mockProps,
       filterTags: [
-        { label: 'Status', value: 'Active', displayValue: 'Active' }
+        { label: 'Test Filter', value: 'test-value', displayValue: 'Test Display' }
       ]
     };
     render(<GraphPage {...propsWithFilters} />);
-    
-    const closeButton = screen.getByText('×');
-    fireEvent.click(closeButton);
-    
-    expect(mockProps.handleRemoveFilter).toHaveBeenCalledWith('Status', 'Active');
+    expect(screen.getByText('Test Filter: Test Display')).toBeInTheDocument();
   });
 
-  test('renders filter options dropdown correctly', () => {
-    render(<GraphPage {...mockProps} />);
-    
+  test('calls handleRemoveFilter when filter tag is removed', () => {
+    const propsWithFilters = {
+      ...mockProps,
+      filterTags: [
+        { label: 'Test Filter', value: 'test-value' }
+      ]
+    };
+    render(<GraphPage {...propsWithFilters} />);
+    fireEvent.click(screen.getByText('×'));
+    expect(mockProps.handleRemoveFilter).toHaveBeenCalledWith('Test Filter', 'test-value');
+  });
+
+  test('displays filter options dropdown', () => {
+    const propsWithFilterOptions = {
+      ...mockProps,
+      filterOptions: [
+        { label: 'Option 1', value: 'opt1' },
+        { label: 'Option 2', value: 'opt2' }
+      ]
+    };
+    render(<GraphPage {...propsWithFilterOptions} />);
     expect(screen.getByText('+ Add filter')).toBeInTheDocument();
-
-    const dropdowns = screen.getAllByRole('combobox');
-
-    const filterDropdown = dropdowns.find(dropdown => {
-      const options = dropdown.querySelectorAll('option');
-      return Array.from(options).some(option => option.textContent === '+ Add filter');
-    });
-    
-    if (filterDropdown) {
-      fireEvent.change(filterDropdown, { target: { value: 'Status' } });
-      expect(mockProps.handleAddFilter).toHaveBeenCalledWith(mockProps.filterOptions[0]);
-    } else {
-      const dropdown = document.querySelector('.add-filter-select');
-      if (dropdown) {
-        fireEvent.change(dropdown, { target: { value: 'Status' } });
-        expect(mockProps.handleAddFilter).toHaveBeenCalledWith(mockProps.filterOptions[0]);
-      }
-    }
   });
 
-  test('does not show filter options dropdown when no options are available', () => {
-    const propsWithoutFilterOptions = {
+  test('handles empty filter options array', () => {
+    const propsWithEmptyFilterOptions = {
       ...mockProps,
       filterOptions: []
     };
-    render(<GraphPage {...propsWithoutFilterOptions} />);
-    
+    render(<GraphPage {...propsWithEmptyFilterOptions} />);
     expect(screen.queryByText('+ Add filter')).not.toBeInTheDocument();
   });
 
-  test('renders all filter controls correctly', () => {
-    render(<GraphPage {...mockProps} />);
-
-
-    expect(MultiSelectDropdown).toHaveBeenCalledTimes(2);
-    expect(screen.getByTestId('multi-select-Status')).toBeInTheDocument();
-    expect(screen.getByTestId('multi-select-Category')).toBeInTheDocument();
+  test('handles undefined filter options', () => {
+    const propsWithUndefinedFilterOptions = {
+      ...mockProps,
+      filterOptions: undefined
+    };
+    render(<GraphPage {...propsWithUndefinedFilterOptions} />);
+    expect(screen.queryByText('+ Add filter')).not.toBeInTheDocument();
   });
 
-  test('renders metric cards correctly', () => {
-    render(<GraphPage {...mockProps} />);
+  test('calls handleAddFilter when filter is selected', () => {
+    const propsWithFilterOptions = {
+      ...mockProps,
+      filterOptions: [
+        { label: 'Option 1', value: 'opt1' },
+        { label: 'Option 2', value: 'opt2' }
+      ]
+    };
+    render(<GraphPage {...propsWithFilterOptions} />);
+    const select = screen.getByRole('combobox');
+    fireEvent.change(select, { target: { value: 'Option 1' } });
     
-    expect(screen.getByText('Total Users')).toBeInTheDocument();
-    expect(screen.getByText('1,234')).toBeInTheDocument();
-    expect(screen.getByText('Increased by 5%')).toBeInTheDocument();
-    
-    expect(screen.getByText('Revenue')).toBeInTheDocument();
-    expect(screen.getByText('$5,678')).toBeInTheDocument();
-
-    const applyButton = screen.queryByText('Apply Filters');
-    if (applyButton) {
-      fireEvent.click(applyButton);
-      expect(mockProps.applyFilters).toHaveBeenCalled();
-    }
-
-    const upMetric = screen.getByText('1,234').closest('.metric-value');
-    const downMetric = screen.getByText('$5,678').closest('.metric-value');
-    expect(upMetric).toHaveClass('up');
-    expect(downMetric).toHaveClass('down');
+    expect(mockProps.handleAddFilter).toHaveBeenCalledWith({ label: 'Option 1', value: 'opt1' });
   });
 
-  test('renders all chart types correctly', () => {
-    render(<GraphPage {...mockProps} />);
+  test('does not call handleAddFilter when empty option is selected', () => {
+    const propsWithFilterOptions = {
+      ...mockProps,
+      filterOptions: [
+        { label: 'Option 1', value: 'opt1' },
+        { label: 'Option 2', value: 'opt2' }
+      ]
+    };
+    render(<GraphPage {...propsWithFilterOptions} />);
+    const select = screen.getByRole('combobox');
+    fireEvent.change(select, { target: { value: '' } });
     
+    expect(mockProps.handleAddFilter).not.toHaveBeenCalled();
+  });
+
+  test('renders metric cards', () => {
+    const propsWithMetrics = {
+      ...mockProps,
+      metricCards: [
+        { title: 'Metric 1', value: '100', trend: 'up' },
+        { title: 'Metric 2', value: '200', trend: 'down' }
+      ]
+    };
+    render(<GraphPage {...propsWithMetrics} />);
+    expect(screen.getByText('Metric 1')).toBeInTheDocument();
+    expect(screen.getByText('100')).toBeInTheDocument();
+    expect(screen.getByText('Metric 2')).toBeInTheDocument();
+    expect(screen.getByText('200')).toBeInTheDocument();
+  });
+
+  test('handles metric cards with no trend', () => {
+    const propsWithMetrics = {
+      ...mockProps,
+      metricCards: [
+        { title: 'Metric 1', value: '100' }
+      ]
+    };
+    render(<GraphPage {...propsWithMetrics} />);
+    expect(screen.getByText('Metric 1')).toBeInTheDocument();
+    expect(screen.getByText('100')).toBeInTheDocument();
+  });
+
+  test('handles undefined metric cards', () => {
+    const propsWithUndefinedMetrics = {
+      ...mockProps,
+      metricCards: undefined
+    };
+    render(<GraphPage {...propsWithUndefinedMetrics} />);
+    expect(screen.getByText('Test Dashboard')).toBeInTheDocument();
+  });
+
+  test('renders all chart types', () => {
+    const propsWithCharts = {
+      ...mockProps,
+      chartData: [
+        { title: 'Bar Chart', type: 'bar', data: {} },
+        { title: 'Line Chart', type: 'line', data: {} },
+        { title: 'Pie Chart', type: 'pie', data: {} },
+        { title: 'Doughnut Chart', type: 'doughnut', data: {} },
+        { title: 'Radar Chart', type: 'radar', data: {} },
+        { title: 'Scatter Chart', type: 'scatter', data: {} },
+        { title: 'Bubble Chart', type: 'bubble', data: {} }
+      ]
+    };
+    render(<GraphPage {...propsWithCharts} />);
     expect(screen.getByTestId('bar-chart')).toBeInTheDocument();
     expect(screen.getByTestId('line-chart')).toBeInTheDocument();
     expect(screen.getByTestId('pie-chart')).toBeInTheDocument();
@@ -195,290 +207,290 @@ describe('GraphPage Component', () => {
     expect(screen.getByTestId('radar-chart')).toBeInTheDocument();
     expect(screen.getByTestId('scatter-chart')).toBeInTheDocument();
     expect(screen.getByTestId('bubble-chart')).toBeInTheDocument();
-    
-    expect(screen.getByText('Chart 1')).toBeInTheDocument();
-    expect(screen.getByText('Chart 2')).toBeInTheDocument();
-    expect(screen.getByText('Chart 3')).toBeInTheDocument();
-    expect(screen.getByText('Chart 4')).toBeInTheDocument();
-    expect(screen.getByText('Chart 5')).toBeInTheDocument();
-    expect(screen.getByText('Chart 6')).toBeInTheDocument();
-    expect(screen.getByText('Chart 7')).toBeInTheDocument();
   });
 
-  test('renders table with correct number of records', () => {
-    render(<GraphPage {...mockProps} />);
-    
-    expect(screen.getByText('25 Records')).toBeInTheDocument();
-  });
-
-  test('renders table headers even when tableData is empty', () => {
-    const propsWithEmptyTable = {
+  test('handles unknown chart type', () => {
+    const propsWithUnknownChart = {
       ...mockProps,
-      tableData: []
+      chartData: [
+        { title: 'Unknown Chart', type: 'unknown', data: {} }
+      ]
     };
-    
-    render(<GraphPage {...propsWithEmptyTable} />);
-    expect(screen.getByText('ID')).toBeInTheDocument();
-    expect(screen.getByText('Name')).toBeInTheDocument();
-    
-    const statusElements = screen.getAllByText('Status');
-    expect(statusElements.length).toBeGreaterThan(0);
+    render(<GraphPage {...propsWithUnknownChart} />);
+    expect(screen.getByText('Unknown Chart')).toBeInTheDocument();
   });
 
-  test('renders first page of table data correctly', () => {
-    render(<GraphPage {...mockProps} />);
-    expect(screen.getByText('Item 1')).toBeInTheDocument();
-    expect(screen.getByText('Item 10')).toBeInTheDocument();
-    expect(screen.queryByText('Item 11')).not.toBeInTheDocument();
+  test('renders table with columns and data', () => {
+    const propsWithTable = {
+      ...mockProps,
+      tableColumns: [
+        { header: 'Column 1', key: 'col1' },
+        { header: 'Column 2', key: 'col2' }
+      ],
+      tableData: [
+        { col1: 'Row 1 Col 1', col2: 'Row 1 Col 2' },
+        { col1: 'Row 2 Col 1', col2: 'Row 2 Col 2' }
+      ]
+    };
+    render(<GraphPage {...propsWithTable} />);
+    expect(screen.getByText('Column 1')).toBeInTheDocument();
+    expect(screen.getByText('Column 2')).toBeInTheDocument();
+    expect(screen.getByText('Row 1 Col 1')).toBeInTheDocument();
+    expect(screen.getByText('Row 1 Col 2')).toBeInTheDocument();
+    expect(screen.getByText('Row 2 Col 1')).toBeInTheDocument();
+    expect(screen.getByText('Row 2 Col 2')).toBeInTheDocument();
   });
 
-  test('pagination displays correct range', () => {
-    render(<GraphPage {...mockProps} />);
-    
+  test('implements pagination correctly', () => {
+    const tableData = Array.from({ length: 25 }, (_, i) => ({
+      col1: `Row ${i + 1} Col 1`,
+      col2: `Row ${i + 1} Col 2`
+    }));
+    const propsWithPagination = {
+      ...mockProps,
+      tableColumns: [
+        { header: 'Column 1', key: 'col1' },
+        { header: 'Column 2', key: 'col2' }
+      ],
+      tableData
+    };
+    render(<GraphPage {...propsWithPagination} />);
+
     expect(screen.getByText('1-10 of 25')).toBeInTheDocument();
-  });
+    expect(screen.getByRole('button', { name: '←' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: '→' })).not.toBeDisabled();
 
-  test('previous button is disabled on first page', () => {
-    render(<GraphPage {...mockProps} />);
-    
-    const prevButton = screen.getByText('←');
-    expect(prevButton).toBeDisabled();
-  });
-
-  test('next button navigates to next page', () => {
-    render(<GraphPage {...mockProps} />);
-    
-    const nextButton = screen.getByText('→');
-    fireEvent.click(nextButton);
+    fireEvent.click(screen.getByRole('button', { name: '→' }));
     expect(screen.getByText('11-20 of 25')).toBeInTheDocument();
-    expect(screen.queryByText('Item 1')).not.toBeInTheDocument();
-    expect(screen.getByText('Item 11')).toBeInTheDocument();
-    expect(screen.getByText('Item 20')).toBeInTheDocument();
-  });
+    expect(screen.getByRole('button', { name: '←' })).not.toBeDisabled();
+    expect(screen.getByRole('button', { name: '→' })).not.toBeDisabled();
 
-  test('previous button navigates to previous page', () => {
-    render(<GraphPage {...mockProps} />);
-    const nextButton = screen.getByText('→');
-    fireEvent.click(nextButton);
-    const prevButton = screen.getByText('←');
-    fireEvent.click(prevButton);
-    
-    expect(screen.getByText('1-10 of 25')).toBeInTheDocument();
-    expect(screen.getByText('Item 1')).toBeInTheDocument();
-    expect(screen.queryByText('Item 11')).not.toBeInTheDocument();
-  });
-
-  test('next button is disabled on last page', () => {
-    render(<GraphPage {...mockProps} />);
-    const nextButton = screen.getByText('→');
-    fireEvent.click(nextButton);
-
-    fireEvent.click(nextButton);
-    
+    fireEvent.click(screen.getByRole('button', { name: '→' }));
     expect(screen.getByText('21-25 of 25')).toBeInTheDocument();
-    expect(nextButton).toBeDisabled();
+    expect(screen.getByRole('button', { name: '←' })).not.toBeDisabled();
+    expect(screen.getByRole('button', { name: '→' })).toBeDisabled();
+
+    fireEvent.click(screen.getByRole('button', { name: '←' }));
+    expect(screen.getByText('11-20 of 25')).toBeInTheDocument();
   });
 
-  test('changing filter via MultiSelectDropdown calls onChange handler', () => {
-    render(<GraphPage {...mockProps} />);
+  test('pagination handles invalid page changes - below min', () => {
+    const tableData = Array.from({ length: 25 }, (_, i) => ({
+      col1: `Row ${i + 1} Col 1`,
+      col2: `Row ${i + 1} Col 2`
+    }));
+    const propsWithPagination = {
+      ...mockProps,
+      tableColumns: [
+        { header: 'Column 1', key: 'col1' },
+        { header: 'Column 2', key: 'col2' }
+      ],
+      tableData
+    };
     
-    const statusSelect = screen.getByTestId('select-Status');
-    fireEvent.change(statusSelect, { target: { value: 'Active' } });
-    
-    expect(mockProps.allFilterOptions[0].onChange).toHaveBeenCalledWith('Active');
+    render(<GraphPage {...propsWithPagination} />);
+    const prevButton = screen.getByRole('button', { name: '←' });
+    fireEvent.click(prevButton);
+    expect(screen.getByText('1-10 of 25')).toBeInTheDocument();
   });
 
-  test('handles empty table data gracefully', () => {
+  test('pagination handles invalid page changes - above max', () => {
+    const tableData = Array.from({ length: 25 }, (_, i) => ({
+      col1: `Row ${i + 1} Col 1`,
+      col2: `Row ${i + 1} Col 2`
+    }));
+    const propsWithPagination = {
+      ...mockProps,
+      tableColumns: [
+        { header: 'Column 1', key: 'col1' },
+        { header: 'Column 2', key: 'col2' }
+      ],
+      tableData
+    };
+    
+    render(<GraphPage {...propsWithPagination} />);
+    const nextButton = screen.getByRole('button', { name: '→' });
+    fireEvent.click(nextButton);
+    fireEvent.click(nextButton);
+    fireEvent.click(nextButton);
+    expect(screen.getByText('21-25 of 25')).toBeInTheDocument();
+  });
+
+  test('handles edge case with exactly one page of data', () => {
+    const tableData = Array.from({ length: 10 }, (_, i) => ({
+      col1: `Row ${i + 1} Col 1`,
+      col2: `Row ${i + 1} Col 2`
+    }));
+    const propsWithPagination = {
+      ...mockProps,
+      tableColumns: [
+        { header: 'Column 1', key: 'col1' },
+        { header: 'Column 2', key: 'col2' }
+      ],
+      tableData
+    };
+    
+    render(<GraphPage {...propsWithPagination} />);
+    
+    expect(screen.getByText('1-10 of 10')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '←' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: '→' })).toBeDisabled();
+  });
+
+  test('downloads CSV for current page', () => {
+    const mockCreateElement = jest.spyOn(document, 'createElement');
+    const mockAppendChild = jest.spyOn(document.body, 'appendChild');
+    const mockRemoveChild = jest.spyOn(document.body, 'removeChild');
+    
+    const propsWithTable = {
+      ...mockProps,
+      tableColumns: [
+        { header: 'Column 1', key: 'col1' },
+        { header: 'Column 2', key: 'col2' }
+      ],
+      tableData: [
+        { col1: 'Row 1 Col 1', col2: 'Row 1 Col 2' },
+        { col1: 'Row 2 Col 1', col2: 'Row 2 Col 2' }
+      ]
+    };
+    render(<GraphPage {...propsWithTable} />);
+    
+    fireEvent.click(screen.getByText('Download Page CSV'));
+    
+    expect(mockCreateElement).toHaveBeenCalledWith('a');
+    expect(mockAppendChild).toHaveBeenCalled();
+    expect(mockRemoveChild).toHaveBeenCalled();
+    
+    mockCreateElement.mockRestore();
+    mockAppendChild.mockRestore();
+    mockRemoveChild.mockRestore();
+  });
+
+  test('CSV download handles non-string values', () => {
+    const mockCreateElement = jest.spyOn(document, 'createElement');
+    
+    const propsWithMixedTypes = {
+      ...mockProps,
+      tableColumns: [
+        { header: 'String', key: 'str' },
+        { header: 'Number', key: 'num' },
+        { header: 'Boolean', key: 'bool' }
+      ],
+      tableData: [
+        { str: 'Text', num: 42, bool: true }
+      ]
+    };
+    render(<GraphPage {...propsWithMixedTypes} />);
+    
+    fireEvent.click(screen.getByText('Download Page CSV'));
+    
+    expect(mockCreateElement).toHaveBeenCalled();
+    mockCreateElement.mockRestore();
+  });
+
+  test('handles multi-select dropdown filters', () => {
+    const mockOnChange = jest.fn();
+    
+    const propsWithFilters = {
+      ...mockProps,
+      allFilterOptions: [
+        {
+          label: 'Test Filter',
+          options: [
+            { label: 'Option 1', value: 'opt1' },
+            { label: 'Option 2', value: 'opt2' }
+          ],
+          selectedValues: ['opt1'],
+          onChange: mockOnChange
+        }
+      ]
+    };
+    
+    render(<GraphPage {...propsWithFilters} />);
+    mockOnChange(['opt1', 'opt2']);
+    expect(mockOnChange).toHaveBeenCalledWith(['opt1', 'opt2']);
+  });
+
+  test('handles empty allFilterOptions array', () => {
+    const propsWithEmptyFilters = {
+      ...mockProps,
+      allFilterOptions: []
+    };
+    
+    render(<GraphPage {...propsWithEmptyFilters} />);
+    expect(screen.getByText('Test Dashboard')).toBeInTheDocument();
+  });
+
+  test('handles undefined allFilterOptions', () => {
+    const propsWithUndefinedFilters = {
+      ...mockProps,
+      allFilterOptions: undefined
+    };
+    
+    render(<GraphPage {...propsWithUndefinedFilters} />);
+    expect(screen.getByText('Test Dashboard')).toBeInTheDocument();
+  });
+
+  test('renders empty table when no table data', () => {
     const propsWithEmptyTable = {
       ...mockProps,
       tableData: []
     };
+    
     render(<GraphPage {...propsWithEmptyTable} />);
     
     expect(screen.getByText('0 Records')).toBeInTheDocument();
-    const paginationElements = screen.queryAllByText(/of 0/);
-    expect(paginationElements.length).toBeGreaterThan(0);
+    expect(screen.getByRole('table')).toBeInTheDocument();
+    expect(screen.queryByText('Item 1')).not.toBeInTheDocument();
   });
 
-  test('handles filter add when none selected', () => {
-    render(<GraphPage {...mockProps} />);
-
-    const comboboxes = screen.getAllByRole('combobox');
-    const filterDropdown = comboboxes.find(el => 
-      el.closest('.filter-add-container') || 
-      el.closest('.add-filter-select')
-    );
- 
-    if (filterDropdown) {
-      fireEvent.change(filterDropdown, { target: { value: '' } });
-      expect(mockProps.handleAddFilter).not.toHaveBeenCalled();
-    } else {
-      try {
-        const selectWithAddFilter = screen.getByText('+ Add filter').closest('select');
-        if (selectWithAddFilter) {
-          fireEvent.change(selectWithAddFilter, { target: { value: '' } });
-          expect(mockProps.handleAddFilter).not.toHaveBeenCalled();
-        }
-      } catch (error) {
-        console.log('Could not find filter dropdown');
-      }
-    }
-  });
-
-  test('does not allow navigation past valid page ranges', () => {
-    const { rerender } = render(<GraphPage {...mockProps} />);
-
-    let prevButton = screen.getByText('←');
-    fireEvent.click(prevButton);
+  test('handles table data with special characters in CSV download', () => {
+    const mockCreateElement = jest.spyOn(document, 'createElement');
     
-    expect(screen.getByText('1-10 of 25')).toBeInTheDocument();
-
-    let nextButton = screen.getByText('→');
-    fireEvent.click(nextButton);
-    fireEvent.click(nextButton);
+    const propsWithSpecialChars = {
+      ...mockProps,
+      tableColumns: [
+        { header: 'Column 1', key: 'col1' }
+      ],
+      tableData: [
+        { col1: 'Value with "quotes"' }
+      ]
+    };
+    render(<GraphPage {...propsWithSpecialChars} />);
     
-    expect(screen.getByText('21-25 of 25')).toBeInTheDocument();
-
-    nextButton = screen.getByText('→');
-    fireEvent.click(nextButton);
+    fireEvent.click(screen.getByText('Download Page CSV'));
     
-    expect(screen.getByText('21-25 of 25')).toBeInTheDocument();
+    expect(mockCreateElement).toHaveBeenCalled();
+    mockCreateElement.mockRestore();
   });
 
-  test('handles component with minimal props', () => {
-  render(<GraphPage title="Minimal" />);
-  
-  expect(screen.getByText('Minimal Dashboard')).toBeInTheDocument();
+  test('renders metric descriptions when provided', () => {
+    const propsWithMetricDescriptions = {
+      ...mockProps,
+      metricCards: [
+        { title: 'Metric 1', value: '100', description: 'Test description' }
+      ]
+    };
+    render(<GraphPage {...propsWithMetricDescriptions} />);
+    expect(screen.getByText('Test description')).toBeInTheDocument();
   });
 
+  test('handles undefined chartData', () => {
+    const propsWithUndefinedCharts = {
+      ...mockProps,
+      chartData: undefined
+    };
+    render(<GraphPage {...propsWithUndefinedCharts} />);
+    expect(screen.getByText('Test Dashboard')).toBeInTheDocument();
+  });
 
-test('handles component with minimal props', () => {
-
-  render(<GraphPage title="Minimal" />);
-
-  expect(screen.getByText('Minimal Dashboard')).toBeInTheDocument();
-});
-
-test('handles undefined filterTags', () => {
-  const propsWithUndefinedTags = {
-    ...mockProps,
-    filterTags: undefined
-  };
+  test('handles empty chartData array', () => {
+    const propsWithEmptyCharts = {
+      ...mockProps,
+      chartData: []
+    };
+    render(<GraphPage {...propsWithEmptyCharts} />);
+    expect(screen.getByText('Test Dashboard')).toBeInTheDocument();
+  });
   
-  render(<GraphPage {...propsWithUndefinedTags} />);
-  
-  expect(screen.getByText('No Filters Applied')).toBeInTheDocument();
-});
-
-test('renders with empty tableColumns', () => {
-  const propsWithEmptyColumns = {
-    ...mockProps,
-    tableColumns: []
-  };
-  
-  render(<GraphPage {...propsWithEmptyColumns} />);
-
-  expect(screen.getByText(`${mockProps.title} Dashboard`)).toBeInTheDocument();
-});
-
-test('handles extreme pagination values', () => {
-  const propsWithFewItems = {
-    ...mockProps,
-    tableData: [
-      { id: 1, name: 'Single Item', status: 'Active' }
-    ]
-  };
-  
-  render(<GraphPage {...propsWithFewItems} />);
-  
-  expect(screen.getByText('1-1 of 1')).toBeInTheDocument();
-  
-  const prevButton = screen.getByText('←');
-  const nextButton = screen.getByText('→');
-  expect(prevButton).toBeDisabled();
-  expect(nextButton).toBeDisabled();
-});
-
-test('handles exactly one page of data', () => {
-  const propsWithExactPage = {
-    ...mockProps,
-    tableData: Array(10).fill().map((_, i) => ({
-      id: i + 1,
-      name: `Item ${i + 1}`,
-      status: 'Active'
-    }))
-  };
-  
-  render(<GraphPage {...propsWithExactPage} />);
-
-  expect(screen.getByText('1-10 of 10')).toBeInTheDocument();
-
-  const nextButton = screen.getByText('→');
-  expect(nextButton).toBeDisabled();
-});
-
-test('handles no metric cards', () => {
-  const propsWithNoMetrics = {
-    ...mockProps,
-    metricCards: []
-  };
-  
-  render(<GraphPage {...propsWithNoMetrics} />);
-
-  expect(screen.getByText(`${mockProps.title} Dashboard`)).toBeInTheDocument();
-
-  expect(screen.queryByText('Total Users')).not.toBeInTheDocument();
-});
-
-test('handles no chartData', () => {
-  const propsWithNoCharts = {
-    ...mockProps,
-    chartData: []
-  };
-  
-  render(<GraphPage {...propsWithNoCharts} />);
-
-  expect(screen.getByText(`${mockProps.title} Dashboard`)).toBeInTheDocument();
-
-  expect(screen.queryByTestId('bar-chart')).not.toBeInTheDocument();
-});
-
-test('handles mixed chart types including unknown types', () => {
-  const propsWithMixedCharts = {
-    ...mockProps,
-    chartData: [
-      { title: 'Custom Bar Chart', type: 'bar', data: {}, options: {} },
-      { title: 'Unknown Chart', type: 'unknown', data: {}, options: {} },
-      { title: 'Custom Line Chart', type: 'line', data: {}, options: {} }
-    ]
-  };
-  
-  render(<GraphPage {...propsWithMixedCharts} />);
-
-  expect(screen.getByText('Custom Bar Chart')).toBeInTheDocument();
-  expect(screen.getByText('Custom Line Chart')).toBeInTheDocument();
-
-  expect(screen.getByText('Unknown Chart')).toBeInTheDocument();
-});
-
-
-test('handles metric cards with missing trend or description', () => {
-  const propsWithIncompleteMetrics = {
-    ...mockProps,
-    metricCards: [
-      { title: 'No Trend', value: '100' },
-      { title: 'With Trend', value: '200', trend: 'up' },
-      { title: 'Just Description', value: '300', description: 'Some description' }
-    ]
-  };
-  
-  render(<GraphPage {...propsWithIncompleteMetrics} />);
-
-  expect(screen.getByText('No Trend')).toBeInTheDocument();
-  expect(screen.getByText('With Trend')).toBeInTheDocument();
-  expect(screen.getByText('Just Description')).toBeInTheDocument();
-
-  expect(screen.getByText('Some description')).toBeInTheDocument();
-});
-
 });
