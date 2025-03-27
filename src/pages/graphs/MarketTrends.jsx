@@ -52,6 +52,7 @@ const MarketTrends = () => {
                     'Content-Type': 'application/json'
                 }
             });
+            
             if (Array.isArray(response.data)) {
                 setMarketTrends(response.data);
                 setFilteredMarketTrends(response.data);
