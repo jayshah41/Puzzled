@@ -163,7 +163,7 @@ afterAll(() => {
     render(<MarketData />);
     
     await waitFor(() => {
-      expect(axios.get).toHaveBeenCalledWith('/api/data/market-data/', {
+      expect(axios.get).toHaveBeenCalledWith('/api/proxy/data/market-data/', {
         headers: {
           Authorization: 'Bearer mocked-token',
           'Content-Type': 'application/json'

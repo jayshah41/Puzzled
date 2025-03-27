@@ -174,7 +174,7 @@ describe('Directors Component', () => {
     render(<Directors />);
     
     await waitFor(() => {
-      expect(axios.get).toHaveBeenCalledWith('/api/data/directors/', {
+      expect(axios.get).toHaveBeenCalledWith('/api/proxy/data/directors/', {
         headers: {
           Authorization: 'Bearer test-token',
           'Content-Type': 'application/json'

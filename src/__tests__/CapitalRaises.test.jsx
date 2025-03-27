@@ -130,7 +130,7 @@ describe('CapitalRaises Component', () => {
     render(<CapitalRaises />);
     
     await waitFor(() => {
-      expect(axios.get).toHaveBeenCalledWith('/api/data/capital-raises/', {
+      expect(axios.get).toHaveBeenCalledWith('/api/proxy/data/capital-raises/', {
         headers: {
           Authorization: 'Bearer mocked-token',
           'Content-Type': 'application/json'
