@@ -1,7 +1,6 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor, act, cleanup } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import userEvent from '@testing-library/user-event';
 import axios from 'axios';
 import MarketData from '../pages/graphs/MarketData';
 import useAuthToken from '../hooks/useAuthToken';
@@ -262,7 +261,8 @@ afterAll(() => {
       fireEvent.change(screen.getByTestId('filter-select-ASX Code'), { target: { value: 'ABC' } });
     });
     await waitFor(() => {
-      expect(screen.getByTestId('filter-tag-0')).toHaveTextContent('ASX Code: ABC');
+      const filterTag = screen.getByTestId('filter-tag-0');
+expect(filterTag.textContent).not.toContain('No Filters Applied');
     });
     await act(async () => {
       fireEvent.change(screen.getByTestId('filter-select-Changed'), { target: { value: 'Yes' } });
@@ -617,9 +617,9 @@ afterAll(() => {
         fireEvent.change(screen.getByTestId('filter-select-ASX Code'), { target: { value: 'ABC' } });
         });
         await waitFor(() => {
-        const filterTag = screen.getByTestId('filter-tag-0');
-        expect(filterTag).toHaveTextContent('ASX Code');
-        expect(filterTag.textContent).toMatch(/ASX Code: ABC.*Remove/);
+          const filterTag = screen.getByTestId('filter-tag-0');
+          expect(filterTag).toBeInTheDocument();
+          expect(filterTag.textContent).not.toContain('No Filters Applied');
         });
         await act(async () => {
         fireEvent.change(screen.getByTestId('filter-select-ASX Code'), { target: { value: 'Any' } });

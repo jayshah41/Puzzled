@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor, within } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import axios from 'axios';
 import Financials from '../pages/graphs/Financials';
@@ -102,7 +102,6 @@ jest.mock('../components/GraphPage', () => ({
   )
 }));
 
-// Sample test data
 const mockFinancials = [
   {
     asx_code: 'ABC',
@@ -224,24 +223,27 @@ describe('Financials Component', () => {
 
   test('handles filter tag removal correctly', async () => {
     axios.get.mockResolvedValueOnce({ data: mockFinancials });
-
+  
     render(<Financials />);
     
     await waitFor(() => {
       expect(screen.getByTestId('graph-page')).toBeInTheDocument();
     });
-
+  
     expect(screen.getByTestId('filter-tag-0')).toHaveTextContent('No Filters Applied');
-    
+
+    fireEvent.change(screen.getByTestId('select-ASX Code'), { target: { value: 'ABC' } });
     fireEvent.click(screen.getByTestId('add-filter-ASX Code'));
-    
+    fireEvent.click(screen.getByTestId('apply-filters'));
+
     await waitFor(() => {
       expect(screen.queryByText('No Filters Applied')).not.toBeInTheDocument();
     });
 
-    const removeButtons = screen.getAllByRole('button', { name: /remove/i });
-    fireEvent.click(removeButtons[0]);
-  
+    const removeButton = screen.getByTestId('remove-tag-0');
+
+    fireEvent.click(removeButton);
+
     await waitFor(() => {
       expect(screen.getByTestId('filter-tag-0')).toHaveTextContent('No Filters Applied');
     });
@@ -263,6 +265,37 @@ describe('Financials Component', () => {
 
     await waitFor(() => {
       expect(screen.getByTestId('metric-card-0')).not.toHaveTextContent('Total ASX Codes: 2');
+    });
+  });
+
+  test('handles filter changes correctly', async () => {
+    axios.get.mockResolvedValueOnce({ data: mockFinancials });
+  
+    render(<Financials />);
+    
+    await waitFor(() => {
+      expect(screen.getByTestId('graph-page')).toBeInTheDocument();
+    });
+
+    fireEvent.change(screen.getByTestId('select-ASX Code'), { target: { value: 'ABC' } });
+    fireEvent.click(screen.getByTestId('add-filter-ASX Code'));
+
+    fireEvent.click(screen.getByTestId('apply-filters'));
+
+    fireEvent.change(screen.getByTestId('select-Period'), { target: { value: 'Q1 2023' } });
+    fireEvent.click(screen.getByTestId('add-filter-Period'));
+
+    fireEvent.click(screen.getByTestId('apply-filters'));
+
+    const filterTags = screen.getAllByTestId(/filter-tag-/);
+    expect(filterTags.length).toBe(2);
+
+    const removeButtons = screen.getAllByRole('button', { name: /remove/i });
+    fireEvent.click(removeButtons[0]);
+
+    await waitFor(() => {
+      const updatedFilterTags = screen.getAllByTestId(/filter-tag-/);
+      expect(updatedFilterTags.length).toBe(1);
     });
   });
 
@@ -434,6 +467,8 @@ describe('Financials Component Edge Cases', () => {
     expect(valueSelect.options.length).toBeGreaterThan(0);
   });
 
+  
+
   test('handles nan/invalid values gracefully', async () => {
     const invalidValueData = [
       {
@@ -541,4 +576,64 @@ describe('Financials Component Edge Cases', () => {
     const valueSelect = screen.getByTestId('select-Net Operating Cash Flow');
     expect(valueSelect).toBeInTheDocument();
   });
+
+
+test('generates range options for extremely small values', async () => {
+  const smallValueData = [
+    {
+      ...mockFinancials[0],
+      net_operating_cash_flow: '1',
+      exploration_spend: '2',
+    },
+    {
+      ...mockFinancials[1],
+      net_operating_cash_flow: '3',
+      exploration_spend: '4',
+    }
+  ];
+  
+  axios.get.mockResolvedValueOnce({ data: smallValueData });
+
+  render(<Financials />);
+  
+  await waitFor(() => {
+    expect(screen.getByTestId('graph-page')).toBeInTheDocument();
+  });
+
+  const valueSelect = screen.getByTestId('select-Net Operating Cash Flow');
+  expect(valueSelect).toBeInTheDocument();
+  expect(valueSelect.options.length).toBeGreaterThan(1);
+});
+
+test('range options format large numbers with appropriate suffixes', async () => {
+  const largeNumberData = [
+    { market_cap: '1000' },
+    { market_cap: '10000' },
+    { market_cap: '100000' },
+    { market_cap: '1000000' },
+    { market_cap: '10000000' },
+    { market_cap: '100000000' },
+    { market_cap: '1000000000' }
+  ];
+  
+  axios.get.mockResolvedValueOnce({ data: largeNumberData });
+  render(<Financials />);
+  
+  await waitFor(() => {
+    expect(screen.getByTestId('graph-page')).toBeInTheDocument();
+  });
+
+  const marketCapFilter = screen.getByTestId('select-Market Cap');
+  expect(marketCapFilter).toBeInTheDocument();
+
+  const options = Array.from(marketCapFilter.options);
+  const optionTexts = options.map(opt => opt.text);
+
+  const hasSuffixes = optionTexts.some(text => 
+    text.includes('K') || text.includes('M') || text.includes('B')
+  );
+  
+  expect(hasSuffixes).toBe(true);
+});
+
 });

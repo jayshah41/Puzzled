@@ -521,4 +521,168 @@ describe('Shareholders Component Edge Cases', () => {
     const valueSelect = screen.getByTestId('select-Value');
     expect(valueSelect).toBeInTheDocument();
   });
+
+  test('handles filter changes correctly', async () => {
+    axios.get.mockResolvedValueOnce({ data: mockShareholderData });
+    
+    render(<Shareholders />);
+    
+    await waitFor(() => {
+      expect(screen.getByTestId('filter-tag-0')).toHaveTextContent('No Filters Applied');
+    });
+    
+    await act(async () => {
+      fireEvent.change(screen.getByTestId('select-ASX Code'), { target: { value: 'ABC' } });
+    });
+    
+    await waitFor(() => {
+      expect(screen.getByTestId('filter-tag-0')).toHaveTextContent('ASX Code: ABC');
+    });
+    
+    await act(async () => {
+      fireEvent.change(screen.getByTestId('select-Transaction Type'), { target: { value: 'Buy' } });
+    });
+    
+    await waitFor(() => {
+      expect(screen.getByTestId('filter-tag-1')).toHaveTextContent('Transaction Type: Buy');
+    });
+    
+    fireEvent.click(screen.getByTestId('apply-filters'));
+    
+    await act(async () => {
+      fireEvent.click(screen.getByTestId('remove-tag-0'));
+    });
+    
+    await waitFor(() => {
+      expect(screen.getByTestId('filter-tag-0')).toHaveTextContent('Transaction Type: Buy');
+    });
+  });
+  
+  test('getUniqueValues handles edge cases correctly', async () => {
+    const dataWithNulls = [
+      { asx_code: 'ABC', entity: null, transaction_type: 'Buy' },
+      { asx_code: undefined, entity: 'Company B', transaction_type: 'Sell' },
+      { asx_code: 'DEF', entity: 'Company C', transaction_type: 'Hold' }
+    ];
+    
+    axios.get.mockResolvedValueOnce({ data: dataWithNulls });
+    
+    render(<Shareholders />);
+    
+    await waitFor(() => {
+      expect(screen.getAllByTestId(/^filter-option-/).length).toBeGreaterThan(0);
+    });
+  });
+  
+  test('applyClientSideFilters works with different filter combinations', async () => {
+    axios.get.mockResolvedValueOnce({ data: mockShareholderData });
+    
+    render(<Shareholders />);
+    
+    await waitFor(() => {
+      expect(screen.getByTestId('filter-tag-0')).toHaveTextContent('No Filters Applied');
+    });
+    
+    await act(async () => {
+      fireEvent.change(screen.getByTestId('select-ASX Code'), { target: { value: 'ABC' } });
+    });
+    
+    fireEvent.click(screen.getByTestId('apply-filters'));
+    
+    await act(async () => {
+      const valueSelect = screen.getByTestId('select-Value');
+      const options = Array.from(valueSelect.options).filter(opt => opt.value !== 'Any');
+      if (options.length > 0) {
+        fireEvent.change(valueSelect, { target: { value: options[0].value } });
+      }
+    });
+    
+    fireEvent.click(screen.getByTestId('apply-filters'));
+    
+    await act(async () => {
+      fireEvent.change(screen.getByTestId('select-ASX Code'), { target: { value: 'Any' } });
+    });
+    
+    fireEvent.click(screen.getByTestId('apply-filters'));
+  });
+
+  test('generateRangeOptions handles various data ranges', async () => {
+    const smallRangeData = [
+      { value: '10' }, { value: '15' }, { value: '20' }
+    ];
+  
+    const mediumRangeData = [
+      { value: '500' }, { value: '1500' }, { value: '2500' }
+    ];
+  
+    const largeRangeData = [
+      { value: '1000000' }, { value: '5000000' }, { value: '10000000' }
+    ];
+  
+    const veryLargeRangeData = [
+      { value: '1000000000' }, { value: '5000000000' }, { value: '10000000000' }
+    ];
+  
+    axios.get.mockResolvedValueOnce({ 
+      data: smallRangeData.map(item => ({ 
+        ...mockShareholderData[0], 
+        ...item,
+        asx_code: 'SMALL' + item.value 
+      }))
+    });
+    
+    const { unmount } = render(<Shareholders />);
+  
+    await waitFor(() => {
+      expect(screen.getByTestId('graph-page')).toBeInTheDocument();
+    });
+    
+    unmount();
+  
+    axios.get.mockResolvedValueOnce({ 
+      data: mediumRangeData.map(item => ({ 
+        ...mockShareholderData[0], 
+        ...item,
+        asx_code: 'MED' + item.value 
+      }))
+    });
+    
+    const { unmount: unmount2 } = render(<Shareholders />);
+    
+    await waitFor(() => {
+      expect(screen.getByTestId('graph-page')).toBeInTheDocument();
+    });
+    
+    unmount2();
+  
+    axios.get.mockResolvedValueOnce({ 
+      data: largeRangeData.map(item => ({ 
+        ...mockShareholderData[0], 
+        ...item,
+        asx_code: 'LARGE' + item.value 
+      }))
+    });
+    
+    const { unmount: unmount3 } = render(<Shareholders />);
+    
+    await waitFor(() => {
+      expect(screen.getByTestId('graph-page')).toBeInTheDocument();
+    });
+    
+    unmount3();
+  
+    axios.get.mockResolvedValueOnce({ 
+      data: veryLargeRangeData.map(item => ({ 
+        ...mockShareholderData[0], 
+        ...item,
+        asx_code: 'XLARGE' + item.value 
+      }))
+    });
+    
+    render(<Shareholders />);
+    
+    await waitFor(() => {
+      expect(screen.getByTestId('graph-page')).toBeInTheDocument();
+    });
+  });
 });
