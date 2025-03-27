@@ -17,7 +17,7 @@ const Footer = () => {
     ]);
 
   useEffect(() => {
-      fetch('/api/editable-content/?component=Navbar')
+      fetch('/api/proxy/editable-content/?component=Navbar')
         .then((response) => response.json())
         .then((data) => {
           const fetchedTabs = data

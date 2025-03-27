@@ -20,7 +20,7 @@ const ProductsHero = () => {
   );
 
   useEffect(() => {
-    fetch('/api/editable-content/?component=Products')
+    fetch('/api/proxy/editable-content/?component=Products')
       .then((response) => response.json())
       .then((data) => {
         const headingValue = data.find((item) => item.section === 'heading');

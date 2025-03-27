@@ -14,7 +14,7 @@ const Values = () => {
   const [contentMap, setContentMap] = useState([]);
 
   useEffect(() => {
-    fetch('/api/editable-content/?component=Values')
+    fetch('/api/proxy/editable-content/?component=Values')
       .then(response => response.json())
       .then(data => {
         const updatedContentMap = [

@@ -22,6 +22,7 @@ import AboutUs from './pages/AboutUs';
 import Copyright from './pages/Copyright';
 import Information from './pages/Information';
 import Privacy from './pages/Privacy';
+import NotFoundPage from './pages/NotFoundPage';
 
 const ScrollToTop = () => {
   const location = useLocation();
@@ -60,6 +61,7 @@ const App = () => {
           <Route path="/news" element={<News />} />
           <Route path="/social-media" element={<SocialMedia/>} />
           <Route path="/stripe-success" element={<StripeSuccessPage/>} />
+          <Route path="*" element={<NotFoundPage />} />
         </Routes>
         <Footer />
       </Router>

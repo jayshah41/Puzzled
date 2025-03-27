@@ -68,7 +68,7 @@ const NewsContent = () => {
     setIsLoading(true);
     setError(null);
     
-    apiRequest('/api/news-cards/')
+    apiRequest('/api/proxy/news-cards/')
       .then(data => {
         const sortedData = data.sort((a, b) => a.order - b.order);
         
@@ -168,7 +168,7 @@ const NewsContent = () => {
       
       for (const card of deletedCards) {
         try {
-          await apiRequest(`${'/api/news-cards/'}${card.id}/`, {
+          await apiRequest(`${'/api/proxy/news-cards/'}${card.id}/`, {
             method: 'DELETE'
           });
         } catch (error) {
@@ -184,12 +184,12 @@ const NewsContent = () => {
         };
         
         if (card.id) {
-          await apiRequest(`${'/api/news-cards/'}${card.id}/`, {
+          await apiRequest(`${'/api/proxy/news-cards/'}${card.id}/`, {
             method: 'PUT',
             body: JSON.stringify(cardData)
           });
         } else {
-          const newCard = await apiRequest('/api/news-cards/', {
+          const newCard = await apiRequest('/api/proxy/news-cards/', {
             method: 'POST',
             body: JSON.stringify(cardData)
           });
@@ -205,13 +205,13 @@ const NewsContent = () => {
           order: index
         }));
         
-        await apiRequest(`${'/api/news-cards/'}update-order/`, {
+        await apiRequest(`${'/api/proxy/news-cards/'}update-order/`, {
           method: 'PATCH',
           body: JSON.stringify(orderData)
         });
       }
 
-      const updatedData = await apiRequest('/api/news-cards/');
+      const updatedData = await apiRequest('/api/proxy/news-cards/');
       
       const sortedData = updatedData.sort((a, b) => a.order - b.order);
       

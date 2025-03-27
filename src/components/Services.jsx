@@ -16,7 +16,7 @@ const Services = () => {
   const [paragraphTwo, setParagraphTwo] = useState("");
 
   useEffect(() => {
-    fetch('/api/editable-content/?component=Services')
+    fetch('/api/proxy/editable-content/?component=Services')
       .then(response => response.json())
       .then(data => {
         const headingContent = data.find(item => item.section === 'heading');

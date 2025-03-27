@@ -14,7 +14,7 @@ const ContactUsHero = () => {
   const [content, setContent] = useState("Having some difficulties using the website? Contact us through the form below, and we will respond back to you as soon as possible!");
 
   useEffect(() => {
-    fetch('/api/editable-content/?component=ContactUs')
+    fetch('/api/proxy/editable-content/?component=ContactUs')
       .then((response) => response.json())
       .then((data) => {
         const headingValue = data.find((item) => item.section === 'heading');

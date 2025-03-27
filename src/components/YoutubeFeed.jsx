@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import "../styles/YouTubeFeed.css";
+import "../styles/YoutubeFeed.css";
 
 const YouTubeFeed = ({ channelId }) => {
     const [videos, setVideos] = useState([]);

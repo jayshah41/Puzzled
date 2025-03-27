@@ -19,7 +19,7 @@ const PricingHero = () => {
   const [content, setContent] = useState("The MakCorp platform provides our users with access to 6 key data modules with over 600 data points to provide our clients with the ability to make better informed investment decisions. As an example, using projects data, users can seamlessly filter based upon key indicators like commodity type, geographic location or project stage to identify potential investment or client oppotunities.");
 
   useEffect(() => {
-      fetch('/api/editable-content/?component=Pricing')
+      fetch('/api/proxy/editable-content/?component=Pricing')
         .then(response => response.json())
         .then(data => {
           const headingValue = data.find(item => item.section === 'heading');

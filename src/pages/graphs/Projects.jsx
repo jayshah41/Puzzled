@@ -38,7 +38,7 @@ const Projects = () => {
 
     try {
         setLoading(true);
-        const response = await axios.get('/api/data/projects/', {
+        const response = await axios.get('/api/proxy/data/projects/', {
             headers: {
                 Authorization: `Bearer ${token}`,
                 'Content-Type': 'application/json'

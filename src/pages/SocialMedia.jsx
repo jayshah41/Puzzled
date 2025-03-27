@@ -1,8 +1,11 @@
 import React from 'react';
+import useAuthRedirect from '../hooks/useAuthRedirect';
 import SocialFeedHero from '../components/SocialFeedHero';
 import SocialFeed from '../components/SocialFeed';
 
 const SocialMedia = () => {
+    useAuthRedirect();
+    
     return (
         <>
             <SocialFeedHero />

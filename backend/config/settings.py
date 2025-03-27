@@ -23,7 +23,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = config('DJANGO_SECRET_KEY')
+# SECRET_KEY = config('DJANGO_SECRET_KEY')
+SECRET_KEY = 'django-insecure-%#vlq17++rms)=^ud4&ptytv=c^zvt47$--y)6-yol(pfn)x_i'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
@@ -48,8 +49,7 @@ INSTALLED_APPS = [
     'api',
     'content',
     'rest_framework',
-    'corsheaders',
-    'payments'
+    'corsheaders'
 ]
 
 MIDDLEWARE = [
@@ -178,3 +178,7 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = config('EMAIL_USER')
 EMAIL_HOST_PASSWORD = config("EMAIL_PASSWORD")
+
+STRIPE_PUBLIC_KEY = config('STRIPE_PUBLIC_KEY')
+STRIPE_SECRET_KEY = config('STRIPE_SECRET_KEY')
+STRIPE_WEBHOOK_SECRET = config('STRIPE_WEBHOOK_SECRET')
