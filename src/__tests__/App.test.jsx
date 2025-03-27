@@ -41,7 +41,6 @@ jest.mock('../pages/News', () => () => <div data-testid="news-page" />);
 jest.mock('../pages/SocialMedia', () => () => <div data-testid="social-media-page" />);
 jest.mock('../pages/StripeSuccessPage', () => () => <div data-testid="stripe-success-page" />);
 
-// Mock the scrollTo function
 global.scrollTo = jest.fn();
 
 describe('App Component', () => {
