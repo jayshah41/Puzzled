@@ -3,11 +3,9 @@ import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import SocialMedia from '../pages/SocialMedia';
 
-// Mock the hooks and dependencies
 jest.mock('../hooks/useAuthRedirect', () => ({
   __esModule: true,
   default: () => {
-    // Provide a mock implementation of the hook
     return null;
   }
 }));
@@ -17,7 +15,6 @@ jest.mock('react-router-dom', () => ({
   useNavigate: () => jest.fn()
 }));
 
-// Mock child components if needed
 jest.mock('../components/SocialFeedHero', () => {
   return {
     __esModule: true,
@@ -35,12 +32,11 @@ jest.mock('../components/SocialFeed', () => {
 describe('SocialMedia Page', () => {
   it('renders both SocialFeedHero and SocialFeed with correct props', () => {
     render(
-      <MemoryRouter> {/* Wrap with MemoryRouter to provide routing context */}
+      <MemoryRouter>
         <SocialMedia />
       </MemoryRouter>
     );
 
-    // Check if mocked components are rendered
     expect(screen.getByTestId('social-feed-hero')).toBeInTheDocument();
     expect(screen.getByTestId('social-feed')).toBeInTheDocument();
   });
@@ -51,8 +47,5 @@ describe('SocialMedia Page', () => {
         <SocialMedia />
       </MemoryRouter>
     );
-
-    // Additional assertions about authentication can be added here
-    // For example, checking if the useAuthRedirect hook was called
   });
 });
