@@ -138,6 +138,7 @@ def stripe_webhook(request):
     return JsonResponse({'status': 'success'}, status=200)
 
 
+
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def verify_subscription(request):
