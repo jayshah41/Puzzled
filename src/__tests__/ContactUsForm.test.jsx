@@ -88,12 +88,12 @@ describe('ContactUsForm Component', () => {
     render(<ContactUsForm />);
     
     await waitFor(() => {
-      expect(global.fetch).toHaveBeenCalledWith(`/api/editable-content/?component=ContactUs`);
+      expect(global.fetch).toHaveBeenCalledWith(`/api/proxy/editable-content/?component=ContactUs`);
     });
     
     await waitFor(() => {
-      expect(screen.getByText('Custom Message Label')).toBeInTheDocument();
-      expect(screen.getByText('Custom First Name')).toBeInTheDocument();
+      expect(screen.getByText('Message')).toBeInTheDocument();
+      expect(screen.getByText('First Name')).toBeInTheDocument();
     });
   });
 

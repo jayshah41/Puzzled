@@ -195,7 +195,7 @@ describe('CompanyDetails Component', () => {
     render(<CompanyDetails />);
     
     await waitFor(() => {
-      expect(axios.get).toHaveBeenCalledWith('/api/data/company-details/', {
+      expect(axios.get).toHaveBeenCalledWith('/api/proxy/data/company-details/', {
         headers: {
           Authorization: 'Bearer mocked-token',
           'Content-Type': 'application/json'
