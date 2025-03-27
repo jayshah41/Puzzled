@@ -1,20 +1,15 @@
-// src/tests/AccountManager.test.jsx
-
 import '@testing-library/jest-dom';
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import AccountManager from '../pages/AccountManager';
 
-// 1) Mock fetch globally
 global.fetch = jest.fn();
 
-// 2) Mock localStorage
 jest.spyOn(Storage.prototype, 'getItem');
 jest.spyOn(Storage.prototype, 'setItem');
 jest.spyOn(Storage.prototype, 'removeItem');
 
-// 3) We'll let getAccessToken be a mock we can override
 let mockGetAccessToken = jest.fn().mockResolvedValue('mockedToken');
 let mockAuthError = null;
 
@@ -27,13 +22,12 @@ jest.mock('../hooks/useAuthToken', () => ({
   })),
 }));
 
-// 4) Mock window.location.reload + alert
 beforeAll(() => {
   Object.defineProperty(window, 'location', {
     writable: true,
     value: {
       ...window.location,
-      reload: jest.fn(), // do nothing
+      reload: jest.fn(), 
     },
   });
   window.alert = jest.fn();
@@ -41,12 +35,10 @@ beforeAll(() => {
 
 describe('AccountManager', () => {
   beforeEach(() => {
-    // By default, user_tier_level=1 and a valid accessToken
     localStorage.setItem('user_tier_level', '1');
     localStorage.setItem('accessToken', 'fakeAccessToken');
 
     fetch.mockReset();
-    // Default fetch => user data success
     fetch.mockResolvedValue({
       ok: true,
       json: async () => ({
@@ -59,7 +51,6 @@ describe('AccountManager', () => {
       }),
     });
 
-    // Reset any overrides
     mockGetAccessToken = jest.fn().mockResolvedValue('mockedToken');
     mockAuthError = null;
   });
@@ -73,7 +64,6 @@ describe('AccountManager', () => {
   });
 
   it('updates email successfully', async () => {
-    // 1) user data
     fetch
       .mockResolvedValueOnce({
         ok: true,
@@ -86,7 +76,6 @@ describe('AccountManager', () => {
           tier_level: 1,
         }),
       })
-      // 2) patch success
       .mockResolvedValueOnce({ ok: true });
 
     render(<MemoryRouter><AccountManager /></MemoryRouter>);
@@ -110,7 +99,6 @@ describe('AccountManager', () => {
 
   it('updates phone number successfully', async () => {
     fetch
-      // user data
       .mockResolvedValueOnce({
         ok: true,
         json: async () => ({
@@ -122,7 +110,6 @@ describe('AccountManager', () => {
           tier_level: 1,
         }),
       })
-      // patch success
       .mockResolvedValueOnce({ ok: true });
 
     render(<MemoryRouter><AccountManager /></MemoryRouter>);
@@ -181,7 +168,6 @@ describe('AccountManager', () => {
 
   it('updates name successfully', async () => {
     fetch
-      // user data
       .mockResolvedValueOnce({
         ok: true,
         json: async () => ({
@@ -193,7 +179,6 @@ describe('AccountManager', () => {
           tier_level: 1,
         }),
       })
-      // patch success
       .mockResolvedValueOnce({ ok: true });
 
     render(<MemoryRouter><AccountManager /></MemoryRouter>);
@@ -237,8 +222,6 @@ describe('AccountManager', () => {
 
     render(<MemoryRouter><AccountManager /></MemoryRouter>);
     await screen.findByText(/Welcome Testy!/i);
-
-    // Just click "Update Commodities"
     fireEvent.click(screen.getByText('Update Commodities'));
 
     await waitFor(() => {
@@ -256,7 +239,6 @@ describe('AccountManager', () => {
 
   it('downgrades tier successfully', async () => {
     fetch
-      // user data
       .mockResolvedValueOnce({
         ok: true,
         json: async () => ({
@@ -266,7 +248,6 @@ describe('AccountManager', () => {
           tier_level: 1,
         }),
       })
-      // second => success
       .mockResolvedValueOnce({ ok: true });
 
     render(<MemoryRouter><AccountManager /></MemoryRouter>);
@@ -286,7 +267,6 @@ describe('AccountManager', () => {
 
   it('deletes account successfully', async () => {
     fetch
-      // user data
       .mockResolvedValueOnce({
         ok: true,
         json: async () => ({
@@ -298,7 +278,6 @@ describe('AccountManager', () => {
           tier_level: 1,
         }),
       })
-      // second => delete success
       .mockResolvedValueOnce({ ok: true });
 
     render(<MemoryRouter><AccountManager /></MemoryRouter>);
@@ -347,7 +326,6 @@ describe('AccountManager', () => {
 
   it('redirects/logs out on 401 response from update calls', async () => {
     fetch
-      // first => user data
       .mockResolvedValueOnce({
         ok: true,
         json: async () => ({
@@ -359,7 +337,6 @@ describe('AccountManager', () => {
           tier_level: 1,
         }),
       })
-      // second => 401
       .mockResolvedValueOnce({ ok: false, status: 401 });
 
     render(<MemoryRouter><AccountManager /></MemoryRouter>);
@@ -381,7 +358,6 @@ describe('AccountManager', () => {
 
   it('shows error message for non-OK response', async () => {
     fetch
-      // user data => success
       .mockResolvedValueOnce({
         ok: true,
         json: async () => ({
@@ -393,7 +369,6 @@ describe('AccountManager', () => {
           tier_level: 1,
         }),
       })
-      // second => 400 => "Test error"
       .mockResolvedValueOnce({
         ok: false,
         status: 400,
@@ -415,18 +390,16 @@ describe('AccountManager', () => {
   });
 
   it('handles failure to fetch user data (response not ok)', async () => {
-    fetch.mockResolvedValueOnce({ ok: false }); // triggers line 62
+    fetch.mockResolvedValueOnce({ ok: false }); 
     render(<MemoryRouter><AccountManager /></MemoryRouter>);
 
     await waitFor(() => {
       expect(fetch).toHaveBeenCalledTimes(1);
-      // No crash => line 62 is covered
     });
   });
 
   it('handleTierDowngrade shows error from server response', async () => {
     fetch
-      // user data => success
       .mockResolvedValueOnce({
         ok: true,
         json: async () => ({
@@ -435,7 +408,6 @@ describe('AccountManager', () => {
           commodities: [],
         }),
       })
-      // second => error => lines 179–180
       .mockResolvedValueOnce({
         ok: false,
         status: 400,
@@ -467,7 +439,6 @@ describe('AccountManager', () => {
           commodities: [],
         }),
       })
-      // second => throw => line 302 in the catch
       .mockRejectedValueOnce(new Error('Network or server error'));
 
     const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
@@ -491,7 +462,6 @@ describe('AccountManager', () => {
   });
 
   it('handleDeleteAccount catch block triggers console.error & error message', async () => {
-    // user data => success
     fetch.mockResolvedValueOnce({
       ok: true,
       json: async () => ({
@@ -501,7 +471,6 @@ describe('AccountManager', () => {
         commodities: [],
       }),
     });
-    // second => throw => line 302 in the catch
     fetch.mockRejectedValueOnce(new Error('Delete failure'));
 
     const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
@@ -548,7 +517,6 @@ describe('AccountManager', () => {
     fireEvent.click(deleteButton);
 
     await waitFor(() => {
-      // Only the initial GET => total 1
       expect(fetch).toHaveBeenCalledTimes(1);
     });
     window.confirm.mockRestore();
@@ -576,20 +544,16 @@ describe('AccountManager', () => {
   });
 
   it('handles authError from useAuthToken', async () => {
-    // Pretend the hook returns an authError
     mockAuthError = 'Some authentication error';
 
     render(<MemoryRouter><AccountManager /></MemoryRouter>);
 
-    // The component still attempts the fetch for user data
     await waitFor(() => {
-      // So 1 fetch => the GET for user data
       expect(fetch).toHaveBeenCalledTimes(1);
     });
   });
 
   it('does not update if no access token is found', async () => {
-    // user data => success
     fetch.mockResolvedValueOnce({
       ok: true,
       json: async () => ({
@@ -599,7 +563,6 @@ describe('AccountManager', () => {
         commodities: ['Gold'],
       }),
     });
-    // Next calls => getAccessToken => null
     localStorage.removeItem('accessToken');
     mockGetAccessToken.mockResolvedValueOnce(null);
 
@@ -612,7 +575,6 @@ describe('AccountManager', () => {
     fireEvent.click(screen.getByText('Update Phone'));
 
     await waitFor(() => {
-      // Only the initial GET => total 1
       expect(fetch).toHaveBeenCalledTimes(1);
       expect(screen.getByText(/no access token found/i)).toBeInTheDocument();
     });
@@ -643,7 +605,6 @@ describe('AccountManager', () => {
     fireEvent.click(deleteButton);
 
     await waitFor(() => {
-      // Only the initial GET => total = 1
       expect(fetch).toHaveBeenCalledTimes(1);
       expect(
         screen.getByText(/no access token found/i)
