@@ -29,7 +29,7 @@ This project is a proof-of-concept data warehouse customisation developed for Ma
     2. Unpaid user - email: janedoe@example.com, password: puzzled
     3. Paid user - email: johndoe@example.com, password: puzzled 
 
-- Note: The Twitter feed on the Social Media page is not accessible due to technological limitations. However, proof of this feature is demonstrated in the screencast and can be verified by hosting the server locally.
+- Note: The Twitter feed on the Social Media page is not accessible due to the server host's limitations. However, proof of this feature is demonstrated in the screencast and can be verified by hosting the server locally. The news page also cannot be accessed on the deployed version due to pythonanywhere free tier restrictions.
 
 
 
