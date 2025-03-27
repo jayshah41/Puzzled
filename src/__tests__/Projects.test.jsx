@@ -113,7 +113,7 @@ describe('Projects Component', () => {
       expect(screen.getByTestId('graph-page')).toBeInTheDocument();
     });
     
-    expect(axios.get).toHaveBeenCalledWith('/api/data/projects/', {
+    expect(axios.get).toHaveBeenCalledWith('/api/proxy/data/projects/', {
       headers: {
         Authorization: 'Bearer mock-token',
         'Content-Type': 'application/json'

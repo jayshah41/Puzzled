@@ -73,7 +73,7 @@ describe('AccountManager Page', () => {
     fireEvent.click(updateButton);
 
     await waitFor(() => {
-      expect(global.fetch).toHaveBeenCalledWith('/api/update-profile/', expect.objectContaining({
+      expect(global.fetch).toHaveBeenCalledWith('/api/proxy/update-profile/', expect.objectContaining({
         method: 'PATCH',
         body: JSON.stringify({ email: 'newemail@example.com' }),
       }));
@@ -109,7 +109,7 @@ describe('AccountManager Page', () => {
     fireEvent.click(deleteButton);
 
     await waitFor(() => {
-      expect(global.fetch).toHaveBeenCalledWith('/api/delete-account/', expect.objectContaining({
+      expect(global.fetch).toHaveBeenCalledWith('/api/proxy/delete-account/', expect.objectContaining({
         method: 'POST',
         body: JSON.stringify({ password: 'password123' }),
       }));

@@ -1301,7 +1301,7 @@ describe('NewsContent Component', () => {
     expect(global.fetch).toHaveBeenCalledTimes(4);
     
     const apiCalls = global.fetch.mock.calls.filter(call => 
-      typeof call[0] === 'string' && call[0].includes('/api/news-cards/')
+      typeof call[0] === 'string' && call[0].includes('/api/proxy/news-cards/')
     );
     expect(apiCalls.length).toBeGreaterThan(0);
   });
@@ -2007,7 +2007,7 @@ describe('NewsContent Component', () => {
     expect(updatedTitles[0].textContent).toBe('Second Title');
     expect(updatedTitles[1].textContent).toBe('First Title');
     
-    expect(global.fetch).toHaveBeenCalledWith(`${'/api/news-cards/'}update-order/`, expect.objectContaining({
+    expect(global.fetch).toHaveBeenCalledWith(`${'/api/proxy/news-cards/'}update-order/`, expect.objectContaining({
       method: 'PATCH',
       body: expect.any(String)
     }));

@@ -47,7 +47,7 @@ describe('ServicesCardContainer', () => {
     render(<ServicesCardContainer isEditing={false} />);
 
     await waitFor(() => {
-      expect(fetchMock).toHaveBeenCalledWith('/api/editable-content/?component=Services');
+      expect(fetchMock).toHaveBeenCalledWith('/api/proxy/editable-content/?component=Services');
     });
   });
 
