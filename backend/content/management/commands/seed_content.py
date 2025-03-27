@@ -390,7 +390,7 @@ class Command(BaseCommand):
             {
                 "component": "Navbar",
                 "section": "dropdownHeading",
-                "text_value": '{"text": "Graphs", "link": "", "showing": true, "accessLevel": 1}'
+                "text_value": '{"text": "Dashboards", "link": "", "showing": true, "accessLevel": 1}'
             },
             {
                 "component": "Navbar",

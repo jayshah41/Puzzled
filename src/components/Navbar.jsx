@@ -34,7 +34,7 @@ const Navbar = () => {
     { text: "Financials", link: "/graphs/financials", showing: true, accessLevel: 1 }
   ]);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [graphsTitle, setGraphsTitle] = useState("Graphs");
+  const [graphsTitle, setGraphsTitle] = useState("Dashboards");
   const [showGraphsDropdown, setShowGraphsDropdown] = useState(false);
 
   useEffect(() => {
