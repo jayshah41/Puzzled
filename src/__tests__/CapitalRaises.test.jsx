@@ -427,5 +427,247 @@ describe('CapitalRaises Component', () => {
     });
   });
 
+  
+  test('handles range filter with no increment correctly', async () => {
+    const tinyRangeData = [
+      { ...mockCapitalRaises[0], amount: '1', bank_balance: '1', price: '1' },
+      { ...mockCapitalRaises[1], amount: '1.001', bank_balance: '1.001', price: '1.001' },
+    ];
+    
+    axios.get.mockResolvedValueOnce({ data: tinyRangeData });
+    render(<CapitalRaises />);
+    
+    await waitFor(() => {
+      expect(screen.getByTestId('graph-page')).toBeInTheDocument();
+    });
+  });
+  
+  test('handles formatNumber edge cases correctly', async () => {
+    const mixedScaleData = [
+      { ...mockCapitalRaises[0], amount: '500', bank_balance: '1500', price: '1.5' },
+      { ...mockCapitalRaises[1], amount: '1500000', bank_balance: '2500000', price: '2.5' },
+      { ...mockCapitalRaises[2], amount: '3000000000', bank_balance: '1000000000', price: '3.5' },
+    ];
+    
+    axios.get.mockResolvedValueOnce({ data: mixedScaleData });
+    render(<CapitalRaises />);
+    
+    await waitFor(() => {
+      expect(screen.getByTestId('graph-page')).toBeInTheDocument();
+    });
+    
+    const amountSelect = screen.getByTestId('filter-select-Amount');
+    expect(amountSelect).toBeInTheDocument();
+    
+    const options = Array.from(amountSelect.options);
+    const optionTexts = options.map(opt => opt.text);
+    
+    const hasScaledOption = optionTexts.some(text => 
+      text.includes('K') || text.includes('M') || text.includes('B')
+    );
+    expect(hasScaledOption).toBe(true);
+  });
+  
+  test('handles null data values correctly in processCapitalRaises', async () => {
+    const dataWithNulls = [
+      { asx_code: 'ABC', date: null, amount: null, price: null, raise_type: 'Placement', bank_balance: null },
+      { asx_code: 'XYZ', date: '2023-02-01', amount: '20000000', price: '2.00', raise_type: null, bank_balance: '10000000' },
+    ];
+    
+    axios.get.mockResolvedValueOnce({ data: dataWithNulls });
+    
+    render(<CapitalRaises />);
+    
+    await waitFor(() => {
+      expect(screen.getByTestId('graph-page')).toBeInTheDocument();
+      expect(screen.getByTestId('metric-card-0')).toHaveTextContent('ASX Code Count: 2');
+    });
+  });
+  
+  test('handles filter removals with no remaining filters correctly', async () => {
+    render(<CapitalRaises />);
+    
+    await waitFor(() => {
+      expect(screen.getByTestId('filter-tag-0')).toHaveTextContent('No Filters Applied');
+    });
+    
+    await act(async () => {
+      fireEvent.change(screen.getByTestId('filter-select-ASX'), { target: { value: 'ABC' } });
+    });
+    
+    fireEvent.click(screen.getByTestId('apply-filters'));
+    
+    await waitFor(() => {
+      expect(screen.queryByText('No Filters Applied')).not.toBeInTheDocument();
+    });
+    
+    await act(async () => {
+      const removeButton = screen.getByTestId('remove-tag-0');
+      fireEvent.click(removeButton);
+    });
+    
+    await waitFor(() => {
+      expect(screen.getByTestId('filter-tag-0')).toHaveTextContent('No Filters Applied');
+    });
+  });
+  
+  test('processes monthly data with specific month grouping', async () => {
+    const monthSortingData = [
+      { asx_code: 'ABC', date: '2023-01-05', amount: '5000000', price: '1.50', raise_type: 'Placement', bank_balance: '1000000' },
+      { asx_code: 'ABC', date: '2023-01-20', amount: '5000000', price: '1.50', raise_type: 'Placement', bank_balance: '1000000' },
+      { asx_code: 'DEF', date: '2023-02-10', amount: '7000000', price: '2.00', raise_type: 'Rights Issue', bank_balance: '2000000' },
+      { asx_code: 'GHI', date: '2023-03-15', amount: '8000000', price: '2.50', raise_type: 'Placement', bank_balance: '3000000' },
+    ];
+    
+    axios.get.mockResolvedValueOnce({ data: monthSortingData });
+    
+    render(<CapitalRaises />);
+    
+    await waitFor(() => {
+      const chart = screen.getByTestId('chart-0');
+      expect(chart).toHaveTextContent('Monthly Amount Raised');
+      
+      expect(screen.getByTestId('metric-card-3')).toHaveTextContent('No of Cap Raises: 4');
+    });
+  });
+  
+  test('handles edge cases in applyClientSideFilters', async () => {
+    const mixedData = [
+      { asx_code: 'ABC', date: '2023-01-01', amount: '10000000', price: '1.50', raise_type: 'Placement', bank_balance: '5000000' },
+      { asx_code: null, date: '2023-02-01', amount: '20000000', price: '2.00', raise_type: 'Rights Issue', bank_balance: '10000000' },
+      { asx_code: 'DEF', date: null, amount: '15000000', price: '1.75', raise_type: 'Placement', bank_balance: null }
+    ];
+    
+    axios.get.mockResolvedValueOnce({ data: mixedData });
+    
+    render(<CapitalRaises />);
+    
+    await waitFor(() => {
+      expect(screen.getByTestId('graph-page')).toBeInTheDocument();
+    });
+    
+    await act(async () => {
+      fireEvent.change(screen.getByTestId('filter-select-ASX'), { target: { value: 'ABC' } });
+    });
+    
+    fireEvent.click(screen.getByTestId('apply-filters'));
+    
+    await act(async () => {
+      const amountSelect = screen.getByTestId('filter-select-Bank Balance');
+      const options = Array.from(amountSelect.options).filter(opt => opt.value !== 'Any');
+      if (options.length > 0) {
+        fireEvent.change(amountSelect, { target: { value: options[0].value } });
+      }
+    });
+    
+    fireEvent.click(screen.getByTestId('apply-filters'));
+  });
+  
+  test('processes invalid date formats correctly', async () => {
+    const invalidDateData = [
+      { asx_code: 'ABC', date: 'not-a-date', amount: '10000000', price: '1.50', raise_type: 'Placement', bank_balance: '5000000' },
+      { asx_code: 'XYZ', date: '2023-02-01', amount: '20000000', price: '2.00', raise_type: 'Rights Issue', bank_balance: '10000000' }
+    ];
+    
+    axios.get.mockResolvedValueOnce({ data: invalidDateData });
+    
+    render(<CapitalRaises />);
+    
+    await waitFor(() => {
+      expect(screen.getByTestId('graph-page')).toBeInTheDocument();
+      expect(screen.getByTestId('chart-0')).toHaveTextContent('Monthly Amount Raised');
+    });
+  });
+  
+  test('handles multiple filter changes before applying', async () => {
+    render(<CapitalRaises />);
+    
+    await waitFor(() => {
+      expect(screen.getByTestId('filter-tag-0')).toHaveTextContent('No Filters Applied');
+    });
+    
+    await act(async () => {
+      fireEvent.change(screen.getByTestId('filter-select-ASX'), { target: { value: 'ABC' } });
+      fireEvent.change(screen.getByTestId('filter-select-Raise Type'), { target: { value: 'Placement' } });
+      
+      const amountSelect = screen.getByTestId('filter-select-Amount');
+      const options = Array.from(amountSelect.options).filter(opt => opt.value !== 'Any');
+      if (options.length > 0) {
+        fireEvent.change(amountSelect, { target: { value: options[0].value } });
+      }
+    });
+    
+    fireEvent.click(screen.getByTestId('apply-filters'));
+    
+    await waitFor(() => {
+      const filterTags = screen.getAllByTestId(/^filter-tag-/);
+      expect(filterTags.length).toBeGreaterThan(1);
+    });
+  });
+
+test('handles Date filter changes correctly', async () => {
+    render(<CapitalRaises />);
+    
+    await waitFor(() => {
+      expect(screen.getByTestId('filter-tag-0')).toHaveTextContent('No Filters Applied');
+    });
+    
+    const dateFilterSelect = screen.getByTestId('filter-select-Date');
+    expect(dateFilterSelect).toBeInTheDocument();
+    
+    const options = Array.from(dateFilterSelect.options);
+    const dateOption = options.find(opt => opt.value !== 'Any');
+    
+    if (dateOption) {
+      await act(async () => {
+        fireEvent.change(dateFilterSelect, { target: { value: dateOption.value } });
+      });
+      
+      fireEvent.click(screen.getByTestId('apply-filters'));
+      
+      await waitFor(() => {
+        const filterTags = screen.getAllByTestId(/^filter-tag-/);
+        const hasDateFilter = Array.from(filterTags).some(tag => 
+          tag.textContent.includes('Date') && tag.textContent.includes(dateOption.value)
+        );
+        expect(hasDateFilter).toBe(true);
+      });
+    } else {
+      expect(dateFilterSelect.options[0].value).toBe('Any');
+    }
+  });
+  
+  test('handles Price filter changes correctly', async () => {
+    render(<CapitalRaises />);
+    
+    await waitFor(() => {
+      expect(screen.getByTestId('filter-tag-0')).toHaveTextContent('No Filters Applied');
+    });
+    
+    const priceFilterSelect = screen.getByTestId('filter-select-Price');
+    expect(priceFilterSelect).toBeInTheDocument();
+    
+    const options = Array.from(priceFilterSelect.options);
+    const priceOption = options.find(opt => opt.value !== 'Any');
+    
+    if (priceOption) {
+      await act(async () => {
+        fireEvent.change(priceFilterSelect, { target: { value: priceOption.value } });
+      });
+      
+      fireEvent.click(screen.getByTestId('apply-filters'));
+      
+      await waitFor(() => {
+        const filterTags = screen.getAllByTestId(/^filter-tag-/);
+        const hasPriceFilter = Array.from(filterTags).some(tag => 
+          tag.textContent.includes('Price')
+        );
+        expect(hasPriceFilter).toBe(true);
+      });
+    } else {
+      expect(priceFilterSelect.options[0].value).toBe('Any');
+    }
+  });
+  
 
 });
